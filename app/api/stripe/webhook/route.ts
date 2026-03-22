@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { UserPlan } from "@prisma/client";
@@ -8,22 +7,33 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
   const body = await req.text();
-  const signature = (await headers()).get("stripe-signature");
+  const signature = req.headers.get("stripe-signature");
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
 
   if (!signature) {
+    console.error("WEBHOOK ERROR: Missing stripe-signature header");
     return new NextResponse("Missing signature", { status: 400 });
+  }
+
+  if (!webhookSecret) {
+    console.error("WEBHOOK ERROR: Missing STRIPE_WEBHOOK_SECRET env var");
+    return new NextResponse("Missing webhook secret", { status: 500 });
   }
 
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err) {
     console.error("WEBHOOK SIGNATURE ERROR:", err);
+    console.error("WEBHOOK DEBUG:", {
+      hasSignature: !!signature,
+      signaturePrefix: signature.slice(0, 20),
+      bodyLength: body.length,
+      webhookSecretLoaded: !!webhookSecret,
+      webhookSecretPrefix: webhookSecret.slice(0, 8),
+      webhookSecretLength: webhookSecret.length,
+    });
     return new NextResponse("Invalid signature", { status: 400 });
   }
 
@@ -66,7 +76,6 @@ export async function POST(req: Request) {
           break;
         }
 
-        // Fetch subscription to get currentPeriodEnd
         let currentPeriodEnd: Date | null = null;
         try {
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
