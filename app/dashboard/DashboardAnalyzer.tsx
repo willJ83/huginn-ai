@@ -26,6 +26,7 @@ type AnalysisResponse = {
 type DashboardAnalyzerProps = {
   hasUnlimitedAccess: boolean;
   initialRemainingAnalyses: number;
+  freeLimit: number;
 };
 
 const REQUEST_TIMEOUT_MS = 45000;
@@ -75,15 +76,18 @@ function getSeverityClass(severity?: string) {
 export default function DashboardAnalyzer({
   hasUnlimitedAccess,
   initialRemainingAnalyses,
+  freeLimit,
 }: DashboardAnalyzerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [remainingAnalyses, setRemainingAnalyses] = useState(initialRemainingAnalyses);
 
+  const usedAnalyses = freeLimit - remainingAnalyses;
   const canAnalyze = hasUnlimitedAccess || remainingAnalyses > 0;
 
   async function extractTextFromFile(file: File) {
@@ -134,6 +138,7 @@ export default function DashboardAnalyzer({
     }
 
     setError("");
+    setWarning("");
     setIsAnalyzing(true);
 
     try {
@@ -143,6 +148,15 @@ export default function DashboardAnalyzer({
         throw new Error("Failed to parse uploaded file.");
       }
 
+      if (text.length < 500) {
+        setWarning("Warning: This document may be scanned or unreadable. Results may be incomplete.");
+      }
+
+      const fileName = file.name;
+      console.log("TEXT BEFORE ANALYZE:", text);
+      console.log("TEXT LENGTH BEFORE ANALYZE:", text?.length);
+      console.log("FILENAME BEFORE ANALYZE:", fileName);
+
       const response = await fetchWithTimeout("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -150,7 +164,7 @@ export default function DashboardAnalyzer({
           text,
           template: "compliance_checker",
           config: {},
-          fileName: file.name,
+          fileName,
         }),
       });
 
@@ -203,6 +217,12 @@ export default function DashboardAnalyzer({
 
         {!hasUnlimitedAccess ? (
           <p className="mt-3 text-sm text-slate-700">
+            {usedAnalyses} / {freeLimit} free analyses used this month
+          </p>
+        ) : null}
+
+        {!hasUnlimitedAccess ? (
+          <p className="mt-1 text-sm text-slate-700">
             You have {remainingAnalyses} {remainingAnalyses === 1 ? "analysis" : "analyses"} remaining this month.
           </p>
         ) : null}
@@ -256,9 +276,16 @@ export default function DashboardAnalyzer({
           className="hidden"
           title="Upload contract document"
           onChange={async (event) => {
-            const file = event.target.files?.[0] ?? null;
-            await handleFile(file);
-            event.currentTarget.value = "";
+            const input = event.currentTarget;
+            const file = input.files?.[0] ?? null;
+
+            if (!file) return;
+
+            try {
+              await handleFile(file);
+            } finally {
+              input.value = "";
+            }
           }}
         />
 
@@ -296,6 +323,12 @@ export default function DashboardAnalyzer({
           </p>
         ) : (
           <div className="mt-4 space-y-5">
+            {warning ? (
+              <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                {warning}
+              </p>
+            ) : null}
+
             <div className="rounded-xl bg-slate-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Risk Score

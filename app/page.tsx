@@ -298,6 +298,10 @@ export default function Page() {
       setError("");
       setResult(null);
 
+      console.log("TEXT BEFORE ANALYZE:", text);
+      console.log("TEXT LENGTH BEFORE ANALYZE:", text?.length);
+      console.log("FILENAME BEFORE ANALYZE:", fileName);
+
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: {

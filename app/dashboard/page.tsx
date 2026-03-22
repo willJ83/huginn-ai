@@ -55,7 +55,9 @@ export default async function DashboardPage() {
         <p className="mt-4 text-sm text-slate-500">
           Current Plan: {planLabel}
         </p>
-        <p className="mt-1 text-sm text-slate-500">{usageLabel}</p>
+        {hasUnlimitedAccess ? (
+          <p className="mt-1 text-sm text-slate-500">{usageLabel}</p>
+        ) : null}
 
         {hasReachedFreeLimit ? (
           <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
@@ -91,6 +93,7 @@ export default async function DashboardPage() {
         <DashboardAnalyzer
           hasUnlimitedAccess={hasUnlimitedAccess}
           initialRemainingAnalyses={remainingFreeAnalyses}
+          freeLimit={PLAN_LIMITS.FREE}
         />
       </div>
     </main>
