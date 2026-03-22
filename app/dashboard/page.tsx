@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import UpgradeButton from "./UpgradeButton";
 import DashboardAnalyzer from "./DashboardAnalyzer";
+import LogoutButton from "./LogoutButton";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -47,10 +48,16 @@ export default async function DashboardPage() {
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 sm:py-16">
       <div className="mx-auto max-w-6xl rounded-2xl bg-white p-5 shadow-sm sm:p-8">
-        <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Dashboard</h1>
-        <p className="mt-1 text-lg text-slate-600">
-          Welcome, {session?.user?.name || "User"}.
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Dashboard</h1>
+            <p className="mt-1 text-lg text-slate-600">
+              Welcome, {session?.user?.name || "User"}.
+            </p>
+          </div>
+
+          <LogoutButton />
+        </div>
 
         <p className="mt-4 text-sm text-slate-500">
           Current Plan: {planLabel}
