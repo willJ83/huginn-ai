@@ -65,15 +65,29 @@ export async function POST(req: Request) {
 
     let customerId = user.stripeCustomerId;
 
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          userId: user.id,
-        },
+    if (customerId) {
+      try {
+        await stripe.customers.retrieve(customerId);
+      } catch (err) {
+        console.warn("Invalid Stripe customer, creating new one...");
+
+        const newCustomer = await stripe.customers.create({
+          email: user.email || undefined,
+        });
+
+        customerId = newCustomer.id;
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { stripeCustomerId: customerId },
+        });
+      }
+    } else {
+      const newCustomer = await stripe.customers.create({
+        email: user.email || undefined,
       });
 
-      customerId = customer.id;
+      customerId = newCustomer.id;
 
       await prisma.user.update({
         where: { id: user.id },
