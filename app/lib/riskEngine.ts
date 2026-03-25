@@ -1,5 +1,6 @@
 import { getAnalyzer } from "./analyzerRegistry";
 import { getProductConfig, ProductTemplate, ProductConfig, Severity } from "./productConfigs";
+import { getTopRelevantChunks } from "./retrieval";
 import "./analyzers/complianceChecker";
 import "./analyzers/deadlineExtractor";
 
@@ -50,12 +51,6 @@ export function runDeterministicExtraction({
   template,
   config = {},
 }: AnalyzeRequest): AnalysisResult | { error: string } {
-  const analyzer = getAnalyzer(template);
-
-  if (analyzer) {
-    return analyzer(text, config);
-  }
-
   const productConfig = getProductConfig(template);
 
   if (!productConfig) {
@@ -64,7 +59,59 @@ export function runDeterministicExtraction({
     };
   }
 
-  return analyzeWithConfig(text, productConfig, config);
+  const analysisText = buildRetrievalContext(text, productConfig, config);
+  const analyzer = getAnalyzer(template);
+
+  if (analyzer) {
+    return analyzer(analysisText, config);
+  }
+
+  return analyzeWithConfig(analysisText, productConfig, config);
+}
+
+function buildRetrievalContext(
+  fullText: string,
+  productConfig: ProductConfig,
+  runtimeConfig: Record<string, any>
+): string {
+  const normalizedFullText = normalizeText(fullText);
+
+  if (!normalizedFullText) {
+    return normalizedFullText;
+  }
+
+  const runtimeQueries = Array.isArray(runtimeConfig.retrievalQueries)
+    ? (runtimeConfig.retrievalQueries as string[])
+    : [];
+  const configQueries = productConfig.retrievalQueries || [];
+  const queries = uniqueStrings([...configQueries, ...runtimeQueries]);
+
+  if (queries.length === 0) {
+    return normalizedFullText;
+  }
+
+  try {
+    const retrievedChunks: string[] = [];
+
+    for (const query of queries) {
+      const topChunks = getTopRelevantChunks(normalizedFullText, query, 4);
+      for (const chunk of topChunks) {
+        retrievedChunks.push(chunk);
+      }
+    }
+
+    const uniqueChunks = uniqueStrings(retrievedChunks);
+    const retrievedContext = uniqueChunks.join("\n\n").trim();
+
+    // Safety fallback: if retrieval is too sparse, analyze full text instead.
+    if (!retrievedContext || retrievedContext.length < 500) {
+      return normalizedFullText;
+    }
+
+    return retrievedContext;
+  } catch {
+    return normalizedFullText;
+  }
 }
 
 function analyzeWithConfig(

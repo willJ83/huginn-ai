@@ -38,6 +38,7 @@ export interface ProductConfig {
   label: string;
   description: string;
   documentTypes: string[];
+  retrievalQueries?: string[];
   requiredKeywords?: string[];
   forbiddenKeywords?: string[];
   requiredClauses?: RequiredClauseConfig[];
@@ -85,6 +86,11 @@ const ANALYZER_REGISTRY: Record<ProductTemplate, ProductConfig> = {
     description:
       "Checks documents for required and forbidden compliance-related language.",
     documentTypes: ["contract", "service_agreement", "vendor_agreement", "policy"],
+    retrievalQueries: [
+      "governing law jurisdiction state law venue dispute applicable law",
+      "termination renewal notice payment liability indemnification breach default",
+      "confidentiality non-disclosure damages limitation liability remedies",
+    ],
     requiredKeywords: [],
     forbiddenKeywords: [],
     requiredClauses: [
@@ -187,6 +193,11 @@ const ANALYZER_REGISTRY: Record<ProductTemplate, ProductConfig> = {
     label: "Deadline Monitor",
     description: "Extracts important dates, timelines, and timing obligations.",
     documentTypes: ["contract", "service_agreement", "invoice", "general"],
+    retrievalQueries: [
+      "deadline due date no later than within days business days",
+      "effective date expiration date term renewal notice period",
+      "payment invoice due net terms",
+    ],
     requiredKeywords: [],
     forbiddenKeywords: [],
     requiredClauses: [],
@@ -241,6 +252,11 @@ const ANALYZER_REGISTRY: Record<ProductTemplate, ProductConfig> = {
       "vendor_agreement",
       "employment_agreement",
       "nda",
+    ],
+    retrievalQueries: [
+      "automatic renewal auto renew renewal term termination notice",
+      "payment fee penalty late payment invoice due interest charges",
+      "service obligations provider shall vendor shall contractor shall",
     ],
     requiredKeywords: [],
     forbiddenKeywords: [],
@@ -327,6 +343,11 @@ const ANALYZER_REGISTRY: Record<ProductTemplate, ProductConfig> = {
     label: "Discrepancy Finder",
     description: "Finds conflicting or suspicious wording in documents.",
     documentTypes: ["contract", "service_agreement", "general"],
+    retrievalQueries: [
+      "conflict contradictory inconsisten termination for cause at any time",
+      "payment terms invoice fees charges due penalties",
+      "liability indemnity warranty disclaimer exclusions",
+    ],
     requiredKeywords: [],
     forbiddenKeywords: [],
     requiredClauses: [],
