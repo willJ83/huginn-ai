@@ -49,19 +49,34 @@ interface AnalysisResult {
   };
 }
 
-const SAMPLE_CONTRACT_TEXT = `SAMPLE SERVICE AGREEMENT
+const SAMPLE_CONTRACT_TEXT = `SERVICE AGREEMENT
 
-This Service Agreement is entered into on March 1, 2026, between Alpha Tech LLC and Beta Ops Inc.
+This Service Agreement is entered into between Alpha Solutions LLC ("Provider") and BrightPath Marketing ("Client").
 
-Term: This Agreement shall begin on March 1, 2026, and renew automatically for successive one-year terms unless either party provides 60 days' written notice of termination.
+1. Services
+Provider agrees to deliver digital marketing services including SEO, content creation, and ad management.
 
-Payment Terms: Client shall pay all invoices within 30 days of receipt.
+2. Payment Terms
+Client agrees to pay $5,000 per month. Payment is due within a reasonable time after invoicing.
 
-Limitation of Liability: Provider's total liability shall not exceed the fees paid under this Agreement in the previous 12 months.
+3. Term
+This agreement begins on January 1, 2026 and continues for 12 months unless terminated earlier.
 
-Confidentiality: Both parties agree to maintain the confidentiality of all non-public information.
+4. Termination
+Either party may terminate this agreement at any time with written notice.
 
-Indemnification: Client agrees to indemnify and hold harmless Provider from third-party claims arising from Client's misuse of the services.
+5. Liability
+Provider is not liable for any damages arising from the use of services.
+
+6. Confidentiality
+Both parties agree to keep sensitive information confidential.
+
+[INTENTIONALLY OMITTED]
+
+7. Governing Law
+
+8. Dispute Resolution
+Any disputes will be handled in a mutually agreed manner.
 `;
 
 function titleCaseRiskLevel(value?: "low" | "medium" | "high") {
@@ -456,6 +471,10 @@ export default function Page() {
             >
               Start Analyzing Contracts
             </Link>
+
+            <p className="self-center text-sm text-gray-600">
+              Try a sample contract with built-in issues
+            </p>
 
             <button
               onClick={loadSampleContract}
