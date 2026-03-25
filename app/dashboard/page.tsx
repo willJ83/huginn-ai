@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getMonthlyUsageCount, hasUnlimitedAnalysisAccess, PLAN_LIMITS } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import UpgradeButton from "./UpgradeButton";
 import DashboardAnalyzer from "./DashboardAnalyzer";
@@ -89,6 +90,15 @@ export default async function DashboardPage() {
               Upgrade to Pro for unlimited analyses and priority processing.
             </p>
           ) : null}
+
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            >
+              Back to Analyzer
+            </Link>
+          </div>
 
           <UpgradeButton
             plan={user?.plan ?? "FREE"}
