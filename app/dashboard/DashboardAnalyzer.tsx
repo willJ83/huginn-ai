@@ -173,6 +173,7 @@ export default function DashboardAnalyzer({
       const response = await fetchWithTimeout("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           text,
           template: "compliance_checker",
@@ -184,6 +185,9 @@ export default function DashboardAnalyzer({
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Please log in to analyze a contract.");
+        }
         throw new Error(data.error || "Analysis failed.");
       }
 

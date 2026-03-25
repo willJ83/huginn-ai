@@ -303,6 +303,7 @@ export default function Page() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           text: trimmed,
           template: selectedTemplate,
@@ -314,6 +315,9 @@ export default function Page() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Please log in to analyze a contract.");
+        }
         throw new Error(data?.error || "Analysis failed.");
       }
 
