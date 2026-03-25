@@ -32,6 +32,36 @@ type DashboardAnalyzerProps = {
 
 const REQUEST_TIMEOUT_MS = 45000;
 
+const SAMPLE_CONTRACT_TEXT = `SERVICE AGREEMENT
+
+This Service Agreement is entered into between Alpha Solutions LLC ("Provider") and BrightPath Marketing ("Client").
+
+1. Services
+Provider agrees to deliver digital marketing services including SEO, content creation, and ad management.
+
+2. Payment Terms
+Client agrees to pay $5,000 per month. Payment is due within a reasonable time after invoicing.
+
+3. Term
+This agreement begins on January 1, 2026 and continues for 12 months unless terminated earlier.
+
+4. Termination
+Either party may terminate this agreement at any time with written notice.
+
+5. Liability
+Provider is not liable for any damages arising from the use of services.
+
+6. Confidentiality
+Both parties agree to keep sensitive information confidential.
+
+[INTENTIONALLY OMITTED]
+
+7. Governing Law
+
+8. Dispute Resolution
+Any disputes will be handled in a mutually agreed manner.
+`;
+
 async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -44,6 +74,12 @@ async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   } finally {
     clearTimeout(timeout);
   }
+}
+
+function createSampleFile() {
+  return new File([SAMPLE_CONTRACT_TEXT], "sample-contract.txt", {
+    type: "text/plain",
+  });
 }
 
 function toUserFacingError(err: unknown) {
@@ -182,14 +218,26 @@ export default function DashboardAnalyzer({
         }),
       });
 
-      const data = await response.json();
+      if (response.status === 401) {
+        setError("Please log in to analyze a contract.");
+        return;
+      }
 
       if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error("Please log in to analyze a contract.");
-        }
-        throw new Error(data.error || "Analysis failed.");
+        let message = "Analysis failed. Please try again.";
+
+        try {
+          const text = await response.text();
+          if (text) {
+            message = text;
+          }
+        } catch {}
+
+        setError(message);
+        return;
       }
+
+      const data = await response.json();
 
       setUploadedFileName(file.name);
       setResult({
@@ -215,6 +263,12 @@ export default function DashboardAnalyzer({
     await runAnalysis(file);
   }
 
+  async function loadDemoContract() {
+    setError("");
+    setWarning("");
+    await runAnalysis(createSampleFile());
+  }
+
   return (
     <section className="mt-8 grid gap-5 lg:mt-10 lg:grid-cols-2 lg:gap-6">
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -226,6 +280,18 @@ export default function DashboardAnalyzer({
         <p className="mt-1 text-sm text-slate-600">
           Your documents are not stored permanently beyond operational retention needs.
         </p>
+
+        <p className="mb-3 mt-4 text-sm text-slate-600">
+          Try a sample contract with built-in issues
+        </p>
+        <button
+          type="button"
+          onClick={loadDemoContract}
+          className="mb-4 inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          disabled={isAnalyzing || !canAnalyze}
+        >
+          Try Sample Contract
+        </button>
 
         {!hasUnlimitedAccess ? (
           <p className="mt-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-800">

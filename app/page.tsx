@@ -312,14 +312,28 @@ export default function Page() {
         }),
       });
 
-      const data = await response.json();
+      if (response.status === 401) {
+        setError("Please log in to analyze a contract.");
+        setResult(null);
+        return;
+      }
 
       if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error("Please log in to analyze a contract.");
-        }
-        throw new Error(data?.error || "Analysis failed.");
+        let message = "Analysis failed. Please try again.";
+
+        try {
+          const text = await response.text();
+          if (text) {
+            message = text;
+          }
+        } catch {}
+
+        setError(message);
+        setResult(null);
+        return;
       }
+
+      const data = await response.json();
 
       const nextResult =
         data &&
