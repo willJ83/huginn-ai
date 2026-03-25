@@ -7,13 +7,17 @@ type ComplianceIssue = {
   label: string;
   severity: RiskLevel;
   message: string;
+  explanation?: string;
   recommendation: string;
   matches: string[];
 };
 
 function pushIssueOnce(issues: ComplianceIssue[], issue: ComplianceIssue) {
   if (issues.some((existing) => existing.id === issue.id)) return;
-  issues.push(issue);
+  issues.push({
+    ...issue,
+    explanation: issue.explanation || issue.message,
+  });
 }
 
 function collectRegexMatches(text: string, patterns: RegExp[]): string[] {
@@ -106,6 +110,8 @@ function runComplianceChecker(text: string, config: Record<string, any> = {}) {
       severity: "high",
       message:
         "A governing law heading appears present, but the clause content is missing, placeholder-based, or undefined.",
+      explanation:
+        "This contract does not clearly define which jurisdiction governs disputes, which can lead to costly legal uncertainty.",
       recommendation:
         "Specify a clear governing law jurisdiction instead of placeholders or omitted text.",
       matches: collectRegexMatches(text, [
@@ -121,6 +127,8 @@ function runComplianceChecker(text: string, config: Record<string, any> = {}) {
       severity: "medium",
       message:
         'The document does not appear to include a "governing law" provision.',
+      explanation:
+        "This contract does not specify which state or country governs disputes. This can create legal uncertainty if a conflict occurs.",
       recommendation: "Consider adding a governing law clause.",
       matches: [],
     });

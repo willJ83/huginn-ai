@@ -95,6 +95,14 @@ export async function POST(req: Request) {
       });
     }
 
+    if (user.stripeSubId && user.subscriptionStatus === "ACTIVE") {
+      const portalSession = await stripe.billingPortal.sessions.create({
+        customer: customerId!,
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+      });
+      return NextResponse.json({ url: portalSession.url });
+    }
+
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId,

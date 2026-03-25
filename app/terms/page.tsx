@@ -17,7 +17,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-semibold text-slate-900">Service Description</h2>
             <p className="mt-3">
-              Huginn AI is a contract intelligence platform developed by Odens Eye
+              Huginn AI is a deterministic contract analysis platform developed by Odens Eye
               Creative. It provides automated analysis tools intended to assist users in
               reviewing documents and extracting useful information.
             </p>

@@ -12,6 +12,7 @@ export interface RequiredClauseConfig {
   severity: Severity;
   keywords: string[];
   message: string;
+  explanation?: string;
   recommendation: string;
 }
 
@@ -22,6 +23,7 @@ export interface ConfiguredIssue {
   keywords?: string[];
   regexes?: RegExp[];
   message: string;
+  explanation?: string;
   recommendation: string;
 }
 
@@ -110,6 +112,8 @@ const ANALYZER_REGISTRY: Record<ProductTemplate, ProductConfig> = {
         severity: "medium",
         keywords: ["governing law", "laws of", "jurisdiction", "venue"],
         message: "No governing law clause was detected.",
+        explanation:
+          "This contract does not specify which state or country governs disputes, which can create legal uncertainty during conflicts.",
         recommendation:
           "Add governing law and jurisdiction language so disputes have a clear legal framework.",
       },

@@ -6,6 +6,7 @@ type AnalysisIssue = {
   id?: string;
   label?: string;
   message?: string;
+  explanation?: string;
   recommendation?: string;
   severity?: string;
 };
@@ -68,9 +69,9 @@ function toUserFacingError(err: unknown) {
 }
 
 function getSeverityClass(severity?: string) {
-  if (severity === "high") return "bg-rose-100 text-rose-700";
-  if (severity === "medium") return "bg-amber-100 text-amber-700";
-  return "bg-emerald-100 text-emerald-700";
+  if (severity === "high") return "bg-red-50 text-red-600";
+  if (severity === "medium") return "bg-yellow-50 text-yellow-600";
+  return "bg-green-50 text-green-600";
 }
 
 export default function DashboardAnalyzer({
@@ -84,6 +85,9 @@ export default function DashboardAnalyzer({
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
   const [uploadedFileName, setUploadedFileName] = useState("");
+  const [processedFileType, setProcessedFileType] = useState("");
+  const [extractionStatus, setExtractionStatus] = useState<"Full" | "Partial" | "">("");
+  const [resultTimestamp, setResultTimestamp] = useState("");
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [remainingAnalyses, setRemainingAnalyses] = useState(initialRemainingAnalyses);
 
@@ -143,19 +147,28 @@ export default function DashboardAnalyzer({
 
     try {
       const text = await extractTextFromFile(file);
+      const lowerName = file.name.toLowerCase();
+
+      if (lowerName.endsWith(".pdf")) {
+        setProcessedFileType("PDF");
+      } else if (lowerName.endsWith(".docx")) {
+        setProcessedFileType("DOCX");
+      } else {
+        setProcessedFileType("TXT");
+      }
 
       if (!text.trim()) {
         throw new Error("Failed to parse uploaded file.");
       }
 
       if (text.length < 500) {
-        setWarning("Warning: This document may be scanned or unreadable. Results may be incomplete.");
+        setWarning("Warning:\nWe could not fully extract text from this file.\nResults may be incomplete.");
+        setExtractionStatus("Partial");
+      } else {
+        setExtractionStatus("Full");
       }
 
       const fileName = file.name;
-      console.log("TEXT BEFORE ANALYZE:", text);
-      console.log("TEXT LENGTH BEFORE ANALYZE:", text?.length);
-      console.log("FILENAME BEFORE ANALYZE:", fileName);
 
       const response = await fetchWithTimeout("/api/analyze", {
         method: "POST",
@@ -181,6 +194,7 @@ export default function DashboardAnalyzer({
         issues: Array.isArray(data.issues) ? data.issues : [],
         deadlines: Array.isArray(data.deadlines) ? data.deadlines : [],
       });
+      setResultTimestamp(new Date().toLocaleString());
 
       if (!hasUnlimitedAccess) {
         setRemainingAnalyses((previous) => Math.max(0, previous - 1));
@@ -250,10 +264,10 @@ export default function DashboardAnalyzer({
         >
           <p className="text-base font-semibold text-slate-900">
             {isAnalyzing
-              ? "Analyzing..."
+              ? "Analyzing contract..."
               : !canAnalyze
               ? "Upload disabled: monthly limit reached"
-              : "Upload & Analyze"}
+              : "Analyze Contract"}
           </p>
           <p className="mt-2 text-sm text-slate-600">
             {isAnalyzing
@@ -314,19 +328,34 @@ export default function DashboardAnalyzer({
 
         {isAnalyzing ? (
           <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-6">
-            <p className="text-base font-semibold text-blue-900">Analyzing your document...</p>
+            <p className="text-base font-semibold text-blue-900">Analyzing contract...</p>
             <p className="mt-1 text-sm text-blue-800">This usually takes a few seconds.</p>
           </div>
         ) : !result ? (
-          <p className="mt-3 text-sm text-slate-600">
-            Upload a document to see Risk Score, Summary, Issues, and Deadlines.
-          </p>
+          <div className="mt-3 space-y-2 text-sm text-slate-600">
+            <p>Upload a contract to begin analysis.</p>
+            <p>
+              Supported files:<br />
+              PDF, DOCX, TXT
+            </p>
+          </div>
         ) : (
           <div className="mt-4 space-y-5">
             {warning ? (
-              <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 whitespace-pre-line text-sm text-amber-800">
                 {warning}
               </p>
+            ) : null}
+
+            {processedFileType && extractionStatus ? (
+              <p className="text-sm text-slate-600">
+                File processed: {processedFileType}<br />
+                Text extraction: {extractionStatus}
+              </p>
+            ) : null}
+
+            {resultTimestamp ? (
+              <p className="text-sm text-slate-600">Analyzed at: {resultTimestamp}</p>
             ) : null}
 
             <div className="rounded-xl bg-slate-50 p-4">
@@ -341,7 +370,7 @@ export default function DashboardAnalyzer({
 
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Summary</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">
                 {result.summary || "No summary available."}
               </p>
             </div>
@@ -361,6 +390,10 @@ export default function DashboardAnalyzer({
                         </span>
                       </div>
                       <p className="mt-2 break-words text-sm text-slate-700">{issue.message || "No details provided."}</p>
+                      <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">What this means</p>
+                      <p className="mt-1 break-words text-sm text-slate-600">
+                        {issue.explanation || issue.message || "No explanation provided."}
+                      </p>
                     </div>
                   ))
                 )}

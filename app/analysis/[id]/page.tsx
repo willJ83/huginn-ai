@@ -7,11 +7,11 @@ type RiskLevel = "low" | "medium" | "high";
 function riskBadge(level: RiskLevel) {
   switch (level) {
     case "low":
-      return "bg-emerald-100 text-emerald-700";
+      return "bg-green-50 text-green-600";
     case "medium":
-      return "bg-amber-100 text-amber-700";
+      return "bg-yellow-50 text-yellow-600";
     case "high":
-      return "bg-rose-100 text-rose-700";
+      return "bg-red-50 text-red-600";
   }
 }
 
@@ -64,7 +64,7 @@ export default async function AnalysisPage({
 
           <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-bold text-slate-900">Summary</h2>
-            <p className="mt-3 text-slate-700">{report.summary}</p>
+            <p className="mt-3 whitespace-pre-line text-slate-700">{report.summary}</p>
           </section>
 
           <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -89,6 +89,14 @@ export default async function AnalysisPage({
                     </div>
 
                     <p className="mt-2 text-sm text-slate-700">{issue.message}</p>
+
+                    <p className="mt-2 text-sm font-medium text-slate-900">
+                      What this means:
+                    </p>
+
+                    <p className="text-sm text-slate-600">
+                      {issue.explanation || issue.message}
+                    </p>
 
                     <p className="mt-2 text-sm font-medium text-slate-900">
                       Recommendation:

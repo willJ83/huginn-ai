@@ -14,6 +14,7 @@ export interface DetectedIssue {
   label: string;
   severity: Severity;
   message: string;
+  explanation?: string;
   recommendation: string;
   matches?: string[];
 }
@@ -125,6 +126,8 @@ function analyzeWithConfig(
     label: "Forbidden Keyword Detected",
     severity: "high" as Severity,
     message: `Forbidden keyword detected: "${keyword}".`,
+    explanation:
+      "This language appears on your forbidden list and may introduce legal or compliance risk if it remains in the contract.",
     recommendation:
       "Remove, rewrite, or escalate this language before relying on the document.",
     matches: extractClauseMatchesForKeyword(normalizedText, keyword),
@@ -135,6 +138,8 @@ function analyzeWithConfig(
     label: "Missing Required Keyword",
     severity: "medium" as Severity,
     message: `The required term "${keyword}" was not detected in this document.`,
+    explanation:
+      "A required legal or policy term is missing, which can leave obligations or protections unclear.",
     recommendation:
       "Review whether this document should explicitly include this required language.",
     matches: [],
@@ -169,7 +174,6 @@ function analyzeWithConfig(
   );
   const summary = buildSummary({
     issues,
-    deadlines,
     riskLevel,
     riskScore,
   });
@@ -235,6 +239,7 @@ function detectMissingRequiredClauses(
         label: `Missing ${clause.label}`,
         severity: clause.severity,
         message: clause.message,
+        explanation: clause.explanation || clause.message,
         recommendation: clause.recommendation,
         matches: [],
       },
@@ -270,6 +275,7 @@ function detectConfiguredIssues(
         label: issue.label,
         severity: issue.severity,
         message: issue.message,
+        explanation: issue.explanation || issue.message,
         recommendation: issue.recommendation,
         matches: combinedMatches,
       },
@@ -553,45 +559,34 @@ function inferDocumentType(
 
 function buildSummary({
   issues,
-  deadlines,
   riskLevel,
   riskScore,
 }: {
   issues: DetectedIssue[];
-  deadlines: DetectedDeadline[];
   riskLevel: "low" | "medium" | "high";
   riskScore: number;
 }): string {
-  if (issues.length === 0 && deadlines.length === 0) {
-    return `No issues detected. Overall ${riskLevel} risk (${riskScore}/100).`;
-  }
+  const highIssues = issues.filter((issue) => issue.severity === "high");
+  const mediumIssues = issues.filter((issue) => issue.severity === "medium");
+  const lowIssues = issues.filter((issue) => issue.severity === "low");
 
-  const highCount = issues.filter((issue) => issue.severity === "high").length;
-  const mediumCount = issues.filter(
-    (issue) => issue.severity === "medium"
-  ).length;
-  const lowCount = issues.filter((issue) => issue.severity === "low").length;
+  const orderedIssues = [...highIssues, ...mediumIssues, ...lowIssues];
 
-  const issueParts: string[] = [];
+  const issueSummaryLine =
+    issues.length === 1 ? "1 issue detected:" : `${issues.length} issues detected:`;
 
-  if (highCount > 0) issueParts.push(`${highCount} high`);
-  if (mediumCount > 0) issueParts.push(`${mediumCount} medium`);
-  if (lowCount > 0) issueParts.push(`${lowCount} low`);
+  const issueLines = orderedIssues.map(
+    (issue) => `- ${issue.label} (${issue.severity.toUpperCase()})`
+  );
 
-  const issueBreakdown =
-    issueParts.length > 0 ? ` (${issueParts.join(", ")})` : "";
-
-  const issueSentence =
-    issues.length === 0
-      ? "No issues detected."
-      : `${issues.length} issue${issues.length === 1 ? "" : "s"} detected${issueBreakdown}.`;
-
-  const deadlineSentence =
-    deadlines.length === 0
-      ? "No deadlines extracted."
-      : `${deadlines.length} deadline${deadlines.length === 1 ? "" : "s"} extracted.`;
-
-  return `${issueSentence} ${deadlineSentence} Overall ${riskLevel} risk (${riskScore}/100).`;
+  return [
+    `Risk Level: ${riskLevel.toUpperCase()}`,
+    `Risk Score: ${riskScore}/100`,
+    "",
+    "Summary:",
+    issueSummaryLine,
+    ...issueLines,
+  ].join("\n");
 }
 
 function dedupeIssues(issues: DetectedIssue[]): DetectedIssue[] {
