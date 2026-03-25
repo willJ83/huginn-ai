@@ -8,7 +8,7 @@ export async function POST(req: Request) {
 
     if (!email || typeof email !== "string") {
       return NextResponse.json(
-        { error: "Email is required" },
+        { error: "Please enter your email address." },
         { status: 400 }
       );
     }
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     // Always return success-looking response to avoid email enumeration
     if (!user) {
       return NextResponse.json({
-        message: "If an account exists for that email, a reset link has been generated.",
+        message: "If an account exists for that email, we'll send a reset link shortly.",
       });
     }
 
@@ -51,12 +51,12 @@ export async function POST(req: Request) {
     console.log("PASSWORD RESET URL:", resetUrl);
 
     return NextResponse.json({
-      message: "If an account exists for that email, a reset link has been generated.",
+      message: "If an account exists for that email, we'll send a reset link shortly.",
     });
   } catch (error) {
     console.error("FORGOT PASSWORD ERROR:", error);
     return NextResponse.json(
-      { error: "Something went wrong" },
+      { error: "We couldn't process that request right now. Please try again." },
       { status: 500 }
     );
   }

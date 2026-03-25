@@ -14,7 +14,7 @@ export default function ForgotPasswordPage() {
     setMessage("");
 
     if (!email || typeof email !== "string") {
-      setError("Email is required.");
+      setError("Please enter your email so we can send a reset link.");
       return;
     }
 
@@ -34,17 +34,17 @@ export default function ForgotPasswordPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Unable to process request.");
+        setError(data.error || "We couldn't start the reset process right now. Please try again.");
         return;
       }
 
       setMessage(
         data.message ||
-          "If an account exists for that email, a reset link has been generated."
+          "If an account exists for that email, we'll send a reset link shortly."
       );
       setEmail("");
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError("We hit a snag while sending your reset link. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -53,9 +53,9 @@ export default function ForgotPasswordPage() {
   return (
     <main className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold text-slate-900">Forgot Password</h1>
+        <h1 className="text-2xl font-semibold text-slate-900">Forgot your password?</h1>
         <p className="mt-2 text-sm text-slate-600">
-          Enter your email and we will generate a reset link.
+          Enter your email and we'll send instructions to get you back in.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
-              placeholder="you@example.com"
+              placeholder="name@company.com"
             />
           </div>
 

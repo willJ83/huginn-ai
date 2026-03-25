@@ -26,23 +26,23 @@ export default function SignupPage() {
     const data = await res.json();
 
     if (!res.ok) {
-      setError(data.error || "Failed to create account.");
+      setError(data.error || "Account creation didn't go through. Try again.");
       return;
     }
 
-    router.push("/login?success=true");
+    router.push("/login?created=1");
   }
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-16">
       <div className="mx-auto max-w-md rounded-2xl bg-white p-8 shadow-sm">
         <h1 className="text-3xl font-bold text-slate-900">Create your account</h1>
-        <p className="mt-2 text-sm text-slate-600">Start using Huginn AI.</p>
+        <p className="mt-2 text-sm text-slate-600">Create your account and start analyzing with confidence.</p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <input
             type="text"
-            placeholder="Name"
+            placeholder="Full name"
             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -50,7 +50,7 @@ export default function SignupPage() {
 
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Email address"
             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -58,7 +58,7 @@ export default function SignupPage() {
 
           <input
             type="password"
-            placeholder="Password"
+            placeholder="Create a password"
             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

@@ -20,17 +20,17 @@ function ResetPasswordForm() {
     setMessage("");
 
     if (!token) {
-      setError("Invalid or missing reset token.");
+      setError("This reset link is missing or invalid. Please request a new one.");
       return;
     }
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      setError("Use at least 8 characters for your new password.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Those passwords do not match yet. Please check and try again.");
       return;
     }
 
@@ -51,11 +51,11 @@ function ResetPasswordForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Unable to reset password.");
+        setError(data.error || "We couldn't reset your password right now. Please try again.");
         return;
       }
 
-      setMessage("Password reset successful. Redirecting to login...");
+      setMessage("Your password has been updated. Redirecting you to login...");
       setPassword("");
       setConfirmPassword("");
 
@@ -63,7 +63,7 @@ function ResetPasswordForm() {
         router.push("/login");
       }, 1500);
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError("We hit a snag while resetting your password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ function ResetPasswordForm() {
           Reset Password
         </h1>
         <p className="mt-2 text-sm text-slate-600">
-          Enter your new password below.
+          Choose a new password to secure your account.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -89,7 +89,7 @@ function ResetPasswordForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
-              placeholder="Enter new password"
+              placeholder="Create a new password"
             />
           </div>
 
@@ -102,7 +102,7 @@ function ResetPasswordForm() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
-              placeholder="Confirm new password"
+              placeholder="Re-enter your new password"
             />
           </div>
 
@@ -124,7 +124,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="p-6">Loading...</div>}>
+    <Suspense fallback={<div className="p-6">Loading reset form...</div>}>
       <ResetPasswordForm />
     </Suspense>
   );

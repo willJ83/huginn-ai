@@ -8,14 +8,14 @@ export async function POST(req: Request) {
 
     if (!token || typeof token !== "string") {
       return NextResponse.json(
-        { error: "Invalid reset token" },
+        { error: "This reset link is invalid or has expired." },
         { status: 400 }
       );
     }
 
     if (!password || typeof password !== "string" || password.length < 8) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
+        { error: "Use at least 8 characters for your new password." },
         { status: 400 }
       );
     }
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     if (!resetToken) {
       return NextResponse.json(
-        { error: "Reset token is invalid or expired" },
+        { error: "This reset link is invalid or has expired." },
         { status: 400 }
       );
     }
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       });
 
       return NextResponse.json(
-        { error: "Reset token is invalid or expired" },
+        { error: "This reset link is invalid or has expired." },
         { status: 400 }
       );
     }
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       });
 
       return NextResponse.json(
-        { error: "User no longer exists" },
+        { error: "We couldn't find an active account for this reset link." },
         { status: 400 }
       );
     }
@@ -71,12 +71,12 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({
-      message: "Password reset successful",
+      message: "Your password has been reset successfully.",
     });
   } catch (error) {
     console.error("RESET PASSWORD ERROR:", error);
     return NextResponse.json(
-      { error: "Something went wrong" },
+      { error: "We couldn't reset your password right now. Please try again." },
       { status: 500 }
     );
   }

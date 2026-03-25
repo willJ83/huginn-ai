@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: "Email and password are required." },
+        { error: "Enter an email and password." },
         { status: 400 }
       );
     }
@@ -23,7 +23,10 @@ export async function POST(req: Request) {
     });
 
     if (existingUser) {
-      return NextResponse.json({ error: "User already exists." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Account already exists. Log in instead." },
+        { status: 400 }
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -39,7 +42,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true }, { status: 201 });
   } catch {
     return NextResponse.json(
-      { error: "Something went wrong." },
+      { error: "Account creation didn't go through. Try again." },
       { status: 500 }
     );
   }
