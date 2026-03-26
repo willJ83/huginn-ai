@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import UpgradeButton from "./UpgradeButton";
 import DashboardAnalyzer from "./DashboardAnalyzer";
 import LogoutButton from "./LogoutButton";
+import AppHeader from "@/app/components/AppHeader";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -54,6 +55,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 sm:py-16">
+      <AppHeader />
       <div className="mx-auto max-w-6xl rounded-2xl bg-white p-5 shadow-sm sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
