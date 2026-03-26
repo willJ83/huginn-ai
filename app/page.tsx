@@ -647,39 +647,16 @@ export default function Page() {
         <section id="analyzer" className="mt-24">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-semibold text-gray-900">
-              Start analyzing contracts with Huginn AI today
+              Try It Now — No Account Needed
             </h2>
 
             <p className="mt-3 text-gray-600">
-              Identify risks, detect missing protections, and extract obligations in seconds.
+              Upload a contract or paste text and see your risk report in seconds.
             </p>
           </div>
 
           <div className="mainGrid">
           <section className="card leftCard">
-            <label className="fieldLabel" htmlFor="template">
-              Analysis Template
-            </label>
-
-            <select
-              id="template"
-              className="selectInput"
-              value={template}
-              onChange={(e) =>
-                handleTemplateChange(e.target.value as ProductTemplate)
-              }
-            >
-              {productConfigs.map((config: ProductConfig) => (
-                <option key={config.id} value={config.id}>
-                  {config.label}
-                </option>
-              ))}
-            </select>
-
-            <p className="templateDescription">
-              {templateMeta?.description || "Choose an analyzer to review the document."}
-            </p>
-
             <div className="uploadPanel">
               <button
                 type="button"
@@ -691,7 +668,7 @@ export default function Page() {
                   ? "Extracting text..."
                   : isAnalyzing
                     ? "Analyzing contract..."
-                    : "Analyze Contract"}
+                    : "Analyze My Contract"}
               </button>
 
               <p className="uploadSubtitle">
