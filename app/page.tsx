@@ -470,7 +470,7 @@ export default function Page() {
       <main className="pageShell">
         <section className="w-full py-28 px-6 text-center bg-gradient-to-b from-white to-gray-100">
           <h1 className="text-4xl font-bold mb-6">
-            Huginn AI — Structured Contract Review
+            Know What You're Signing Before You Sign It
           </h1>
 
           <p className="text-sm tracking-widest text-blue-600 mb-4">
@@ -478,8 +478,7 @@ export default function Page() {
           </p>
 
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            Identify risky clauses, detect missing protections, extract deadlines,
-            and generate remediation recommendations in minutes.
+            Huginn AI reads your contracts and flags what could hurt your business — in plain English, in seconds. No lawyer needed.
           </p>
 
           <div className="flex justify-center gap-4">
@@ -502,9 +501,6 @@ export default function Page() {
             </button>
           </div>
 
-          <p className="text-center text-gray-600 mt-6">
-            Account required for full access — create an account to analyze contracts, manage your dashboard, and access subscription features.
-          </p>
         </section>
 
         <section className="py-16 px-6 bg-gray-50">
@@ -525,7 +521,7 @@ export default function Page() {
               <div className="text-3xl font-bold text-blue-600 mb-4">2</div>
               <h3 className="font-semibold mb-2">Analyze Risk</h3>
               <p className="text-gray-600">
-                Deterministic analysis reviews contract text to detect risks, compliance gaps, and obligations.
+                Huginn reads every clause and flags what could cost you — risky terms, missing protections, hidden deadlines.
               </p>
             </div>
 
@@ -570,35 +566,35 @@ export default function Page() {
 
         <section id="features" className="py-16 px-6 bg-gray-50">
           <h2 className="text-2xl font-bold text-center mb-12">
-            Why Businesses Use Huginn AI
+            Stop Signing Contracts Blind
           </h2>
 
           <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto text-center">
             <div>
-              <h3 className="font-semibold mb-2">Identify Risky Clauses</h3>
+              <h3 className="font-semibold mb-2">Catch the Clauses That Cost You</h3>
               <p className="text-gray-600">
-                Instantly detect clauses that expose your business to legal or financial risk.
+                Auto-renewals, uncapped liability, one-sided termination — Huginn finds the terms most people miss until it's too late.
               </p>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2">Detect Missing Protections</h3>
+              <h3 className="font-semibold mb-2">Know What's Missing</h3>
               <p className="text-gray-600">
-                Find missing legal protections like liability caps and indemnification.
+                Missing liability caps, no dispute process, undefined jurisdiction — gaps in a contract can hurt as much as bad clauses.
               </p>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2">Extract Deadlines</h3>
+              <h3 className="font-semibold mb-2">Never Miss a Deadline</h3>
               <p className="text-gray-600">
-                Automatically detect renewal dates, notice periods, and obligations.
+                Renewal windows, notice periods, obligation dates — pulled out automatically so nothing sneaks up on you.
               </p>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2">Generate Recommendations</h3>
+              <h3 className="font-semibold mb-2">Know What to Do Next</h3>
               <p className="text-gray-600">
-                Get practical remediation guidance to reduce contract risk.
+                Every flagged issue comes with a plain-English recommendation so you know exactly what to ask for before you sign.
               </p>
             </div>
           </div>
@@ -607,24 +603,48 @@ export default function Page() {
         <section id="pricing" className="py-20 px-6 text-center">
           <h2 className="text-2xl font-bold mb-10">Simple Pricing</h2>
 
-          <div className="max-w-md mx-auto border rounded-xl p-8 shadow-sm">
-            <h3 className="text-xl font-semibold mb-2">Pro</h3>
-            <p className="text-3xl font-bold mb-6">$29<span className="text-lg">/month</span></p>
+          <div className="flex flex-col md:flex-row gap-6 max-w-3xl mx-auto justify-center items-stretch">
+            <div className="flex-1 border rounded-xl p-8 shadow-sm">
+              <h3 className="text-xl font-semibold mb-2">Free</h3>
+              <p className="text-3xl font-bold mb-6">$0<span className="text-lg">/month</span></p>
 
-            <ul className="text-gray-600 mb-8 space-y-2">
-              <li>Unlimited contract analyses</li>
-              <li>Risk scoring with High / Medium / Low severity</li>
-              <li>Clause-level recommendations</li>
-              <li>Multi-file upload support</li>
-              <li>Priority support</li>
-            </ul>
+              <ul className="text-gray-600 mb-8 space-y-2 text-left">
+                <li>3 contract analyses per month</li>
+                <li>Risk scoring and issue flagging</li>
+                <li>Plain-English explanations</li>
+                <li>No credit card required</li>
+              </ul>
 
-            <a
-              href="/dashboard"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-            >
-              Get Started
-            </a>
+              <a
+                href="/signup"
+                className="block w-full border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50"
+              >
+                Get Started Free
+              </a>
+            </div>
+
+            <div className="flex-1 border rounded-xl p-8 shadow-sm relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                Most Popular
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Pro</h3>
+              <p className="text-3xl font-bold mb-6">$29<span className="text-lg">/month</span></p>
+
+              <ul className="text-gray-600 mb-8 space-y-2 text-left">
+                <li>Unlimited contract analyses</li>
+                <li>Risk scoring with High / Medium / Low severity</li>
+                <li>Clause-level recommendations</li>
+                <li>Multi-file upload support</li>
+                <li>Priority support</li>
+              </ul>
+
+              <a
+                href="/dashboard"
+                className="block w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+              >
+                Get Started
+              </a>
+            </div>
           </div>
         </section>
 
