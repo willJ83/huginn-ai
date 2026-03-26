@@ -503,7 +503,7 @@ export default function Page() {
           <ul className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-gray-400">
             <li>🔒 Your contracts are never stored</li>
             <li>⚡ Results in seconds</li>
-            <li>🏢 Built by Odens Eye Creative LLC — Palm Bay, FL</li>
+            <li>🏢 Built by Odens Eye Creative LLC — Melbourne, FL</li>
             <li>✓ No legal expertise required</li>
           </ul>
         </section>
