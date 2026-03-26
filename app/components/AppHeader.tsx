@@ -9,7 +9,8 @@ export default function AppHeader() {
           href="/"
           className="inline-flex items-center"
         >
-          <img src="/huginn-logo.png" alt="Huginn AI" className="h-8 w-auto" />
+          <img src="/huginn-logo.png" alt="Huginn AI" className="h-10 w-auto rounded-lg" />
+          <span className="ml-2 text-lg font-bold text-slate-900">Huginn AI</span>
         </Link>
 
         <nav className="flex items-center gap-3">
