@@ -17,7 +17,7 @@ export default function UpgradeButton({
     <div>
       <a
         href="/api/stripe/portal"
-        className="inline-block rounded-2xl bg-black px-8 py-5 text-2xl font-bold text-white hover:opacity-90"
+        className="inline-block rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"
       >
         Manage Subscription
       </a>
@@ -25,7 +25,7 @@ export default function UpgradeButton({
   ) : (
     <a
       href="/pricing"
-      className="inline-block rounded-2xl bg-blue-600 px-8 py-5 text-2xl font-bold text-white hover:bg-blue-700"
+      className="inline-block rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
     >
       Upgrade to Pro
     </a>

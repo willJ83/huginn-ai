@@ -1,6 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import AppHeader from "@/app/components/AppHeader";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 type RiskLevel = "low" | "medium" | "high";
 
@@ -20,6 +22,12 @@ export default async function AnalysisPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
   const { id } = await params;
 
   const report = await prisma.analysis.findUnique({
@@ -42,6 +50,13 @@ export default async function AnalysisPage({
             <h1 className="text-3xl font-bold text-slate-900">
               Contract Analysis Report
             </h1>
+
+            <Link
+              href="/dashboard"
+              className="mt-4 inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            >
+              Back to Dashboard
+            </Link>
 
             <p className="mt-2 text-slate-600">
               {report.fileName || "Untitled Document"}
@@ -90,13 +105,14 @@ export default async function AnalysisPage({
 
                     <p className="mt-2 text-sm text-slate-700">{issue.message}</p>
 
-                    <p className="mt-2 text-sm font-medium text-slate-900">
-                      What this means:
-                    </p>
-
-                    <p className="text-sm text-slate-600">
-                      {issue.explanation || issue.message}
-                    </p>
+                    {issue.explanation && issue.explanation !== issue.message && (
+                      <>
+                        <p className="mt-2 text-sm font-medium text-slate-900">
+                          What this means:
+                        </p>
+                        <p className="text-sm text-slate-600">{issue.explanation}</p>
+                      </>
+                    )}
 
                     <p className="mt-2 text-sm font-medium text-slate-900">
                       Recommendation:
