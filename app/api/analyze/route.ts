@@ -1,9 +1,36 @@
 import { NextResponse } from "next/server";
+import OpenAI from "openai";
 import { runDeterministicExtraction } from "../../lib/riskEngine";
+import { buildAnalysisPrompt } from "../../lib/promptBuilder";
 import type { ProductTemplate } from "../../lib/productConfigs";
 import { auth } from "@/lib/auth";
 import { canUseFeature, recordUsage } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+async function generateAISummary(
+  template: ProductTemplate,
+  deterministicResult: any
+): Promise<string | null> {
+  try {
+    const prompt = buildAnalysisPrompt(template, deterministicResult);
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 300,
+      temperature: 0.4,
+    });
+
+    const text = response.choices[0]?.message?.content ?? "";
+    const match = text.match(
+      /Summary:\s*([\s\S]*?)(?:Explanation:|Recommended Action:|$)/i
+    );
+    return match?.[1]?.trim() || null;
+  } catch {
+    return null;
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -40,9 +67,11 @@ export async function POST(req: Request) {
       );
     }
 
+    const activeTemplate = (template as ProductTemplate) ?? "compliance_checker";
+
     const result = runDeterministicExtraction({
       text,
-      template: (template as ProductTemplate) ?? "compliance_checker",
+      template: activeTemplate,
       config: config ?? {},
     });
 
@@ -53,6 +82,9 @@ export async function POST(req: Request) {
       );
     }
 
+    const aiSummary = await generateAISummary(activeTemplate, result);
+    const summary = aiSummary ?? result.summary ?? "";
+
     // Record usage only after successful analysis generation.
     await recordUsage(session.user.id, "huginn_analysis");
 
@@ -60,14 +92,14 @@ export async function POST(req: Request) {
       data: {
         userId: session.user.id,
         fileName: fileName ?? null,
-        template: (template as ProductTemplate) ?? "compliance_checker",
+        template: activeTemplate,
         product: result.product,
         label: result.label,
         description: result.description,
         documentType: result.documentType,
         riskScore: result.riskScore,
         riskLevel: result.riskLevel,
-        summary: result.summary ?? "",
+        summary,
         matchedKeywords: result.matchedKeywords as any,
         missingRequiredKeywords: result.missingRequiredKeywords as any,
         forbiddenKeywordHits: result.forbiddenKeywordHits as any,
@@ -80,7 +112,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       id: saved.id,
       riskScore: result.riskScore ?? 0,
-      summary: result.summary ?? "No summary available.",
+      summary,
       issues: result.issues ?? [],
       deadlines: result.deadlines ?? [],
       riskLevel: result.riskLevel,

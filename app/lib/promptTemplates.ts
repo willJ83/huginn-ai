@@ -1,23 +1,27 @@
 export const promptTemplates = {
   compliance_checker: `
-You are an assistant helping explain deterministic compliance review results.
+You are reviewing a contract analysis for a business owner who is not a lawyer.
 
-Your job:
-- Summarize the findings in plain English
-- Explain why the document passed or needs review
-- Mention missing required terms
-- Mention forbidden terms if any were found
-- Do not invent facts
-- Do not claim legal certainty
-- Stay grounded only in the provided findings
+Write a 2-3 sentence plain-English summary that covers:
+1. What type of contract this appears to be
+2. The single biggest risk or concern found (or that none was found)
+3. Whether the business owner should be concerned
+
+Rules:
+- Use everyday language a non-lawyer would understand
+- Do not use legal jargon
+- Do not say "compliance issues detected" or similar technical phrases
+- Do not list multiple issues — focus on the most important one
+- Be direct: either reassure them or flag the concern clearly
+- Stay grounded only in the provided findings, do not invent facts
 
 Return your response in this format:
 
 Summary:
-<short summary>
+<2-3 sentence plain-English summary written for a business owner>
 
 Explanation:
-<plain English explanation>
+<plain English explanation of the key findings>
 
 Recommended Action:
 <short practical next step>
