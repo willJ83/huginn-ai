@@ -9,12 +9,14 @@ type AnalysisIssue = {
   explanation?: string;
   recommendation?: string;
   severity?: string;
+  matches?: string[];
 };
 
 type AnalysisDeadline = {
   id?: string;
   label?: string;
   value?: string;
+  description?: string;
 };
 
 type AnalysisResponse = {
@@ -93,7 +95,11 @@ function toUserFacingError(err: unknown) {
     return "You've reached your free limit. Upgrade to Pro for unlimited access.";
   }
 
-  if (message.includes("Failed to parse") || message.includes("Network") || message.includes("abort")) {
+  if (
+    message.includes("Failed to parse") ||
+    message.includes("Network") ||
+    message.includes("abort")
+  ) {
     return "Upload failed. Try again.";
   }
 
@@ -104,10 +110,44 @@ function toUserFacingError(err: unknown) {
   return "Upload failed. Try again.";
 }
 
-function getSeverityClass(severity?: string) {
-  if (severity === "high") return "bg-red-50 text-red-600";
-  if (severity === "medium") return "bg-yellow-50 text-yellow-600";
-  return "bg-green-50 text-green-600";
+function getRiskInfo(score: number) {
+  if (score <= 40) {
+    return {
+      label: "HIGH RISK",
+      badgeClass: "bg-red-100 text-red-700",
+      barClass: "bg-red-500",
+      interpretation:
+        "This contract has serious issues that need attention before signing.",
+    };
+  }
+  if (score <= 70) {
+    return {
+      label: "MODERATE RISK",
+      badgeClass: "bg-amber-100 text-amber-700",
+      barClass: "bg-amber-500",
+      interpretation:
+        "This contract has some areas that need attention before signing.",
+    };
+  }
+  return {
+    label: "LOW RISK",
+    badgeClass: "bg-green-100 text-green-700",
+    barClass: "bg-green-500",
+    interpretation:
+      "This contract looks generally sound, but review the flagged items below.",
+  };
+}
+
+function getSeverityBadge(severity?: string) {
+  if (severity === "high") return "bg-red-100 text-red-700";
+  if (severity === "medium") return "bg-amber-100 text-amber-700";
+  return "bg-green-100 text-green-700";
+}
+
+function getSeverityLabel(severity?: string) {
+  if (severity === "high") return "HIGH";
+  if (severity === "medium") return "MEDIUM";
+  return "LOW";
 }
 
 export default function DashboardAnalyzer({
@@ -122,13 +162,30 @@ export default function DashboardAnalyzer({
   const [warning, setWarning] = useState("");
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [processedFileType, setProcessedFileType] = useState("");
-  const [extractionStatus, setExtractionStatus] = useState<"Full" | "Partial" | "">("");
+  const [extractionStatus, setExtractionStatus] = useState<
+    "Full" | "Partial" | ""
+  >("");
   const [resultTimestamp, setResultTimestamp] = useState("");
   const [result, setResult] = useState<AnalysisResponse | null>(null);
-  const [remainingAnalyses, setRemainingAnalyses] = useState(initialRemainingAnalyses);
+  const [remainingAnalyses, setRemainingAnalyses] = useState(
+    initialRemainingAnalyses
+  );
+  const [expandedIssues, setExpandedIssues] = useState<Set<number>>(new Set());
 
   const usedAnalyses = freeLimit - remainingAnalyses;
   const canAnalyze = hasUnlimitedAccess || remainingAnalyses > 0;
+
+  function toggleIssue(index: number) {
+    setExpandedIssues((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  }
 
   async function extractTextFromFile(file: File) {
     const lowerName = file.name.toLowerCase();
@@ -173,13 +230,16 @@ export default function DashboardAnalyzer({
 
   async function runAnalysis(file: File) {
     if (!canAnalyze) {
-      setError("You've reached your free limit. Upgrade to Pro for unlimited access.");
+      setError(
+        "You've reached your free limit. Upgrade to Pro for unlimited access."
+      );
       return;
     }
 
     setError("");
     setWarning("");
     setIsAnalyzing(true);
+    setExpandedIssues(new Set());
 
     try {
       const text = await extractTextFromFile(file);
@@ -198,7 +258,9 @@ export default function DashboardAnalyzer({
       }
 
       if (text.length < 500) {
-        setWarning("Warning:\nWe could not fully extract text from this file.\nResults may be incomplete.");
+        setWarning(
+          "Warning:\nWe could not fully extract text from this file.\nResults may be incomplete."
+        );
         setExtractionStatus("Partial");
       } else {
         setExtractionStatus("Full");
@@ -269,16 +331,35 @@ export default function DashboardAnalyzer({
     await runAnalysis(createSampleFile());
   }
 
+  const issues = result?.issues ?? [];
+  const deadlines = result?.deadlines ?? [];
+  const riskInfo = result ? getRiskInfo(result.riskScore ?? 0) : null;
+  const highCount = issues.filter((i) => i.severity === "high").length;
+  const mediumCount = issues.filter((i) => i.severity === "medium").length;
+  const topIssue = issues.find((i) => i.severity === "high") || issues[0];
+  const summaryIntro =
+    result && issues.length === 0
+      ? "We reviewed this contract and found no significant issues. It looks clean — review the full details before signing."
+      : result
+      ? `We found ${issues.length} ${issues.length === 1 ? "issue" : "issues"} in this contract.${
+          topIssue?.label ? ` ${topIssue.label} is your biggest concern.` : ""
+        } Here's what you need to know before signing.`
+      : "";
+
   return (
     <section className="mt-8 grid gap-5 lg:mt-10 lg:grid-cols-2 lg:gap-6">
+      {/* Upload panel */}
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <h2 className="text-xl font-semibold text-slate-900">Upload Document</h2>
+        <h2 className="text-xl font-semibold text-slate-900">
+          Upload Document
+        </h2>
         <p className="mt-2 text-sm text-slate-600">
           Drop a PDF, DOCX, or TXT file to run a contract analysis.
         </p>
         <p className="mt-2 text-sm text-slate-600">Secure file processing.</p>
         <p className="mt-1 text-sm text-slate-600">
-          Your documents are not stored permanently beyond operational retention needs.
+          Your documents are not stored permanently beyond operational retention
+          needs.
         </p>
 
         <p className="mb-3 mt-4 text-sm text-slate-600">
@@ -307,7 +388,9 @@ export default function DashboardAnalyzer({
 
         {!hasUnlimitedAccess ? (
           <p className="mt-1 text-sm text-slate-700">
-            You have {remainingAnalyses} {remainingAnalyses === 1 ? "analysis" : "analyses"} remaining this month.
+            You have {remainingAnalyses}{" "}
+            {remainingAnalyses === 1 ? "analysis" : "analyses"} remaining this
+            month.
           </p>
         ) : null}
 
@@ -374,7 +457,9 @@ export default function DashboardAnalyzer({
         />
 
         {uploadedFileName ? (
-          <p className="mt-4 text-sm text-slate-600">Last file: {uploadedFileName}</p>
+          <p className="mt-4 text-sm text-slate-600">
+            Last file: {uploadedFileName}
+          </p>
         ) : null}
 
         {error ? (
@@ -393,106 +478,221 @@ export default function DashboardAnalyzer({
         ) : null}
       </div>
 
+      {/* Results panel */}
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-xl font-semibold text-slate-900">Result</h2>
 
         {isAnalyzing ? (
           <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-6">
-            <p className="text-base font-semibold text-blue-900">Analyzing contract...</p>
-            <p className="mt-1 text-sm text-blue-800">This usually takes a few seconds.</p>
+            <p className="text-base font-semibold text-blue-900">
+              Analyzing contract...
+            </p>
+            <p className="mt-1 text-sm text-blue-800">
+              This usually takes a few seconds.
+            </p>
           </div>
         ) : !result ? (
           <div className="mt-3 space-y-2 text-sm text-slate-600">
             <p>Upload a contract to begin analysis.</p>
             <p>
-              Supported files:<br />
+              Supported files:
+              <br />
               PDF, DOCX, TXT
             </p>
           </div>
         ) : (
           <div className="mt-4 space-y-5">
             {warning ? (
-              <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 whitespace-pre-line text-sm text-amber-800">
+              <p className="whitespace-pre-line rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
                 {warning}
               </p>
             ) : null}
 
             {processedFileType && extractionStatus ? (
-              <p className="text-sm text-slate-600">
-                File processed: {processedFileType}<br />
-                Text extraction: {extractionStatus}
+              <p className="text-sm text-slate-500">
+                File: {processedFileType} &middot; Extraction: {extractionStatus}
+                {resultTimestamp ? ` · ${resultTimestamp}` : ""}
               </p>
             ) : null}
 
-            {resultTimestamp ? (
-              <p className="text-sm text-slate-600">Analyzed at: {resultTimestamp}</p>
-            ) : null}
+            {/* Health score card */}
+            {riskInfo && (
+              <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Contract Health Score
+                </p>
 
-            <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Risk Score
+                <div className="mt-3 flex flex-wrap items-end gap-2">
+                  <span className="text-4xl font-bold text-slate-900">
+                    {result.riskScore ?? 0}
+                  </span>
+                  <span className="mb-0.5 text-base font-medium text-slate-400">
+                    / 100
+                  </span>
+                  <span
+                    className={`mb-0.5 rounded-full px-2.5 py-0.5 text-xs font-bold ${riskInfo.badgeClass}`}
+                  >
+                    {riskInfo.label}
+                  </span>
+                </div>
+
+                <div className="mt-3 h-2.5 w-full rounded-full bg-slate-200">
+                  <div
+                    className={`h-2.5 rounded-full ${riskInfo.barClass}`}
+                    style={{ width: `${result.riskScore ?? 0}%` }}
+                  />
+                </div>
+
+                <p className="mt-2 text-sm text-slate-600">
+                  {riskInfo.interpretation}
+                </p>
+
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700">
+                    {highCount} High Risk
+                  </span>
+                  <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                    {mediumCount} Moderate
+                  </span>
+                  <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
+                    {deadlines.length}{" "}
+                    {deadlines.length === 1 ? "Deadline" : "Deadlines"}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Summary */}
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                Before You Sign
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                {summaryIntro}
               </p>
-              <p className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">
-                {result.riskScore ?? 0}
-                <span className="text-lg font-medium text-slate-500"> / 100</span>
-              </p>
+              {result.summary && (
+                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">
+                  {result.summary}
+                </p>
+              )}
             </div>
 
+            {/* Issues */}
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Summary</h3>
-              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">
-                {result.summary || "No summary available."}
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Issues</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                {issues.length === 0
+                  ? "Issues Found"
+                  : `${issues.length} ${issues.length === 1 ? "Issue" : "Issues"} Found`}
+              </h3>
               <div className="mt-2 space-y-2">
-                {(result.issues ?? []).length === 0 ? (
-                  <p className="text-sm text-slate-600">No issues found.</p>
+                {issues.length === 0 ? (
+                  <p className="text-sm text-slate-600">
+                    No issues found in this contract.
+                  </p>
                 ) : (
-                  (result.issues ?? []).map((issue, index) => (
-                    <div key={`${issue.id || issue.label || "issue"}-${index}`} className="rounded-lg border border-slate-200 p-3">
-                      <div className="flex flex-wrap items-start justify-between gap-2">
-                        <p className="min-w-0 flex-1 break-words font-medium text-slate-900">{issue.label || "Issue"}</p>
-                        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${getSeverityClass(issue.severity)}`}>
-                          {(issue.severity || "low").toUpperCase()}
+                  issues.map((issue, index) => (
+                    <div
+                      key={`${issue.id || issue.label || "issue"}-${index}`}
+                      className="rounded-xl border border-slate-200 p-4"
+                    >
+                      <div className="flex flex-wrap items-start gap-2">
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-bold ${getSeverityBadge(
+                            issue.severity
+                          )}`}
+                        >
+                          {getSeverityLabel(issue.severity)}
                         </span>
+                        <p className="min-w-0 flex-1 break-words font-medium text-slate-900">
+                          {issue.label || "Issue"}
+                        </p>
                       </div>
-                      <p className="mt-2 break-words text-sm text-slate-700">{issue.message || "No details provided."}</p>
-                      {issue.explanation && issue.explanation !== issue.message && (
-                        <>
-                          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">What this means</p>
-                          <p className="mt-1 break-words text-sm text-slate-600">{issue.explanation}</p>
-                        </>
-                      )}
+
+                      <div className="mt-3">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          What this means for your business
+                        </p>
+                        <p className="mt-1 break-words text-sm leading-relaxed text-slate-700">
+                          {issue.explanation || issue.message || "No details provided."}
+                        </p>
+                      </div>
+
                       {issue.recommendation && (
-                        <>
-                          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Recommendation</p>
-                          <p className="mt-1 break-words text-sm text-slate-600">{issue.recommendation}</p>
-                        </>
+                        <div className="mt-3">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                            What to do
+                          </p>
+                          <p className="mt-1 break-words text-sm leading-relaxed text-slate-700">
+                            {issue.recommendation}
+                          </p>
+                        </div>
                       )}
+
+                      {Array.isArray(issue.matches) &&
+                        issue.matches.length > 0 && (
+                          <div className="mt-3">
+                            <button
+                              type="button"
+                              onClick={() => toggleIssue(index)}
+                              className="text-xs font-semibold text-slate-400 hover:text-slate-600"
+                            >
+                              {expandedIssues.has(index) ? "▼" : "▶"} See the
+                              clause that triggered this flag
+                            </button>
+                            {expandedIssues.has(index) && (
+                              <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                                {issue.matches.map((match, mi) => (
+                                  <p
+                                    key={mi}
+                                    className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-slate-600"
+                                  >
+                                    {match}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                     </div>
                   ))
                 )}
               </div>
             </div>
 
+            {/* Deadlines */}
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Deadlines</h3>
-              <div className="mt-2 space-y-2">
-                {(result.deadlines ?? []).length === 0 ? (
-                  <p className="text-sm text-slate-600">No deadlines found.</p>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                Time-Sensitive Clauses
+              </h3>
+              <div className="mt-2">
+                {deadlines.length === 0 ? (
+                  <p className="rounded-xl border border-green-100 bg-green-50 px-3 py-2 text-sm text-green-800">
+                    No auto-renewals or hard deadlines detected — nothing here
+                    requires immediate action on your calendar.
+                  </p>
                 ) : (
-                  (result.deadlines ?? []).map((deadline, index) => (
-                    <div
-                      key={`${deadline.id || deadline.label || "deadline"}-${index}`}
-                      className="flex flex-col gap-1 rounded-lg border border-slate-200 p-3 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <p className="break-words font-medium text-slate-900">{deadline.label || "Deadline"}</p>
-                      <p className="break-words text-sm text-slate-600">{deadline.value || "N/A"}</p>
-                    </div>
-                  ))
+                  <div className="space-y-2">
+                    {deadlines.map((deadline, index) => (
+                      <div
+                        key={`${deadline.id || deadline.label || "deadline"}-${index}`}
+                        className="flex flex-col gap-1 rounded-lg border border-slate-200 p-3 sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <div>
+                          <p className="break-words font-medium text-slate-900">
+                            {deadline.label || "Deadline"}
+                          </p>
+                          {deadline.description && (
+                            <p className="mt-0.5 text-xs text-slate-500">
+                              {deadline.description}
+                            </p>
+                          )}
+                        </div>
+                        <span className="whitespace-nowrap rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                          {deadline.value || "See contract"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
