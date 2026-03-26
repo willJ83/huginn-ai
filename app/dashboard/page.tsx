@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getMonthlyUsageCount, hasUnlimitedAnalysisAccess, PLAN_LIMITS } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import UpgradeButton from "./UpgradeButton";
 import DashboardAnalyzer from "./DashboardAnalyzer";
@@ -13,7 +14,7 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const [user, monthlyUsageCount] = await Promise.all([
+  const [user, monthlyUsageCount, recentAnalyses] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
@@ -23,6 +24,12 @@ export default async function DashboardPage() {
       },
     }),
     getMonthlyUsageCount(session.user.id),
+    prisma.analysis.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { id: true, fileName: true, createdAt: true, riskScore: true, riskLevel: true },
+    }),
   ]);
 
   const planLabel =
@@ -102,6 +109,60 @@ export default async function DashboardPage() {
           initialRemainingAnalyses={remainingFreeAnalyses}
           freeLimit={PLAN_LIMITS.FREE}
         />
+
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-slate-900">Recent Analyses</h2>
+
+          {recentAnalyses.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-500">No analyses yet. Upload a document to get started.</p>
+          ) : (
+            <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3">File</th>
+                    <th className="px-4 py-3">Date</th>
+                    <th className="px-4 py-3">Risk Score</th>
+                    <th className="px-4 py-3">Risk Level</th>
+                    <th className="px-4 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {recentAnalyses.map((analysis) => (
+                    <tr key={analysis.id} className="bg-white">
+                      <td className="px-4 py-3 font-medium text-slate-800">
+                        {analysis.fileName || "Untitled Document"}
+                      </td>
+                      <td className="px-4 py-3 text-slate-500">
+                        {new Date(analysis.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700">{analysis.riskScore} / 100</td>
+                      <td className="px-4 py-3">
+                        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                          analysis.riskLevel === "high"
+                            ? "bg-red-50 text-red-600"
+                            : analysis.riskLevel === "medium"
+                            ? "bg-yellow-50 text-yellow-600"
+                            : "bg-green-50 text-green-600"
+                        }`}>
+                          {analysis.riskLevel}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Link
+                          href={`/analysis/${analysis.id}`}
+                          className="font-medium text-blue-600 hover:text-blue-700"
+                        >
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
       </div>
     </main>
   );

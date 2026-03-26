@@ -3,6 +3,7 @@ import { runDeterministicExtraction } from "../../lib/riskEngine";
 import type { ProductTemplate } from "../../lib/productConfigs";
 import { auth } from "@/lib/auth";
 import { canUseFeature, recordUsage } from "@/lib/billing";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
@@ -55,7 +56,29 @@ export async function POST(req: Request) {
     // Record usage only after successful analysis generation.
     await recordUsage(session.user.id, "huginn_analysis");
 
+    const saved = await prisma.analysis.create({
+      data: {
+        userId: session.user.id,
+        fileName: fileName ?? null,
+        template: (template as ProductTemplate) ?? "compliance_checker",
+        product: result.product,
+        label: result.label,
+        description: result.description,
+        documentType: result.documentType,
+        riskScore: result.riskScore,
+        riskLevel: result.riskLevel,
+        summary: result.summary ?? "",
+        matchedKeywords: result.matchedKeywords,
+        missingRequiredKeywords: result.missingRequiredKeywords,
+        forbiddenKeywordHits: result.forbiddenKeywordHits,
+        issues: result.issues,
+        deadlines: result.deadlines,
+        metadata: result.metadata,
+      },
+    });
+
     return NextResponse.json({
+      id: saved.id,
       riskScore: result.riskScore ?? 0,
       summary: result.summary ?? "No summary available.",
       issues: result.issues ?? [],

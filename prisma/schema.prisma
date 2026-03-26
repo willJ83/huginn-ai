@@ -11,6 +11,9 @@ model Analysis {
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
+  userId                  String?
+  user                    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   fileName                String?
   template                String
   product                 String
@@ -27,6 +30,8 @@ model Analysis {
   issues                  Json
   deadlines               Json
   metadata                Json
+
+  @@index([userId, createdAt])
 }
 
 enum UserPlan {
@@ -56,6 +61,7 @@ model User {
   updatedAt          DateTime           @updatedAt
 
   usageRecords       UsageRecord[]
+  analyses           Analysis[]
 }
 
 model UsageRecord {
