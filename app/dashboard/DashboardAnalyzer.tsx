@@ -460,10 +460,18 @@ export default function DashboardAnalyzer({
                         </span>
                       </div>
                       <p className="mt-2 break-words text-sm text-slate-700">{issue.message || "No details provided."}</p>
-                      <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">What this means</p>
-                      <p className="mt-1 break-words text-sm text-slate-600">
-                        {issue.explanation || issue.message || "No explanation provided."}
-                      </p>
+                      {issue.explanation && issue.explanation !== issue.message && (
+                        <>
+                          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">What this means</p>
+                          <p className="mt-1 break-words text-sm text-slate-600">{issue.explanation}</p>
+                        </>
+                      )}
+                      {issue.recommendation && (
+                        <>
+                          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Recommendation</p>
+                          <p className="mt-1 break-words text-sm text-slate-600">{issue.recommendation}</p>
+                        </>
+                      )}
                     </div>
                   ))
                 )}
