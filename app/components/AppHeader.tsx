@@ -7,9 +7,9 @@ export default function AppHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link
           href="/"
-          className="text-xl font-bold tracking-tight !text-blue-600"
+          className="inline-flex items-center"
         >
-          Huginn AI
+          <img src="/huginn-logo.png" alt="Huginn AI" className="h-8 w-auto" />
         </Link>
 
         <nav className="flex items-center gap-3">
