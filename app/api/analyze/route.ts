@@ -68,12 +68,12 @@ export async function POST(req: Request) {
         riskScore: result.riskScore,
         riskLevel: result.riskLevel,
         summary: result.summary ?? "",
-        matchedKeywords: result.matchedKeywords,
-        missingRequiredKeywords: result.missingRequiredKeywords,
-        forbiddenKeywordHits: result.forbiddenKeywordHits,
-        issues: result.issues,
-        deadlines: result.deadlines,
-        metadata: result.metadata,
+        matchedKeywords: result.matchedKeywords as any,
+        missingRequiredKeywords: result.missingRequiredKeywords as any,
+        forbiddenKeywordHits: result.forbiddenKeywordHits as any,
+        issues: result.issues as any,
+        deadlines: result.deadlines as any,
+        metadata: result.metadata as any,
       },
     });
 
