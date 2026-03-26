@@ -499,6 +499,15 @@ export default function Page() {
 
         </section>
 
+        <section className="py-4 px-6 border-t border-b border-gray-200">
+          <ul className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-gray-400">
+            <li>🔒 Your contracts are never stored</li>
+            <li>⚡ Results in seconds</li>
+            <li>🏢 Built by Odens Eye Creative LLC — Palm Bay, FL</li>
+            <li>✓ No legal expertise required</li>
+          </ul>
+        </section>
+
         <section className="py-16 px-6 bg-gray-50">
           <h2 className="text-3xl font-bold text-center mb-12">
             How Huginn AI Analyzes Contracts
