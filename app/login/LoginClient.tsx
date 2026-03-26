@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 type LoginClientProps = {
@@ -81,6 +82,11 @@ export default function LoginClient({ accountCreated }: LoginClientProps) {
             placeholder="Password"
             required
           />
+          <div className="mt-1 text-right">
+            <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
+              Forgot password?
+            </Link>
+          </div>
         </div>
 
         <button
@@ -90,6 +96,9 @@ export default function LoginClient({ accountCreated }: LoginClientProps) {
         >
           {isLoading ? "Logging in..." : "Log in"}
         </button>
+        <p className="mt-2 text-center text-xs text-slate-400">
+          Huginn AI is not a substitute for legal advice.
+        </p>
       </form>
     </div>
   );
