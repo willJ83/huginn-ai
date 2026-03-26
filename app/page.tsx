@@ -608,13 +608,15 @@ export default function Page() {
           <h2 className="text-2xl font-bold mb-10">Simple Pricing</h2>
 
           <div className="max-w-md mx-auto border rounded-xl p-8 shadow-sm">
-            <h3 className="text-xl font-semibold mb-2">Starter</h3>
-            <p className="text-3xl font-bold mb-6">$19<span className="text-lg">/month</span></p>
+            <h3 className="text-xl font-semibold mb-2">Pro</h3>
+            <p className="text-3xl font-bold mb-6">$29<span className="text-lg">/month</span></p>
 
             <ul className="text-gray-600 mb-8 space-y-2">
-              <li>Unlimited contract analysis</li>
-              <li>All Huginn tools included</li>
-              <li>Cancel anytime</li>
+              <li>Unlimited contract analyses</li>
+              <li>Risk scoring with High / Medium / Low severity</li>
+              <li>Clause-level recommendations</li>
+              <li>Multi-file upload support</li>
+              <li>Priority support</li>
             </ul>
 
             <a
