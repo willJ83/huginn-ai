@@ -7,11 +7,14 @@ const plans = [
   {
     key: "PRO" as const,
     name: "Pro",
-    price: "$19/mo",
+    price: "$29/mo",
     features: [
-      "Unlimited analyses",
-      "Full analyzer suite",
-      "Priority processing",
+      "Unlimited contract analyses",
+      "Risk scoring with High / Medium / Low severity",
+      "Clause-level recommendations",
+      "Multi-file upload support",
+      "Priority support",
+      "Not a substitute for legal advice — know your risks before you sign",
     ],
   },
 ];
