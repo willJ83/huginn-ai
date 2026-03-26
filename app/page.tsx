@@ -486,12 +486,8 @@ export default function Page() {
               href={primaryCtaHref}
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-xl font-semibold text-white hover:bg-blue-700"
             >
-              Start Analyzing Contracts
+              Get Started Free
             </Link>
-
-            <p className="self-center text-sm text-gray-600">
-              Try a sample contract with built-in issues
-            </p>
 
             <button
               onClick={loadSampleContract}
