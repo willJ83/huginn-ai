@@ -35,24 +35,29 @@ type DashboardAnalyzerProps = {
 
 const REQUEST_TIMEOUT_MS = 120000;
 
-const SAMPLE_CONTRACT_TEXT = `SERVICE AGREEMENT
+const SAMPLE_CONTRACTS = [
+  {
+    id: "marketing",
+    label: "Marketing Services Agreement",
+    fileName: "marketing-services-agreement.txt",
+    text: `MARKETING SERVICES AGREEMENT
 
-This Service Agreement is entered into between Alpha Solutions LLC ("Provider") and BrightPath Marketing ("Client").
+This Marketing Services Agreement ("Agreement") is entered into between Alpha Solutions LLC ("Provider") and BrightPath Marketing ("Client") as of January 1, 2026.
 
 1. Services
-Provider agrees to deliver digital marketing services including SEO, content creation, and ad management.
+Provider agrees to deliver digital marketing services including SEO, content creation, and ad management. The specific deliverables, timelines, and performance metrics for these services are to be determined at a later date.
 
 2. Payment Terms
-Client agrees to pay $5,000 per month. Payment is due within a reasonable time after invoicing.
+Client agrees to pay $5,000 per month. Payment is due within a reasonable time after invoicing. No late fees or interest shall apply to overdue invoices.
 
 3. Term
 This agreement begins on January 1, 2026 and continues for 12 months unless terminated earlier.
 
 4. Termination
-Either party may terminate this agreement at any time with written notice.
+Either party may terminate this agreement at any time with written notice. No notice period is specified.
 
 5. Liability
-Provider is not liable for any damages arising from the use of services.
+Provider is not liable for any damages arising from the use of services, including any direct, indirect, incidental, or consequential damages of any kind.
 
 6. Confidentiality
 Both parties agree to keep sensitive information confidential.
@@ -60,10 +65,123 @@ Both parties agree to keep sensitive information confidential.
 [INTENTIONALLY OMITTED]
 
 7. Governing Law
+[left blank]
 
 8. Dispute Resolution
 Any disputes will be handled in a mutually agreed manner.
-`;
+`,
+  },
+  {
+    id: "nda",
+    label: "Non-Disclosure Agreement",
+    fileName: "non-disclosure-agreement.txt",
+    text: `MUTUAL NON-DISCLOSURE AGREEMENT
+
+This Non-Disclosure Agreement ("Agreement") is entered into between Vertex Innovations Inc. ("Disclosing Party") and the undersigned recipient ("Receiving Party") effective upon signature.
+
+1. Definition of Confidential Information
+"Confidential Information" means any and all information disclosed by either party to the other, in any form whatsoever, including but not limited to business plans, financial data, customer lists, trade secrets, technical specifications, software, product concepts, marketing strategies, employee information, and any other information of any kind. There are no exceptions or carve-outs to this definition. Information that is already publicly known, independently developed, or disclosed by a third party shall nonetheless be considered Confidential Information under this Agreement.
+
+2. Obligations of Receiving Party
+The Receiving Party agrees to hold all Confidential Information in strict confidence and shall not disclose any Confidential Information to any third party under any circumstances. The Receiving Party shall use the Confidential Information solely for internal evaluation purposes. These obligations apply only to the Receiving Party and not to the Disclosing Party.
+
+3. No Permitted Disclosures
+There are no permitted disclosures under this Agreement. The Receiving Party may not disclose Confidential Information even if required by law, court order, or government authority.
+
+4. Duration
+The confidentiality obligations of the Receiving Party shall continue in perpetuity and shall survive the termination or expiration of this Agreement without limit.
+
+5. Non-Compete
+In consideration of receiving Confidential Information, the Receiving Party agrees not to directly or indirectly engage in, consult for, or have any business relationship with any company that competes with the Disclosing Party for a period of two (2) years following the termination of this Agreement. This restriction applies globally.
+
+6. Intellectual Property
+All information shared under this Agreement and any work product derived therefrom shall remain the exclusive property of the Disclosing Party.
+
+7. Governing Law
+[left blank — to be determined]
+
+8. Remedies
+The Receiving Party acknowledges that any breach of this Agreement would cause irreparable harm to the Disclosing Party. The Disclosing Party shall be entitled to seek injunctive relief without posting a bond.
+
+9. Entire Agreement
+This Agreement constitutes the entire agreement between the parties with respect to confidentiality and supersedes all prior discussions.
+`,
+  },
+  {
+    id: "vendor",
+    label: "Vendor Supply Agreement",
+    fileName: "vendor-supply-agreement.txt",
+    text: `VENDOR SUPPLY AGREEMENT
+
+This Vendor Supply Agreement ("Agreement") is entered into between SteelCore Manufacturing Ltd. ("Vendor") and Pinnacle Retail Group ("Buyer") effective as of February 1, 2026.
+
+1. Supply of Goods
+Vendor agrees to supply goods as ordered by Buyer from time to time. No delivery timelines, lead times, or performance standards are defined in this Agreement. Vendor shall determine delivery schedules at its sole discretion.
+
+2. Payment Terms
+Buyer shall pay 100% of the invoice amount upfront prior to any shipment or delivery. No credit terms are available. Vendor reserves the right to withhold delivery until full payment is confirmed.
+
+3. Pricing and Price Adjustments
+The initial price schedule is set forth in Exhibit A. Vendor reserves the right to increase prices by up to twenty percent (20%) annually upon thirty (30) days written notice to Buyer. Buyer has no right to reject or opt out of price increases. Continued ordering after the notice period constitutes acceptance of the new pricing.
+
+4. Term and Renewal
+This Agreement shall commence on February 1, 2026 and shall automatically renew for successive one-year terms unless either party provides written notice of cancellation no later than fifteen (15) days prior to the end of the then-current term. Failure to provide timely notice shall result in automatic renewal for an additional year.
+
+5. Intellectual Property
+Any custom products, tooling, molds, designs, or specifications developed by Vendor for Buyer under this Agreement shall remain the exclusive intellectual property of Vendor. Buyer shall have no ownership rights in any custom work product, even if Buyer funded the development of such work.
+
+6. Limitation of Liability
+Vendor's total liability under this Agreement, for any cause whatsoever and regardless of the form of action, shall not exceed five hundred dollars ($500.00). This limitation applies to all claims including those for breach of contract, negligence, and product defects.
+
+7. Termination Penalty
+If Buyer terminates this Agreement prior to the end of the then-current term for any reason other than Vendor's uncured material breach, Buyer shall pay Vendor a termination penalty equal to twenty-five percent (25%) of the total value of all remaining purchase obligations for the balance of the term.
+
+8. Dispute Resolution
+[No dispute resolution process defined. All disputes shall be handled as agreed upon by the parties at the time of the dispute.]
+
+9. Governing Law
+This Agreement shall be governed by the laws of the State of Delaware.
+`,
+  },
+  {
+    id: "freelance",
+    label: "Freelance Contract",
+    fileName: "freelance-contract.txt",
+    text: `FREELANCE SERVICES AGREEMENT
+
+This Freelance Services Agreement ("Agreement") is entered into between Nova Digital LLC ("Client") and the undersigned independent contractor ("Freelancer") effective as of March 1, 2026.
+
+1. Services
+Freelancer agrees to provide web development and design services as directed by Client. The scope of work, deliverables, and deadlines shall be communicated by Client via email or verbal instruction and may be modified by Client at any time.
+
+2. Revisions and Scope
+Client may request unlimited revisions to any deliverable at any time, including after final delivery. Freelancer agrees to complete all requested revisions at no additional charge regardless of the nature or volume of changes requested.
+
+3. Intellectual Property — Work for Hire
+All work product created by Freelancer under this Agreement, including all deliverables, code, designs, concepts, and documentation, shall be considered works made for hire and shall be the exclusive property of Client. This assignment includes all pre-existing tools, frameworks, libraries, and methodologies used by Freelancer in the performance of services, including any open-source or proprietary tools developed prior to this engagement. Freelancer waives all moral rights in the work product.
+
+4. Payment
+Client shall pay Freelancer within ninety (90) days of invoice submission. No interest or late fees shall accrue on overdue payments. Client reserves the right to dispute any invoice within the 90-day period, which shall restart the payment clock upon resolution.
+
+5. Kill Fee
+If Client cancels the project after work has commenced, no cancellation fee or kill fee shall be payable to Freelancer. Freelancer shall be compensated only for hours worked and accepted by Client prior to cancellation.
+
+6. Non-Solicitation
+Freelancer agrees that during the term of this Agreement and for a period of three (3) years following termination, Freelancer shall not provide services to, consult for, or be employed by any person or entity that competes with Client's business in any market in which Client operates, directly or indirectly.
+
+7. Legal Compliance Costs
+Freelancer shall be solely responsible for ensuring that all deliverables comply with applicable laws, regulations, and third-party intellectual property rights. In the event that Client incurs any legal costs, penalties, or settlements arising from Freelancer's failure to ensure compliance, Freelancer shall indemnify and reimburse Client for all such costs without limitation.
+
+8. Jurisdiction and Governing Law
+This Agreement shall be governed by the laws of the State of Alaska, and any disputes shall be resolved exclusively in the state or federal courts located in Fairbanks, Alaska. Freelancer waives any objection to personal jurisdiction or venue in such courts.
+
+9. Entire Agreement
+This Agreement constitutes the entire agreement between the parties and supersedes all prior discussions or agreements.
+`,
+  },
+] as const;
+
+type SampleId = (typeof SAMPLE_CONTRACTS)[number]["id"];
 
 async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   const controller = new AbortController();
@@ -79,10 +197,9 @@ async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   }
 }
 
-function createSampleFile() {
-  return new File([SAMPLE_CONTRACT_TEXT], "sample-contract.txt", {
-    type: "text/plain",
-  });
+function createSampleFile(id: SampleId) {
+  const sample = SAMPLE_CONTRACTS.find((s) => s.id === id)!;
+  return new File([sample.text], sample.fileName, { type: "text/plain" });
 }
 
 function toUserFacingError(err: unknown) {
@@ -161,6 +278,7 @@ export default function DashboardAnalyzer({
   freeLimit,
 }: DashboardAnalyzerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedSample, setSelectedSample] = useState<SampleId>("marketing");
   const [isDragActive, setIsDragActive] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState("");
@@ -330,10 +448,10 @@ export default function DashboardAnalyzer({
     await runAnalysis(file);
   }
 
-  async function loadDemoContract() {
+  async function loadDemoContract(id: SampleId) {
     setError("");
     setWarning("");
-    await runAnalysis(createSampleFile());
+    await runAnalysis(createSampleFile(id));
   }
 
   const issues = result?.issues ?? [];
@@ -367,17 +485,35 @@ export default function DashboardAnalyzer({
           needs.
         </p>
 
-        <p className="mb-3 mt-4 text-sm text-slate-600">
-          Try a sample contract with built-in issues
-        </p>
-        <button
-          type="button"
-          onClick={loadDemoContract}
-          className="mb-4 inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          disabled={isAnalyzing || !canAnalyze}
-        >
-          Try Sample Contract
-        </button>
+        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Try a Sample Contract
+          </p>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {SAMPLE_CONTRACTS.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setSelectedSample(s.id)}
+                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
+                  selectedSample === s.id
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-slate-300 bg-white text-slate-600 hover:border-slate-400 hover:bg-slate-100"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => loadDemoContract(selectedSample)}
+            disabled={isAnalyzing || !canAnalyze}
+            className="inline-flex items-center rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-50"
+          >
+            {isAnalyzing ? "Analyzing..." : "Run Sample Analysis"}
+          </button>
+        </div>
 
         {!hasUnlimitedAccess ? (
           <p className="mt-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-800">
