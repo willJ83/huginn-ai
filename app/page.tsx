@@ -507,6 +507,10 @@ export default function Page() {
             </button>
           </div>
 
+          <p className="mt-4 text-sm text-gray-400 text-center max-w-xl mx-auto">
+            Built for everyday business contracts — vendor agreements, NDAs, freelance contracts, and service agreements. For complex enterprise deals, use Huginn as a smart first pass alongside legal counsel.
+          </p>
+
         </section>
 
         <section className="py-4 px-6 border-t border-b border-gray-200">
