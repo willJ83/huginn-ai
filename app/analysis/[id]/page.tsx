@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import AppHeader from "@/app/components/AppHeader";
+import DownloadPdfButton from "@/app/components/DownloadPdfButton";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 
@@ -33,14 +34,18 @@ function getRiskInfo(score: number) {
 }
 
 function getSeverityBadge(severity: string) {
+  if (severity === "critical") return "bg-purple-100 text-purple-700";
   if (severity === "high") return "bg-red-100 text-red-700";
   if (severity === "medium") return "bg-amber-100 text-amber-700";
+  if (severity === "missing") return "bg-slate-100 text-slate-600";
   return "bg-green-100 text-green-700";
 }
 
 function getSeverityLabel(severity: string) {
+  if (severity === "critical") return "CRITICAL";
   if (severity === "high") return "HIGH";
   if (severity === "medium") return "MEDIUM";
+  if (severity === "missing") return "MISSING";
   return "LOW";
 }
 
@@ -261,13 +266,20 @@ export default async function AnalysisPage({
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap gap-3">
-                <button
-                  disabled
-                  title="PDF export coming soon"
-                  className="inline-flex cursor-not-allowed items-center rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white opacity-50"
-                >
-                  Download PDF Report
-                </button>
+                <DownloadPdfButton
+                  data={{
+                    fileName: report.fileName,
+                    analysisDate: report.createdAt.toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }),
+                    riskScore: report.riskScore,
+                    summary: report.summary,
+                    issues: issuesTyped,
+                    deadlines: deadlines as any[],
+                  }}
+                />
                 <Link
                   href="/dashboard"
                   className="inline-flex items-center rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"

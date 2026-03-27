@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import DownloadPdfButton from "@/app/components/DownloadPdfButton";
 
 type AnalysisIssue = {
   id?: string;
@@ -699,6 +700,21 @@ export default function DashboardAnalyzer({
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Download PDF */}
+            <div className="border-t border-slate-100 pt-4">
+              <DownloadPdfButton
+                data={{
+                  fileName: uploadedFileName || null,
+                  analysisDate: resultTimestamp,
+                  riskScore: result.riskScore ?? 0,
+                  summary: result.summary,
+                  issues: result.issues ?? [],
+                  deadlines: result.deadlines ?? [],
+                }}
+                className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+              />
             </div>
           </div>
         )}
