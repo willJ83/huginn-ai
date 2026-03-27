@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isDemo = searchParams.get("demo") === "true";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,12 +32,17 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/login?created=1");
+    router.push(isDemo ? "/login?created=1&demo=true" : "/login?created=1");
   }
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-16">
       <div className="mx-auto max-w-md rounded-2xl bg-white p-8 shadow-sm">
+        {isDemo && (
+          <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+            Create your free account to run the sample contract analysis — no credit card required.
+          </div>
+        )}
         <h1 className="text-3xl font-bold text-slate-900">Create your account</h1>
         <p className="mt-2 text-sm text-slate-600">Create your account and start analyzing with confidence.</p>
 

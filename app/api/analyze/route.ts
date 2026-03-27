@@ -1,33 +1,107 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import { runDeterministicExtraction } from "../../lib/riskEngine";
-import { buildAnalysisPrompt } from "../../lib/promptBuilder";
+import { HUGINN_V2_PROMPT } from "../../lib/huginnPrompt";
 import type { ProductTemplate } from "../../lib/productConfigs";
 import { auth } from "@/lib/auth";
 import { canUseFeature, recordUsage } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-async function generateAISummary(
+interface ClauseEntry {
+  status: "found" | "missing";
+  text?: string;
+  location?: string;
+}
+
+async function runClaudePipeline(
+  contractText: string,
   template: ProductTemplate,
   deterministicResult: any
 ): Promise<string | null> {
+  console.log("[Pipeline] Starting 3-stage Claude pipeline...");
   try {
-    const prompt = buildAnalysisPrompt(template, deterministicResult);
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 300,
-      temperature: 0.4,
+    // STAGE 1 — CLASSIFY
+    console.log("[Pipeline] Stage 1: Classifying contract type...");
+    const classifyMsg = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 512,
+      messages: [
+        {
+          role: "user",
+          content:
+            `Identify the contract type from this list: Master Service Agreement, Statement of Work, NDA, SLA, Independent Contractor Agreement, Licensing Agreement, SaaS Subscription Agreement, Terms of Service, Data Processing Agreement, Vendor Agreement, Purchase Agreement, Partnership Agreement, Employment Agreement, Consulting Agreement, Marketing Services Agreement, Software Development Agreement, Maintenance & Support Agreement, Reseller Agreement, Franchise Agreement, Amendment/Addendum. Return JSON only: { "type": string, "confidence": string, "rationale": string }\n\nContract text:\n${contractText}`,
+        },
+      ],
     });
 
-    const text = response.choices[0]?.message?.content ?? "";
-    const match = text.match(
+    let contractType: { type: string; confidence: string; rationale: string } =
+      { type: "Unknown", confidence: "low", rationale: "" };
+    const classifyText =
+      classifyMsg.content[0]?.type === "text" ? classifyMsg.content[0].text : "";
+    const classifyJson = classifyText.match(/\{[\s\S]*\}/);
+    if (classifyJson) {
+      try {
+        contractType = JSON.parse(classifyJson[0]);
+      } catch {
+        // keep default
+      }
+    }
+    console.log(`[Pipeline] Stage 1 complete: ${contractType.type} (${contractType.confidence})`);
+
+    // STAGE 2 — EXTRACT
+    console.log("[Pipeline] Stage 2: Extracting clauses...");
+    const extractMsg = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 4096,
+      messages: [
+        {
+          role: "user",
+          content:
+            `This is a ${contractType.type}. Extract all clauses present and flag any missing. Categories: confidentiality, indemnification, limitation_of_liability, ip_ownership, payment_terms, termination, renewal, governing_law, warranties, data_protection, service_levels, deliverables, non_compete, non_solicit, insurance, dispute_resolution, audit_rights, royalties, support. For each: status (found/missing), exact text, location in document. Return JSON only.\n\nContract text:\n${contractText}`,
+        },
+      ],
+    });
+
+    let extractedClauses: Record<string, ClauseEntry> = {};
+    const extractText =
+      extractMsg.content[0]?.type === "text" ? extractMsg.content[0].text : "";
+    const extractJson = extractText.match(/\{[\s\S]*\}/);
+    if (extractJson) {
+      try {
+        extractedClauses = JSON.parse(extractJson[0]);
+      } catch {
+        // keep default
+      }
+    }
+    console.log(`[Pipeline] Stage 2 complete: ${Object.keys(extractedClauses).length} clauses extracted`);
+
+    // STAGE 3 — ANALYZE
+    console.log("[Pipeline] Stage 3: Running final analysis...");
+    const analyzeMsg = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1024,
+      system: HUGINN_V2_PROMPT,
+      messages: [
+        {
+          role: "user",
+          content:
+            `Contract Type: ${contractType.type} (Confidence: ${contractType.confidence})\nRationale: ${contractType.rationale}\n\nExtracted Clauses:\n${JSON.stringify(extractedClauses, null, 2)}\n\nDeterministic Findings:\n${JSON.stringify(deterministicResult, null, 2)}\n\nFull contract text:\n${contractText}`,
+        },
+      ],
+    });
+
+    const analyzeText =
+      analyzeMsg.content[0]?.type === "text" ? analyzeMsg.content[0].text : "";
+    const match = analyzeText.match(
       /Summary:\s*([\s\S]*?)(?:Explanation:|Recommended Action:|$)/i
     );
-    return match?.[1]?.trim() || null;
-  } catch {
+    const summary = match?.[1]?.trim() || analyzeText.trim() || null;
+    console.log(`[Pipeline] Stage 3 complete. Summary length: ${summary?.length ?? 0} chars`);
+    return summary;
+  } catch (err) {
+    console.error("[Pipeline] ERROR — pipeline failed, falling back to deterministic:", err);
     return null;
   }
 }
@@ -82,7 +156,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const aiSummary = await generateAISummary(activeTemplate, result);
+    const aiSummary = await runClaudePipeline(text, activeTemplate, result);
     const summary = aiSummary ?? result.summary ?? "";
 
     // Record usage only after successful analysis generation.
@@ -123,7 +197,7 @@ export async function POST(req: Request) {
     console.error("ANALYZE ROUTE ERROR:", error);
 
     return NextResponse.json(
-      { ok: false, error: "Invalid request body." },
+      { ok: false, error: "An unexpected error occurred. Please try again." },
       { status: 500 }
     );
   }

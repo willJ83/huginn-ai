@@ -32,7 +32,7 @@ type DashboardAnalyzerProps = {
   freeLimit: number;
 };
 
-const REQUEST_TIMEOUT_MS = 45000;
+const REQUEST_TIMEOUT_MS = 120000;
 
 const SAMPLE_CONTRACT_TEXT = `SERVICE AGREEMENT
 

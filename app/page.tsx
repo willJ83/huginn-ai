@@ -2,6 +2,7 @@
 
 import React, { ChangeEvent, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
   getAllProductConfigs,
@@ -248,6 +249,7 @@ async function extractTextFromFile(file: File): Promise<string> {
 
 export default function Page() {
   const { data: session } = useSession();
+  const router = useRouter();
   const productConfigs = useMemo<ProductConfig[]>(() => getAllProductConfigs(), []);
   const [template, setTemplate] =
     useState<ProductTemplate>("compliance_checker");
@@ -313,8 +315,7 @@ export default function Page() {
       });
 
       if (response.status === 401) {
-        setError("Please log in to analyze a contract.");
-        setResult(null);
+        router.push("/signup?demo=true");
         return;
       }
 
@@ -424,6 +425,11 @@ export default function Page() {
   }
 
   function loadSampleContract() {
+    if (!session) {
+      router.push("/signup?demo=true");
+      return;
+    }
+
     setDocumentText(SAMPLE_CONTRACT_TEXT);
     setFileName(null);
     setError("");

@@ -18,7 +18,12 @@ export async function getUserPlan(userId: string) {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    // User record missing (e.g. DB reset with stale JWT) — treat as free plan
+    return {
+      plan: "FREE" as UserPlan,
+      subscriptionStatus: "INACTIVE" as SubscriptionStatus,
+      currentPeriodEnd: null,
+    };
   }
 
   return user;
