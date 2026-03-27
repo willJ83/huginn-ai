@@ -15,11 +15,43 @@ interface ClauseEntry {
   location?: string;
 }
 
+interface ClaudeIssue {
+  id: string;
+  label: string;
+  severity: string;
+  clauseReference?: string;
+  message?: string;
+  explanation?: string;
+  recommendation?: string;
+  matches?: string[];
+}
+
+interface ClaudeMissingProtection {
+  label: string;
+  severity: string;
+  explanation?: string;
+  recommendation?: string;
+}
+
+interface ClaudeDeadline {
+  label: string;
+  value?: string;
+  description?: string;
+}
+
+interface ClaudeResult {
+  riskScore: number;
+  summary: string;
+  issues: ClaudeIssue[];
+  missingProtections: ClaudeMissingProtection[];
+  deadlines: ClaudeDeadline[];
+}
+
 async function runClaudePipeline(
   contractText: string,
   template: ProductTemplate,
   deterministicResult: any
-): Promise<string | null> {
+): Promise<ClaudeResult | null> {
   console.log("[Pipeline] Starting 3-stage Claude pipeline...");
   try {
     // STAGE 1 — CLASSIFY
@@ -77,11 +109,11 @@ async function runClaudePipeline(
     }
     console.log(`[Pipeline] Stage 2 complete: ${Object.keys(extractedClauses).length} clauses extracted`);
 
-    // STAGE 3 — ANALYZE
+    // STAGE 3 — ANALYZE (returns full structured JSON)
     console.log("[Pipeline] Stage 3: Running final analysis...");
     const analyzeMsg = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 1024,
+      max_tokens: 4096,
       system: HUGINN_V2_PROMPT,
       messages: [
         {
@@ -94,16 +126,37 @@ async function runClaudePipeline(
 
     const analyzeText =
       analyzeMsg.content[0]?.type === "text" ? analyzeMsg.content[0].text : "";
-    const match = analyzeText.match(
-      /Summary:\s*([\s\S]*?)(?:Explanation:|Recommended Action:|$)/i
+
+    // Strip markdown fences if Claude wrapped the JSON
+    const stripped = analyzeText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    const jsonMatch = stripped.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error("[Pipeline] Stage 3: no JSON object found in response");
+      return null;
+    }
+
+    const parsed: ClaudeResult = JSON.parse(jsonMatch[0]);
+
+    // Validate required fields
+    if (typeof parsed.riskScore !== "number" || !parsed.summary) {
+      console.error("[Pipeline] Stage 3: parsed JSON missing required fields");
+      return null;
+    }
+
+    console.log(
+      `[Pipeline] Stage 3 complete. Score: ${parsed.riskScore}, Issues: ${parsed.issues?.length ?? 0}, Missing: ${parsed.missingProtections?.length ?? 0}, Deadlines: ${parsed.deadlines?.length ?? 0}`
     );
-    const summary = match?.[1]?.trim() || analyzeText.trim() || null;
-    console.log(`[Pipeline] Stage 3 complete. Summary length: ${summary?.length ?? 0} chars`);
-    return summary;
+    return parsed;
   } catch (err) {
     console.error("[Pipeline] ERROR — pipeline failed, falling back to deterministic:", err);
     return null;
   }
+}
+
+function deriveRiskLevel(score: number): string {
+  if (score >= 80) return "low";
+  if (score >= 50) return "medium";
+  return "high";
 }
 
 export async function POST(req: Request) {
@@ -131,7 +184,6 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-
     const { text, template, config, fileName } = body;
 
     if (!text || typeof text !== "string" || !text.trim()) {
@@ -143,23 +195,42 @@ export async function POST(req: Request) {
 
     const activeTemplate = (template as ProductTemplate) ?? "compliance_checker";
 
-    const result = runDeterministicExtraction({
+    const deterministicResult = runDeterministicExtraction({
       text,
       template: activeTemplate,
       config: config ?? {},
     });
 
-    if ("error" in result) {
+    if ("error" in deterministicResult) {
       return NextResponse.json(
-        { ok: false, error: result.error },
+        { ok: false, error: deterministicResult.error },
         { status: 400 }
       );
     }
 
-    const aiSummary = await runClaudePipeline(text, activeTemplate, result);
-    const summary = aiSummary ?? result.summary ?? "";
+    const claudeResult = await runClaudePipeline(text, activeTemplate, deterministicResult);
 
-    // Record usage only after successful analysis generation.
+    // Merge missingProtections into issues as "missing" severity cards
+    const missingAsIssues = (claudeResult?.missingProtections ?? []).map(
+      (mp, i): ClaudeIssue => ({
+        id: `missing-${i}`,
+        label: mp.label,
+        severity: "missing",
+        explanation: mp.explanation,
+        recommendation: mp.recommendation,
+        matches: [],
+      })
+    );
+
+    const finalIssues = claudeResult
+      ? [...(claudeResult.issues ?? []), ...missingAsIssues]
+      : deterministicResult.issues ?? [];
+
+    const finalRiskScore = claudeResult?.riskScore ?? deterministicResult.riskScore ?? 0;
+    const finalSummary = claudeResult?.summary ?? deterministicResult.summary ?? "";
+    const finalDeadlines = claudeResult ? (claudeResult.deadlines ?? []) : (deterministicResult.deadlines ?? []);
+    const finalRiskLevel = claudeResult ? deriveRiskLevel(claudeResult.riskScore) : deterministicResult.riskLevel;
+
     await recordUsage(session.user.id, "huginn_analysis");
 
     const saved = await prisma.analysis.create({
@@ -167,30 +238,30 @@ export async function POST(req: Request) {
         userId: session.user.id,
         fileName: fileName ?? null,
         template: activeTemplate,
-        product: result.product,
-        label: result.label,
-        description: result.description,
-        documentType: result.documentType,
-        riskScore: result.riskScore,
-        riskLevel: result.riskLevel,
-        summary,
-        matchedKeywords: result.matchedKeywords as any,
-        missingRequiredKeywords: result.missingRequiredKeywords as any,
-        forbiddenKeywordHits: result.forbiddenKeywordHits as any,
-        issues: result.issues as any,
-        deadlines: result.deadlines as any,
-        metadata: result.metadata as any,
+        product: deterministicResult.product,
+        label: deterministicResult.label,
+        description: deterministicResult.description,
+        documentType: deterministicResult.documentType,
+        riskScore: finalRiskScore,
+        riskLevel: finalRiskLevel,
+        summary: finalSummary,
+        matchedKeywords: deterministicResult.matchedKeywords as any,
+        missingRequiredKeywords: deterministicResult.missingRequiredKeywords as any,
+        forbiddenKeywordHits: deterministicResult.forbiddenKeywordHits as any,
+        issues: finalIssues as any,
+        deadlines: finalDeadlines as any,
+        metadata: deterministicResult.metadata as any,
       },
     });
 
     return NextResponse.json({
       id: saved.id,
-      riskScore: result.riskScore ?? 0,
-      summary,
-      issues: result.issues ?? [],
-      deadlines: result.deadlines ?? [],
-      riskLevel: result.riskLevel,
-      label: result.label,
+      riskScore: finalRiskScore,
+      summary: finalSummary,
+      issues: finalIssues,
+      deadlines: finalDeadlines,
+      riskLevel: finalRiskLevel,
+      label: deterministicResult.label,
       fileName: fileName ?? null,
     });
   } catch (error) {

@@ -139,14 +139,18 @@ function getRiskInfo(score: number) {
 }
 
 function getSeverityBadge(severity?: string) {
+  if (severity === "critical") return "bg-purple-100 text-purple-700";
   if (severity === "high") return "bg-red-100 text-red-700";
   if (severity === "medium") return "bg-amber-100 text-amber-700";
+  if (severity === "missing") return "bg-slate-100 text-slate-600";
   return "bg-green-100 text-green-700";
 }
 
 function getSeverityLabel(severity?: string) {
+  if (severity === "critical") return "CRITICAL";
   if (severity === "high") return "HIGH";
   if (severity === "medium") return "MEDIUM";
+  if (severity === "missing") return "MISSING";
   return "LOW";
 }
 

@@ -11,7 +11,7 @@ import {
 } from "./lib/productConfigs";
 import AppHeader from "@/app/components/AppHeader";
 
-type Severity = "low" | "medium" | "high";
+type Severity = "low" | "medium" | "high" | "critical" | "missing";
 
 interface DetectedIssue {
   id: string;
@@ -92,8 +92,10 @@ function getRiskBadgeClass(riskLevel?: "low" | "medium" | "high") {
 }
 
 function getSeverityClass(severity: Severity) {
+  if (severity === "critical") return "severityPill severityHigh";
   if (severity === "high") return "severityPill severityHigh";
   if (severity === "medium") return "severityPill severityMedium";
+  if (severity === "missing") return "severityPill severityLow";
   return "severityPill severityLow";
 }
 
@@ -160,9 +162,11 @@ function buildClientReadyRiskReport(params: {
 
   const issues = result.issues ?? [];
   const orderedIssues = [
+    ...issues.filter((issue) => issue.severity === "critical"),
     ...issues.filter((issue) => issue.severity === "high"),
     ...issues.filter((issue) => issue.severity === "medium"),
     ...issues.filter((issue) => issue.severity === "low"),
+    ...issues.filter((issue) => issue.severity === "missing"),
   ];
 
   lines.push("HUGINN AI ANALYSIS REPORT");
