@@ -6,8 +6,8 @@ import { prisma } from "@/lib/prisma";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const ADDON_PACKS = {
-  "5": { analyses: 5, amount: 499, label: "5 Extra Analyses" },
-  "10": { analyses: 10, amount: 799, label: "10 Extra Analyses" },
+  "5": { analyses: 5, priceId: process.env.STRIPE_ADDON_5_PRICE_ID },
+  "10": { analyses: 10, priceId: process.env.STRIPE_ADDON_10_PRICE_ID },
 } as const;
 
 type PackKey = keyof typeof ADDON_PACKS;
@@ -30,6 +30,13 @@ export async function POST(req: Request) {
     }
 
     const packConfig = ADDON_PACKS[pack as PackKey];
+
+    if (!packConfig.priceId) {
+      return NextResponse.json(
+        { error: `Price not configured for pack: ${pack}. Set STRIPE_ADDON_${pack}_PRICE_ID in environment variables.` },
+        { status: 500 }
+      );
+    }
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -78,19 +85,7 @@ export async function POST(req: Request) {
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
       customer: customerId,
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: "usd",
-            unit_amount: packConfig.amount,
-            product_data: {
-              name: packConfig.label,
-              description: `Add ${packConfig.analyses} analyses to your current month's allowance.`,
-            },
-          },
-        },
-      ],
+      line_items: [{ price: packConfig.priceId, quantity: 1 }],
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?added_analyses=${packConfig.analyses}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
       metadata: {
