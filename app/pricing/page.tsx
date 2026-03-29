@@ -179,7 +179,7 @@ function PricingContent() {
         </div>
 
         <p className="mt-8 text-center text-xs text-slate-400">
-          Not a substitute for legal advice. Secure checkout powered by Stripe.
+          This tool is not a substitute for professional legal advice. Secure checkout powered by Stripe.
         </p>
       </div>
     </main>

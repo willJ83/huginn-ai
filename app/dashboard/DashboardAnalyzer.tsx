@@ -722,7 +722,7 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
               </div>
             </div>
 
-            <div className="border-t border-slate-100 pt-4">
+            <div className="border-t border-slate-100 pt-4 space-y-3">
               <DownloadPdfButton
                 data={{
                   fileName: uploadedFileName || null,
@@ -734,6 +734,7 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
                 }}
                 className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
               />
+              <p className="text-xs text-slate-400">This tool is not a substitute for professional legal advice.</p>
             </div>
           </div>
         )}

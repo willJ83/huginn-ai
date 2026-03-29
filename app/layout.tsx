@@ -34,6 +34,7 @@ export default function RootLayout({
           <footer className="border-t border-slate-200 bg-white">
             <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-slate-600 sm:px-6 md:flex-row md:items-center md:justify-between">
               <p>© 2026 Odens Eye Creative</p>
+              <p className="text-xs text-slate-400">This tool is not a substitute for professional legal advice.</p>
 
               <div className="flex flex-wrap items-center gap-4">
                 <Link
