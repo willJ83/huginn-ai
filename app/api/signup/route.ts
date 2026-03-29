@@ -40,7 +40,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true }, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error("SIGNUP ERROR:", err);
     return NextResponse.json(
       { error: "Account creation didn't go through. Try again." },
       { status: 500 }
