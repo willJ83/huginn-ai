@@ -876,6 +876,14 @@ export default function Page() {
                     </div>
                   )}
                 </div>
+
+                <p className="demoHelperText">
+                  Want to see more?{" "}
+                  <a href="/signup" className="demoHelperLink">
+                    Create a free account
+                  </a>{" "}
+                  to access additional demo contracts.
+                </p>
               </>
             )}
           </section>
@@ -1202,6 +1210,24 @@ export default function Page() {
           color: #64748b;
           font-size: 18px;
           line-height: 1.6;
+        }
+
+        .demoHelperText {
+          margin: 28px 0 0;
+          font-size: 13px;
+          color: #94a3b8;
+          text-align: center;
+          line-height: 1.6;
+        }
+
+        .demoHelperLink {
+          color: #64748b;
+          text-decoration: underline;
+          text-underline-offset: 2px;
+        }
+
+        .demoHelperLink:hover {
+          color: #2563eb;
         }
 
         .riskBadge {
