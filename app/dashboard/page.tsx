@@ -118,51 +118,74 @@ export default async function DashboardPage() {
           {recentAnalyses.length === 0 ? (
             <p className="mt-3 text-sm text-slate-500">No analyses yet. Upload a document to get started.</p>
           ) : (
-            <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  <tr>
-                    <th className="px-4 py-3">File</th>
-                    <th className="px-4 py-3">Date</th>
-                    <th className="px-4 py-3">Risk Score</th>
-                    <th className="px-4 py-3">Risk Level</th>
-                    <th className="px-4 py-3"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {recentAnalyses.map((analysis) => (
-                    <tr key={analysis.id} className="bg-white">
-                      <td className="px-4 py-3 font-medium text-slate-800">
-                        {analysis.fileName || "Untitled Document"}
-                      </td>
-                      <td className="px-4 py-3 text-slate-500">
-                        {new Date(analysis.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-3 text-slate-700">{analysis.riskScore} / 100</td>
-                      <td className="px-4 py-3">
-                        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                          analysis.riskLevel === "high"
-                            ? "bg-red-50 text-red-600"
-                            : analysis.riskLevel === "medium"
-                            ? "bg-yellow-50 text-yellow-600"
-                            : "bg-green-50 text-green-600"
-                        }`}>
-                          {analysis.riskLevel}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <Link
-                          href={`/analysis/${analysis.id}`}
-                          className="font-medium text-blue-600 hover:text-blue-700"
-                        >
-                          View
-                        </Link>
-                      </td>
+            <>
+              {/* Mobile card layout */}
+              <div className="mt-3 flex flex-col gap-3 sm:hidden">
+                {recentAnalyses.map((analysis) => (
+                  <div key={analysis.id} className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-medium text-slate-800 text-sm">{analysis.fileName || "Untitled Document"}</p>
+                      <span className={`shrink-0 rounded-full px-2 py-1 text-xs font-semibold ${
+                        analysis.riskLevel === "high"
+                          ? "bg-red-50 text-red-600"
+                          : analysis.riskLevel === "medium"
+                          ? "bg-yellow-50 text-yellow-600"
+                          : "bg-green-50 text-green-600"
+                      }`}>
+                        {analysis.riskLevel}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                      <span>{new Date(analysis.createdAt).toLocaleDateString()}</span>
+                      <span>Score: {analysis.riskScore} / 100</span>
+                      <Link href={`/analysis/${analysis.id}`} className="font-medium text-blue-600 hover:text-blue-700">
+                        View →
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop table layout */}
+              <div className="mt-3 hidden overflow-hidden rounded-2xl border border-slate-200 sm:block">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <tr>
+                      <th className="px-4 py-3">File</th>
+                      <th className="px-4 py-3">Date</th>
+                      <th className="px-4 py-3">Risk Score</th>
+                      <th className="px-4 py-3">Risk Level</th>
+                      <th className="px-4 py-3"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {recentAnalyses.map((analysis) => (
+                      <tr key={analysis.id} className="bg-white">
+                        <td className="px-4 py-3 font-medium text-slate-800">{analysis.fileName || "Untitled Document"}</td>
+                        <td className="px-4 py-3 text-slate-500">{new Date(analysis.createdAt).toLocaleDateString()}</td>
+                        <td className="px-4 py-3 text-slate-700">{analysis.riskScore} / 100</td>
+                        <td className="px-4 py-3">
+                          <span className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                            analysis.riskLevel === "high"
+                              ? "bg-red-50 text-red-600"
+                              : analysis.riskLevel === "medium"
+                              ? "bg-yellow-50 text-yellow-600"
+                              : "bg-green-50 text-green-600"
+                          }`}>
+                            {analysis.riskLevel}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Link href={`/analysis/${analysis.id}`} className="font-medium text-blue-600 hover:text-blue-700">
+                            View
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </section>
       </div>
