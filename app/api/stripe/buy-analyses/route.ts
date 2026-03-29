@@ -5,10 +5,12 @@ import { prisma } from "@/lib/prisma";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-const PRICE_IDS: Record<string, string | undefined> = {
-  STARTER: process.env.STRIPE_STARTER_PRICE_ID,
-  PRO: process.env.STRIPE_PRO_PRICE_ID,
-};
+const ADDON_PACKS = {
+  "5": { analyses: 5, amount: 499, label: "5 Extra Analyses" },
+  "10": { analyses: 10, amount: 799, label: "10 Extra Analyses" },
+} as const;
+
+type PackKey = keyof typeof ADDON_PACKS;
 
 export async function POST(req: Request) {
   try {
@@ -18,30 +20,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { plan } = await req.json();
+    const { pack } = await req.json();
 
-    if (plan !== "STARTER" && plan !== "PRO") {
-      return NextResponse.json({ error: "Invalid plan selected" }, { status: 400 });
-    }
-
-    const priceId = PRICE_IDS[plan];
-
-    if (!priceId) {
+    if (!pack || !(pack in ADDON_PACKS)) {
       return NextResponse.json(
-        { error: `Price not configured for plan: ${plan}. Set STRIPE_${plan}_PRICE_ID in environment variables.` },
+        { error: "Invalid pack. Choose '5' or '10'." },
         { status: 400 }
       );
     }
+
+    const packConfig = ADDON_PACKS[pack as PackKey];
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
         id: true,
         email: true,
-        plan: true,
         subscriptionStatus: true,
         stripeCustomerId: true,
-        stripeSubId: true,
       },
     });
 
@@ -49,23 +45,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Already has an active subscription — redirect to billing portal
-    const alreadySubscribed =
-      (user.plan === "STARTER" || user.plan === "PRO") &&
-      (user.subscriptionStatus === "ACTIVE" || user.subscriptionStatus === "CANCELED");
-
-    if (alreadySubscribed && user.stripeCustomerId) {
-      const portalSession = await stripe.billingPortal.sessions.create({
-        customer: user.stripeCustomerId,
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
-      });
-
+    if (user.subscriptionStatus !== "ACTIVE") {
       return NextResponse.json(
-        {
-          error: "You already have an active subscription.",
-          redirectTo: portalSession.url,
-        },
-        { status: 409 }
+        { error: "An active subscription is required to purchase add-on analyses." },
+        { status: 403 }
       );
     }
 
@@ -76,7 +59,6 @@ export async function POST(req: Request) {
       try {
         await stripe.customers.retrieve(customerId);
       } catch {
-        console.warn("Invalid Stripe customer, creating new one...");
         customerId = null;
       }
     }
@@ -86,9 +68,7 @@ export async function POST(req: Request) {
         email: user.email || undefined,
         metadata: { userId: user.id },
       });
-
       customerId = newCustomer.id;
-
       await prisma.user.update({
         where: { id: user.id },
         data: { stripeCustomerId: customerId },
@@ -96,28 +76,33 @@ export async function POST(req: Request) {
     }
 
     const checkoutSession = await stripe.checkout.sessions.create({
-      mode: "subscription",
+      mode: "payment",
       customer: customerId,
-      line_items: [{ price: priceId, quantity: 1 }],
-      subscription_data: {
-        trial_period_days: 30,
-        metadata: {
-          userId: user.id,
-          plan,
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: "usd",
+            unit_amount: packConfig.amount,
+            product_data: {
+              name: packConfig.label,
+              description: `Add ${packConfig.analyses} analyses to your current month's allowance.`,
+            },
+          },
         },
-      },
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?upgraded=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/select-plan?canceled=true`,
+      ],
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?added_analyses=${packConfig.analyses}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
       metadata: {
         userId: user.id,
-        plan,
+        pack: String(packConfig.analyses),
+        type: "addon_analyses",
       },
-      payment_method_collection: "always",
     });
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error: any) {
-    console.error("STRIPE CHECKOUT ERROR:", error?.message ?? error);
+    console.error("BUY ANALYSES ERROR:", error?.message ?? error);
     return NextResponse.json(
       { error: error?.message || "Failed to create checkout session" },
       { status: 500 }

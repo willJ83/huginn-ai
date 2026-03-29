@@ -620,48 +620,62 @@ export default function Page() {
         </section>
 
         <section id="pricing" className="py-20 px-6 text-center">
-          <h2 className="text-2xl font-bold mb-10">Simple Pricing</h2>
+          <h2 className="text-2xl font-bold mb-3">Simple Pricing</h2>
+          <p className="text-gray-500 mb-2">30-day free trial on every plan. No charge until day 30.</p>
+          <p className="text-sm text-gray-400 mb-10">Card required to start. Cancel anytime.</p>
 
           <div className="flex flex-col md:flex-row gap-6 max-w-3xl mx-auto justify-center items-stretch">
-            <div className="flex-1 border rounded-xl p-8 shadow-sm">
-              <h3 className="text-xl font-semibold mb-2">Free</h3>
-              <p className="text-3xl font-bold mb-6">$0<span className="text-lg">/month</span></p>
+            {/* Starter */}
+            <div className="flex-1 border rounded-xl p-8 shadow-sm relative">
+              <div className="absolute -top-3 left-6 bg-emerald-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                First month free
+              </div>
+              <h3 className="text-xl font-semibold mb-2 mt-2">Starter</h3>
+              <p className="text-3xl font-bold mb-1">$9.99<span className="text-lg font-normal text-gray-500">/mo</span></p>
+              <p className="text-xs text-gray-400 mb-6">after 30-day free trial</p>
 
               <ul className="text-gray-600 mb-8 space-y-2 text-left">
-                <li>3 contract analyses per month</li>
-                <li>Risk scoring and issue flagging</li>
-                <li>Plain-English explanations</li>
-                <li>No credit card required</li>
+                <li>✓ 15 analyses per month</li>
+                <li>✓ 5 analyses during trial</li>
+                <li>✓ Risk scoring with severity levels</li>
+                <li>✓ Clause-level recommendations</li>
+                <li>✓ PDF export</li>
               </ul>
 
               <a
                 href="/signup"
                 className="block w-full border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50"
               >
-                Get Started Free
+                Start Free Trial
               </a>
             </div>
 
-            <div className="flex-1 border rounded-xl p-8 shadow-sm relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+            {/* Pro */}
+            <div className="flex-1 border-2 border-blue-500 rounded-xl p-8 shadow-sm relative">
+              <div className="absolute -top-3 left-6 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
                 Most Popular
               </div>
-              <h3 className="text-xl font-semibold mb-2">Pro</h3>
-              <p className="text-3xl font-bold mb-6">$29<span className="text-lg">/month</span></p>
+              <div className="absolute -top-3 right-6 bg-emerald-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                First month free
+              </div>
+              <h3 className="text-xl font-semibold mb-2 mt-2">Pro</h3>
+              <p className="text-3xl font-bold mb-1">$29.99<span className="text-lg font-normal text-gray-500">/mo</span></p>
+              <p className="text-xs text-gray-400 mb-6">after 30-day free trial</p>
 
               <ul className="text-gray-600 mb-8 space-y-2 text-left">
-                <li>Unlimited contract analyses</li>
-                <li>Risk scoring with High / Medium / Low severity</li>
-                <li>Clause-level recommendations</li>
-                <li>Multi-file upload support</li>
-                <li>Priority support</li>
+                <li>✓ 70 analyses per month</li>
+                <li>✓ 5 analyses during trial</li>
+                <li>✓ Risk scoring with severity levels</li>
+                <li>✓ Clause-level recommendations</li>
+                <li>✓ PDF export</li>
+                <li>✓ Priority support</li>
               </ul>
 
               <a
-                href="/dashboard"
+                href="/signup"
                 className="block w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
               >
-                Get Started
+                Start Free Trial
               </a>
             </div>
           </div>

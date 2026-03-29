@@ -1,13 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
 function SignupForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const isDemo = searchParams.get("demo") === "true";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,9 +17,7 @@ function SignupForm() {
 
     const res = await fetch("/api/signup", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
     });
 
@@ -32,19 +28,16 @@ function SignupForm() {
       return;
     }
 
-    router.push(isDemo ? "/login?created=1&demo=true" : "/login?created=1");
+    router.push("/login?created=1&next=/select-plan");
   }
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-16">
       <div className="mx-auto max-w-md rounded-2xl bg-white p-8 shadow-sm">
-        {isDemo && (
-          <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-            Create your free account to run the sample contract analysis — no credit card required.
-          </div>
-        )}
         <h1 className="text-3xl font-bold text-slate-900">Create your account</h1>
-        <p className="mt-2 text-sm text-slate-600">Create your account and start analyzing with confidence.</p>
+        <p className="mt-2 text-sm text-slate-600">
+          Start your 30-day free trial. No charge until day 30.
+        </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <input
@@ -61,6 +54,7 @@ function SignupForm() {
             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
 
           <input
@@ -69,6 +63,7 @@ function SignupForm() {
             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
 
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -77,9 +72,13 @@ function SignupForm() {
             type="submit"
             className="w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700"
           >
-            Sign Up
+            Continue to Plan Selection
           </button>
         </form>
+
+        <p className="mt-4 text-xs text-slate-500 text-center">
+          A credit card is required to start your trial. Cancel anytime.
+        </p>
 
         <p className="mt-6 text-sm text-slate-600">
           Already have an account?{" "}

@@ -4,7 +4,7 @@ import { runDeterministicExtraction } from "../../lib/riskEngine";
 import { HUGINN_V2_PROMPT } from "../../lib/huginnPrompt";
 import type { ProductTemplate } from "../../lib/productConfigs";
 import { auth } from "@/lib/auth";
-import { canUseFeature, recordUsage } from "@/lib/billing";
+import { canUseFeature, consumeAddonAnalysis, recordUsage } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -173,12 +173,14 @@ export async function POST(req: Request) {
     const usage = await canUseFeature(session.user.id, "huginn_analysis");
 
     if (!usage.allowed) {
+      const errorMessage = usage.paymentFailed
+        ? "Your payment failed. Update your billing information to continue."
+        : usage.needsPlan
+        ? "Please select a plan to run analyses."
+        : "You've used all your analyses this month. Buy more or upgrade your plan.";
+
       return NextResponse.json(
-        {
-          ok: false,
-          error: "Free scan limit reached.",
-          remaining: 0,
-        },
+        { ok: false, error: errorMessage, remaining: 0 },
         { status: 403 }
       );
     }
@@ -232,6 +234,11 @@ export async function POST(req: Request) {
     const finalRiskLevel = claudeResult ? deriveRiskLevel(claudeResult.riskScore) : deterministicResult.riskLevel;
 
     await recordUsage(session.user.id, "huginn_analysis");
+
+    // If this analysis came from the add-on quota, decrement it
+    if (usage.planRemaining === 0 && usage.addonRemaining > 0) {
+      await consumeAddonAnalysis(session.user.id);
+    }
 
     const saved = await prisma.analysis.create({
       data: {

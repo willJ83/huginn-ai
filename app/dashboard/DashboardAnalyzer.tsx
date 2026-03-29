@@ -27,10 +27,19 @@ type AnalysisResponse = {
   deadlines?: AnalysisDeadline[];
 };
 
+type UsageInfo = {
+  inTrial: boolean;
+  remaining: number;
+  planRemaining: number;
+  addonRemaining: number;
+  periodUsed: number;
+  periodLimit: number;
+  paymentFailed: boolean;
+  needsPlan: boolean;
+};
+
 type DashboardAnalyzerProps = {
-  hasUnlimitedAccess: boolean;
-  initialRemainingAnalyses: number;
-  freeLimit: number;
+  usageInfo: UsageInfo;
 };
 
 const REQUEST_TIMEOUT_MS = 120000;
@@ -186,12 +195,8 @@ type SampleId = (typeof SAMPLE_CONTRACTS)[number]["id"];
 async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
   try {
-    return await fetch(input, {
-      ...init,
-      signal: controller.signal,
-    });
+    return await fetch(input, { ...init, signal: controller.signal });
   } finally {
     clearTimeout(timeout);
   }
@@ -204,15 +209,9 @@ function createSampleFile(id: SampleId) {
 
 function toUserFacingError(err: unknown) {
   const message = err instanceof Error ? err.message : "";
-
   if (message.includes("Please upload a PDF, DOCX, or TXT file.")) {
     return "Unsupported file. Please upload a PDF, DOCX, or TXT file.";
   }
-
-  if (message.includes("Usage limit reached")) {
-    return "You've reached your free limit. Upgrade to Pro for unlimited access.";
-  }
-
   if (
     message.includes("Failed to parse") ||
     message.includes("Network") ||
@@ -220,11 +219,6 @@ function toUserFacingError(err: unknown) {
   ) {
     return "Upload failed. Try again.";
   }
-
-  if (message.includes("Analysis failed")) {
-    return "Upload failed. Try again.";
-  }
-
   return "Upload failed. Try again.";
 }
 
@@ -234,8 +228,7 @@ function getRiskInfo(score: number) {
       label: "HIGH RISK",
       badgeClass: "bg-red-100 text-red-700",
       barClass: "bg-red-500",
-      interpretation:
-        "This contract has serious issues that need attention before signing.",
+      interpretation: "This contract has serious issues that need attention before signing.",
     };
   }
   if (score <= 70) {
@@ -243,16 +236,14 @@ function getRiskInfo(score: number) {
       label: "MODERATE RISK",
       badgeClass: "bg-amber-100 text-amber-700",
       barClass: "bg-amber-500",
-      interpretation:
-        "This contract has some areas that need attention before signing.",
+      interpretation: "This contract has some areas that need attention before signing.",
     };
   }
   return {
     label: "LOW RISK",
     badgeClass: "bg-green-100 text-green-700",
     barClass: "bg-green-500",
-    interpretation:
-      "This contract looks generally sound, but review the flagged items below.",
+    interpretation: "This contract looks generally sound, but review the flagged items below.",
   };
 }
 
@@ -272,11 +263,7 @@ function getSeverityLabel(severity?: string) {
   return "LOW";
 }
 
-export default function DashboardAnalyzer({
-  hasUnlimitedAccess,
-  initialRemainingAnalyses,
-  freeLimit,
-}: DashboardAnalyzerProps) {
+export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedSample, setSelectedSample] = useState<SampleId>("marketing");
   const [isDragActive, setIsDragActive] = useState(false);
@@ -285,27 +272,20 @@ export default function DashboardAnalyzer({
   const [warning, setWarning] = useState("");
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [processedFileType, setProcessedFileType] = useState("");
-  const [extractionStatus, setExtractionStatus] = useState<
-    "Full" | "Partial" | ""
-  >("");
+  const [extractionStatus, setExtractionStatus] = useState<"Full" | "Partial" | "">("");
   const [resultTimestamp, setResultTimestamp] = useState("");
   const [result, setResult] = useState<AnalysisResponse | null>(null);
-  const [remainingAnalyses, setRemainingAnalyses] = useState(
-    initialRemainingAnalyses
-  );
+  const [remainingAnalyses, setRemainingAnalyses] = useState(usageInfo.remaining);
   const [expandedIssues, setExpandedIssues] = useState<Set<number>>(new Set());
 
-  const usedAnalyses = freeLimit - remainingAnalyses;
-  const canAnalyze = hasUnlimitedAccess || remainingAnalyses > 0;
+  const canAnalyze =
+    !usageInfo.paymentFailed && !usageInfo.needsPlan && remainingAnalyses > 0;
 
   function toggleIssue(index: number) {
     setExpandedIssues((prev) => {
       const next = new Set(prev);
-      if (next.has(index)) {
-        next.delete(index);
-      } else {
-        next.add(index);
-      }
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
       return next;
     });
   }
@@ -313,38 +293,22 @@ export default function DashboardAnalyzer({
   async function extractTextFromFile(file: File) {
     const lowerName = file.name.toLowerCase();
 
-    if (lowerName.endsWith(".txt")) {
-      return file.text();
-    }
+    if (lowerName.endsWith(".txt")) return file.text();
 
     const formData = new FormData();
     formData.append("file", file);
 
     if (lowerName.endsWith(".pdf")) {
-      const response = await fetchWithTimeout("/api/extract-pdf", {
-        method: "POST",
-        body: formData,
-      });
-
+      const response = await fetchWithTimeout("/api/extract-pdf", { method: "POST", body: formData });
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to parse PDF.");
-      }
-
+      if (!response.ok) throw new Error(data.error || "Failed to parse PDF.");
       return String(data.text || "");
     }
 
     if (lowerName.endsWith(".docx")) {
-      const response = await fetchWithTimeout("/api/extract-docx", {
-        method: "POST",
-        body: formData,
-      });
-
+      const response = await fetchWithTimeout("/api/extract-docx", { method: "POST", body: formData });
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to parse DOCX.");
-      }
-
+      if (!response.ok) throw new Error(data.error || "Failed to parse DOCX.");
       return String(data.text || "");
     }
 
@@ -352,12 +316,7 @@ export default function DashboardAnalyzer({
   }
 
   async function runAnalysis(file: File) {
-    if (!canAnalyze) {
-      setError(
-        "You've reached your free limit. Upgrade to Pro for unlimited access."
-      );
-      return;
-    }
+    if (!canAnalyze) return;
 
     setError("");
     setWarning("");
@@ -368,28 +327,18 @@ export default function DashboardAnalyzer({
       const text = await extractTextFromFile(file);
       const lowerName = file.name.toLowerCase();
 
-      if (lowerName.endsWith(".pdf")) {
-        setProcessedFileType("PDF");
-      } else if (lowerName.endsWith(".docx")) {
-        setProcessedFileType("DOCX");
-      } else {
-        setProcessedFileType("TXT");
-      }
+      if (lowerName.endsWith(".pdf")) setProcessedFileType("PDF");
+      else if (lowerName.endsWith(".docx")) setProcessedFileType("DOCX");
+      else setProcessedFileType("TXT");
 
-      if (!text.trim()) {
-        throw new Error("Failed to parse uploaded file.");
-      }
+      if (!text.trim()) throw new Error("Failed to parse uploaded file.");
 
       if (text.length < 500) {
-        setWarning(
-          "Warning:\nWe could not fully extract text from this file.\nResults may be incomplete."
-        );
+        setWarning("Warning:\nWe could not fully extract text from this file.\nResults may be incomplete.");
         setExtractionStatus("Partial");
       } else {
         setExtractionStatus("Full");
       }
-
-      const fileName = file.name;
 
       const response = await fetchWithTimeout("/api/analyze", {
         method: "POST",
@@ -399,7 +348,7 @@ export default function DashboardAnalyzer({
           text,
           template: "compliance_checker",
           config: {},
-          fileName,
+          fileName: file.name,
         }),
       });
 
@@ -410,14 +359,10 @@ export default function DashboardAnalyzer({
 
       if (!response.ok) {
         let message = "Analysis failed. Please try again.";
-
         try {
-          const text = await response.text();
-          if (text) {
-            message = text;
-          }
+          const txt = await response.text();
+          if (txt) message = txt;
         } catch {}
-
         setError(message);
         return;
       }
@@ -432,10 +377,7 @@ export default function DashboardAnalyzer({
         deadlines: Array.isArray(data.deadlines) ? data.deadlines : [],
       });
       setResultTimestamp(new Date().toLocaleString());
-
-      if (!hasUnlimitedAccess) {
-        setRemainingAnalyses((previous) => Math.max(0, previous - 1));
-      }
+      setRemainingAnalyses((prev) => Math.max(0, prev - 1));
     } catch (err) {
       setError(toUserFacingError(err));
     } finally {
@@ -469,20 +411,24 @@ export default function DashboardAnalyzer({
         } Here's what you need to know before signing.`
       : "";
 
+  const blockedMessage = usageInfo.paymentFailed
+    ? "Your payment failed. Update your billing information to continue."
+    : usageInfo.needsPlan
+    ? "Please select a plan to run analyses."
+    : remainingAnalyses === 0
+    ? "Monthly limit reached. Buy more analyses or upgrade your plan."
+    : null;
+
   return (
     <section className="mt-8 grid gap-5 lg:mt-10 lg:grid-cols-2 lg:gap-6">
       {/* Upload panel */}
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <h2 className="text-xl font-semibold text-slate-900">
-          Upload Document
-        </h2>
+        <h2 className="text-xl font-semibold text-slate-900">Upload Document</h2>
         <p className="mt-2 text-sm text-slate-600">
           Drop a PDF, DOCX, or TXT file to run a contract analysis.
         </p>
-        <p className="mt-2 text-sm text-slate-600">Secure file processing.</p>
         <p className="mt-1 text-sm text-slate-600">
-          Your documents are not stored permanently beyond operational retention
-          needs.
+          Your documents are not stored permanently beyond operational retention needs.
         </p>
 
         <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
@@ -515,39 +461,31 @@ export default function DashboardAnalyzer({
           </button>
         </div>
 
-        {!hasUnlimitedAccess ? (
-          <p className="mt-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-800">
-            Free plan includes 3 analyses per month.
+        {/* Usage counter */}
+        {!usageInfo.paymentFailed && !usageInfo.needsPlan && (
+          <p className="mt-3 text-sm text-slate-600">
+            {usageInfo.inTrial
+              ? `Trial: ${usageInfo.periodUsed} / ${usageInfo.periodLimit} analyses used`
+              : `${usageInfo.periodUsed} / ${usageInfo.periodLimit} analyses used this month`}
+            {usageInfo.addonRemaining > 0 ? ` + ${usageInfo.addonRemaining} add-on` : ""}
           </p>
-        ) : null}
+        )}
 
-        {!hasUnlimitedAccess ? (
-          <p className="mt-3 text-sm text-slate-700">
-            {usedAnalyses} / {freeLimit} free analyses used this month
+        {blockedMessage && (
+          <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+            {blockedMessage}
           </p>
-        ) : null}
-
-        {!hasUnlimitedAccess ? (
-          <p className="mt-1 text-sm text-slate-700">
-            You have {remainingAnalyses}{" "}
-            {remainingAnalyses === 1 ? "analysis" : "analyses"} remaining this
-            month.
-          </p>
-        ) : null}
+        )}
 
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          onDragOver={(event) => {
-            event.preventDefault();
-            setIsDragActive(true);
-          }}
+          onDragOver={(e) => { e.preventDefault(); setIsDragActive(true); }}
           onDragLeave={() => setIsDragActive(false)}
-          onDrop={async (event) => {
-            event.preventDefault();
+          onDrop={async (e) => {
+            e.preventDefault();
             setIsDragActive(false);
-            const file = event.dataTransfer.files?.[0] ?? null;
-            await handleFile(file);
+            await handleFile(e.dataTransfer.files?.[0] ?? null);
           }}
           className={`mt-5 w-full rounded-xl border-2 border-dashed px-4 py-8 text-center transition sm:px-6 sm:py-10 ${
             isDragActive
@@ -560,22 +498,19 @@ export default function DashboardAnalyzer({
             {isAnalyzing
               ? "Analyzing contract..."
               : !canAnalyze
-              ? "Upload disabled: monthly limit reached"
+              ? "Upload disabled"
               : "Analyze Contract"}
           </p>
           <p className="mt-2 text-sm text-slate-600">
             {isAnalyzing
               ? "Please wait while we process your file."
               : !canAnalyze
-              ? "Upgrade to Pro to continue analyzing this month."
+              ? "Resolve the issue above to continue analyzing."
               : "Drag & drop your document here, or tap to upload"}
           </p>
         </button>
 
-        <label htmlFor="dashboardFileUpload" className="sr-only">
-          Upload contract document
-        </label>
-
+        <label htmlFor="dashboardFileUpload" className="sr-only">Upload contract document</label>
         <input
           id="dashboardFileUpload"
           ref={fileInputRef}
@@ -583,40 +518,38 @@ export default function DashboardAnalyzer({
           accept=".pdf,.docx,.txt"
           className="hidden"
           title="Upload contract document"
-          onChange={async (event) => {
-            const input = event.currentTarget;
+          onChange={async (e) => {
+            const input = e.currentTarget;
             const file = input.files?.[0] ?? null;
-
             if (!file) return;
-
-            try {
-              await handleFile(file);
-            } finally {
-              input.value = "";
-            }
+            try { await handleFile(file); }
+            finally { input.value = ""; }
           }}
         />
 
-        {uploadedFileName ? (
-          <p className="mt-4 text-sm text-slate-600">
-            Last file: {uploadedFileName}
-          </p>
-        ) : null}
+        {uploadedFileName && (
+          <p className="mt-4 text-sm text-slate-600">Last file: {uploadedFileName}</p>
+        )}
 
-        {error ? (
+        {error && (
           <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
             {error}
           </p>
-        ) : null}
+        )}
 
-        {!hasUnlimitedAccess && !canAnalyze ? (
-          <a
-            href="/pricing"
-            className="mt-4 inline-flex items-center rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white hover:opacity-90"
-          >
-            Upgrade to Pro
-          </a>
-        ) : null}
+        {/* Buy more / upgrade prompt when at limit */}
+        {!canAnalyze && !usageInfo.paymentFailed && !usageInfo.needsPlan && (
+          <div className="mt-4 flex flex-wrap gap-2" id="buy-more">
+            <BuyAnalysesButton pack="5" label="Buy 5 analyses — $4.99" />
+            <BuyAnalysesButton pack="10" label="Buy 10 analyses — $7.99" />
+            <a
+              href="/pricing"
+              className="inline-block rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100"
+            >
+              Upgrade Plan
+            </a>
+          </div>
+        )}
       </div>
 
       {/* Results panel */}
@@ -625,69 +558,48 @@ export default function DashboardAnalyzer({
 
         {isAnalyzing ? (
           <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-6">
-            <p className="text-base font-semibold text-blue-900">
-              Analyzing contract...
-            </p>
-            <p className="mt-1 text-sm text-blue-800">
-              This usually takes a few seconds.
-            </p>
+            <p className="text-base font-semibold text-blue-900">Analyzing contract...</p>
+            <p className="mt-1 text-sm text-blue-800">This usually takes a few seconds.</p>
           </div>
         ) : !result ? (
           <div className="mt-3 space-y-2 text-sm text-slate-600">
             <p>Upload a contract to begin analysis.</p>
-            <p>
-              Supported files:
-              <br />
-              PDF, DOCX, TXT
-            </p>
+            <p>Supported files:<br />PDF, DOCX, TXT</p>
           </div>
         ) : (
           <div className="mt-4 space-y-5">
-            {warning ? (
+            {warning && (
               <p className="whitespace-pre-line rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
                 {warning}
               </p>
-            ) : null}
+            )}
 
-            {processedFileType && extractionStatus ? (
+            {processedFileType && extractionStatus && (
               <p className="text-sm text-slate-500">
                 File: {processedFileType} &middot; Extraction: {extractionStatus}
                 {resultTimestamp ? ` · ${resultTimestamp}` : ""}
               </p>
-            ) : null}
+            )}
 
-            {/* Health score card */}
             {riskInfo && (
               <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Contract Health Score
                 </p>
-
                 <div className="mt-3 flex flex-wrap items-end gap-2">
-                  <span className="text-4xl font-bold text-slate-900">
-                    {result.riskScore ?? 0}
-                  </span>
-                  <span className="mb-0.5 text-base font-medium text-slate-400">
-                    / 100
-                  </span>
-                  <span
-                    className={`mb-0.5 rounded-full px-2.5 py-0.5 text-xs font-bold ${riskInfo.badgeClass}`}
-                  >
+                  <span className="text-4xl font-bold text-slate-900">{result.riskScore ?? 0}</span>
+                  <span className="mb-0.5 text-base font-medium text-slate-400">/ 100</span>
+                  <span className={`mb-0.5 rounded-full px-2.5 py-0.5 text-xs font-bold ${riskInfo.badgeClass}`}>
                     {riskInfo.label}
                   </span>
                 </div>
-
                 <div className="mt-3 h-2.5 w-full rounded-full bg-slate-200">
                   <div
                     className={`h-2.5 rounded-full ${riskInfo.barClass}`}
                     style={{ width: `${result.riskScore ?? 0}%` }}
                   />
                 </div>
-
-                <p className="mt-2 text-sm text-slate-600">
-                  {riskInfo.interpretation}
-                </p>
-
+                <p className="mt-2 text-sm text-slate-600">{riskInfo.interpretation}</p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700">
                     {highCount} High Risk
@@ -696,21 +608,15 @@ export default function DashboardAnalyzer({
                     {mediumCount} Moderate
                   </span>
                   <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
-                    {deadlines.length}{" "}
-                    {deadlines.length === 1 ? "Deadline" : "Deadlines"}
+                    {deadlines.length} {deadlines.length === 1 ? "Deadline" : "Deadlines"}
                   </span>
                 </div>
               </div>
             )}
 
-            {/* Summary */}
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-                Before You Sign
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                {summaryIntro}
-              </p>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Before You Sign</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-700">{summaryIntro}</p>
               {result.summary && (
                 <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">
                   {result.summary}
@@ -718,7 +624,6 @@ export default function DashboardAnalyzer({
               )}
             </div>
 
-            {/* Issues */}
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
                 {issues.length === 0
@@ -727,9 +632,7 @@ export default function DashboardAnalyzer({
               </h3>
               <div className="mt-2 space-y-2">
                 {issues.length === 0 ? (
-                  <p className="text-sm text-slate-600">
-                    No issues found in this contract.
-                  </p>
+                  <p className="text-sm text-slate-600">No issues found in this contract.</p>
                 ) : (
                   issues.map((issue, index) => (
                     <div
@@ -737,11 +640,7 @@ export default function DashboardAnalyzer({
                       className="rounded-xl border border-slate-200 p-4"
                     >
                       <div className="flex flex-wrap items-start gap-2">
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-bold ${getSeverityBadge(
-                            issue.severity
-                          )}`}
-                        >
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${getSeverityBadge(issue.severity)}`}>
                           {getSeverityLabel(issue.severity)}
                         </span>
                         <p className="min-w-0 flex-1 break-words font-medium text-slate-900">
@@ -760,56 +659,45 @@ export default function DashboardAnalyzer({
 
                       {issue.recommendation && (
                         <div className="mt-3">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            What to do
-                          </p>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">What to do</p>
                           <p className="mt-1 break-words text-sm leading-relaxed text-slate-700">
                             {issue.recommendation}
                           </p>
                         </div>
                       )}
 
-                      {Array.isArray(issue.matches) &&
-                        issue.matches.length > 0 && (
-                          <div className="mt-3">
-                            <button
-                              type="button"
-                              onClick={() => toggleIssue(index)}
-                              className="text-xs font-semibold text-slate-400 hover:text-slate-600"
-                            >
-                              {expandedIssues.has(index) ? "▼" : "▶"} See the
-                              clause that triggered this flag
-                            </button>
-                            {expandedIssues.has(index) && (
-                              <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
-                                {issue.matches.map((match, mi) => (
-                                  <p
-                                    key={mi}
-                                    className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-slate-600"
-                                  >
-                                    {match}
-                                  </p>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
+                      {Array.isArray(issue.matches) && issue.matches.length > 0 && (
+                        <div className="mt-3">
+                          <button
+                            type="button"
+                            onClick={() => toggleIssue(index)}
+                            className="text-xs font-semibold text-slate-400 hover:text-slate-600"
+                          >
+                            {expandedIssues.has(index) ? "▼" : "▶"} See the clause that triggered this flag
+                          </button>
+                          {expandedIssues.has(index) && (
+                            <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                              {issue.matches.map((match, mi) => (
+                                <p key={mi} className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-slate-600">
+                                  {match}
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
               </div>
             </div>
 
-            {/* Deadlines */}
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-                Time-Sensitive Clauses
-              </h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Time-Sensitive Clauses</h3>
               <div className="mt-2">
                 {deadlines.length === 0 ? (
                   <p className="rounded-xl border border-green-100 bg-green-50 px-3 py-2 text-sm text-green-800">
-                    No auto-renewals or hard deadlines detected — nothing here
-                    requires immediate action on your calendar.
+                    No auto-renewals or hard deadlines detected — nothing here requires immediate action on your calendar.
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -819,13 +707,9 @@ export default function DashboardAnalyzer({
                         className="flex flex-col gap-1 rounded-lg border border-slate-200 p-3 sm:flex-row sm:items-center sm:justify-between"
                       >
                         <div>
-                          <p className="break-words font-medium text-slate-900">
-                            {deadline.label || "Deadline"}
-                          </p>
+                          <p className="break-words font-medium text-slate-900">{deadline.label || "Deadline"}</p>
                           {deadline.description && (
-                            <p className="mt-0.5 text-xs text-slate-500">
-                              {deadline.description}
-                            </p>
+                            <p className="mt-0.5 text-xs text-slate-500">{deadline.description}</p>
                           )}
                         </div>
                         <span className="whitespace-nowrap rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
@@ -838,7 +722,6 @@ export default function DashboardAnalyzer({
               </div>
             </div>
 
-            {/* Download PDF */}
             <div className="border-t border-slate-100 pt-4">
               <DownloadPdfButton
                 data={{
@@ -856,5 +739,39 @@ export default function DashboardAnalyzer({
         )}
       </div>
     </section>
+  );
+}
+
+function BuyAnalysesButton({ pack, label }: { pack: "5" | "10"; label: string }) {
+  const [loading, setLoading] = useState(false);
+
+  async function handleClick() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/stripe/buy-analyses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pack }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Something went wrong.");
+        return;
+      }
+      window.location.href = data.url;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={loading}
+      className="inline-block rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
+    >
+      {loading ? "Loading..." : label}
+    </button>
   );
 }

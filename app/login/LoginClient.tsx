@@ -6,9 +6,10 @@ import { signIn } from "next-auth/react";
 
 type LoginClientProps = {
   accountCreated: boolean;
+  next: string;
 };
 
-export default function LoginClient({ accountCreated }: LoginClientProps) {
+export default function LoginClient({ accountCreated, next }: LoginClientProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -32,7 +33,7 @@ export default function LoginClient({ accountCreated }: LoginClientProps) {
       return;
     }
 
-    window.location.href = "/dashboard";
+    window.location.href = next;
   }
 
   return (
@@ -42,7 +43,7 @@ export default function LoginClient({ accountCreated }: LoginClientProps) {
       {accountCreated && (
         <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           <p className="font-medium">
-            Account created. You are good to go - log in below.
+            Account created. Log in below to choose your plan.
           </p>
         </div>
       )}

@@ -1,30 +1,40 @@
 import { auth } from "@/lib/auth";
-import { getMonthlyUsageCount, hasUnlimitedAnalysisAccess, PLAN_LIMITS } from "@/lib/billing";
+import { canUseFeature } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import UpgradeButton from "./UpgradeButton";
 import DashboardAnalyzer from "./DashboardAnalyzer";
 import LogoutButton from "./LogoutButton";
 import AppHeader from "@/app/components/AppHeader";
+import UsageWarningBanner from "./UsageWarningBanner";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ upgraded?: string; added_analyses?: string }>;
+}) {
   const session = await auth();
 
   if (!session?.user) {
     redirect("/login");
   }
 
-  const [user, monthlyUsageCount, recentAnalyses] = await Promise.all([
+  const params = await searchParams;
+  const justUpgraded = params.upgraded === "true";
+  const addedAnalyses = params.added_analyses ? parseInt(params.added_analyses, 10) : null;
+
+  const [user, usageInfo, recentAnalyses] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
         plan: true,
         subscriptionStatus: true,
         currentPeriodEnd: true,
+        trialEndsAt: true,
+        addonAnalysesRemaining: true,
       },
     }),
-    getMonthlyUsageCount(session.user.id),
+    canUseFeature(session.user.id),
     prisma.analysis.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: "desc" },
@@ -33,25 +43,28 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  const planLabel =
-    user?.plan === "FREE"
-      ? "FREE"
-      : user?.subscriptionStatus === "CANCELED" && user?.currentPeriodEnd
-      ? `PRO (Cancels ${new Date(user.currentPeriodEnd).toLocaleDateString()})`
-      : user?.subscriptionStatus === "CANCELED"
-      ? "PRO (Cancels at period end)"
-      : user?.subscriptionStatus === "PAST_DUE"
-      ? "PRO (Payment issue)"
-      : "PRO (Active)";
+  // Redirect to plan selection if no subscription set up yet
+  // (only if not in the middle of a Stripe redirect)
+  if (usageInfo.needsPlan && !justUpgraded) {
+    redirect("/select-plan");
+  }
 
-  const hasUnlimitedAccess = user ? hasUnlimitedAnalysisAccess(user) : false;
-  const freeUsageCount = Math.min(monthlyUsageCount, PLAN_LIMITS.FREE);
-  const remainingFreeAnalyses = Math.max(0, PLAN_LIMITS.FREE - freeUsageCount);
-  const hasReachedFreeLimit = !hasUnlimitedAccess && freeUsageCount >= PLAN_LIMITS.FREE;
-
-  const usageLabel = hasUnlimitedAccess
-    ? "Pro plan: Unlimited analyses"
-    : `${freeUsageCount} / ${PLAN_LIMITS.FREE} free analyses used this month`;
+  // Plan label
+  let planLabel: string;
+  if (usageInfo.inTrial) {
+    const daysLeft = user?.trialEndsAt
+      ? Math.max(0, Math.ceil((user.trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+      : 0;
+    planLabel = `${user?.plan === "PRO" ? "Pro" : "Starter"} — Free trial (${daysLeft} day${daysLeft !== 1 ? "s" : ""} left)`;
+  } else if (user?.subscriptionStatus === "CANCELED" && user?.currentPeriodEnd) {
+    const planName = user.plan === "PRO" ? "Pro" : "Starter";
+    planLabel = `${planName} — Cancels ${new Date(user.currentPeriodEnd).toLocaleDateString()}`;
+  } else if (user?.subscriptionStatus === "PAST_DUE") {
+    const planName = user?.plan === "PRO" ? "Pro" : "Starter";
+    planLabel = `${planName} — Payment failed`;
+  } else {
+    planLabel = user?.plan === "PRO" ? "Pro" : "Starter";
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 sm:py-16">
@@ -64,52 +77,109 @@ export default async function DashboardPage() {
               Welcome, {session?.user?.name || "User"}.
             </p>
           </div>
-
           <LogoutButton />
         </div>
 
-        <p className="mt-4 text-sm text-slate-500">
-          Current Plan: {planLabel}
-        </p>
-        {hasUnlimitedAccess ? (
-          <p className="mt-1 text-sm text-slate-500">{usageLabel}</p>
-        ) : null}
-
-        {hasReachedFreeLimit ? (
-          <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-            You've reached your free limit. Upgrade to Pro for unlimited access.
+        {/* Plan + usage status */}
+        <div className="mt-4">
+          <p className="text-sm text-slate-500">
+            Plan: <span className="font-medium text-slate-700">{planLabel}</span>
           </p>
-        ) : null}
 
-        {user?.plan === "PRO" && user?.subscriptionStatus === "CANCELED" && user?.currentPeriodEnd && (
-          <p className="text-sm text-slate-600 mt-2">
-            Your Pro access continues until {new Date(user.currentPeriodEnd).toLocaleDateString()}.
-          </p>
-        )}
-        {user?.plan === "PRO" && user?.subscriptionStatus === "CANCELED" && !user?.currentPeriodEnd && (
-          <p className="text-sm text-slate-600 mt-2">
-            Your Pro access continues until the end of your billing period.
-          </p>
-        )}
-
-        <div className="mt-6">
-          {user?.plan !== "PRO" ? (
-            <p className="mb-4 text-lg text-slate-600">
-              Upgrade to Pro for unlimited analyses, clause-level recommendations, and priority support.
+          {justUpgraded && usageInfo.needsPlan && (
+            <p className="mt-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+              Your subscription is being activated. This page will update shortly — refresh in a moment.
             </p>
-          ) : null}
+          )}
 
-          <UpgradeButton
-            plan={user?.plan ?? "FREE"}
-            subscriptionStatus={user?.subscriptionStatus ?? "INACTIVE"}
-            currentPeriodEnd={user?.currentPeriodEnd ?? undefined}
+          {/* Trial usage */}
+          {usageInfo.inTrial && (
+            <p className="mt-1 text-sm text-slate-500">
+              Trial: {usageInfo.periodUsed} / {usageInfo.periodLimit} analyses used
+            </p>
+          )}
+
+          {/* Post-trial usage */}
+          {!usageInfo.inTrial && !usageInfo.needsPlan && !usageInfo.paymentFailed && (
+            <p className="mt-1 text-sm text-slate-500">
+              This month: {usageInfo.periodUsed} / {usageInfo.periodLimit} analyses used
+              {usageInfo.addonRemaining > 0
+                ? ` + ${usageInfo.addonRemaining} add-on remaining`
+                : ""}
+            </p>
+          )}
+
+          {/* Add-on purchase success */}
+          {addedAnalyses && addedAnalyses > 0 && (
+            <p className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              {addedAnalyses} extra {addedAnalyses === 1 ? "analysis" : "analyses"} added to your account.
+            </p>
+          )}
+
+          {/* Payment failed */}
+          {usageInfo.paymentFailed && (
+            <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+              Your payment failed. Update your billing information to continue.{" "}
+              <a href="/api/stripe/portal" className="underline">
+                Update billing
+              </a>
+            </p>
+          )}
+
+          {/* Grace period notice */}
+          {user?.plan !== "FREE" &&
+            user?.subscriptionStatus === "CANCELED" &&
+            user?.currentPeriodEnd && (
+              <p className="mt-2 text-sm text-slate-600">
+                Your access continues until{" "}
+                {new Date(user.currentPeriodEnd).toLocaleDateString()}.
+              </p>
+            )}
+
+          {/* Low usage warning banner */}
+          <UsageWarningBanner
+            remaining={usageInfo.remaining}
+            planRemaining={usageInfo.planRemaining}
+            inTrial={usageInfo.inTrial}
+            plan={user?.plan ?? "STARTER"}
           />
         </div>
 
+        {/* Subscription management */}
+        <div className="mt-6 flex flex-wrap gap-3">
+          {(user?.subscriptionStatus === "ACTIVE" || user?.subscriptionStatus === "CANCELED") ? (
+            <a
+              href="/api/stripe/portal"
+              className="inline-block rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"
+            >
+              Manage Subscription
+            </a>
+          ) : (
+            <a
+              href="/select-plan"
+              className="inline-block rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Choose a Plan
+            </a>
+          )}
+
+          {/* Buy more analyses button — shown at limit */}
+          {usageInfo.remaining === 0 && !usageInfo.paymentFailed && (
+            <BuyMoreButton />
+          )}
+        </div>
+
         <DashboardAnalyzer
-          hasUnlimitedAccess={hasUnlimitedAccess}
-          initialRemainingAnalyses={remainingFreeAnalyses}
-          freeLimit={PLAN_LIMITS.FREE}
+          usageInfo={{
+            inTrial: usageInfo.inTrial,
+            remaining: usageInfo.remaining,
+            planRemaining: usageInfo.planRemaining,
+            addonRemaining: usageInfo.addonRemaining,
+            periodUsed: usageInfo.periodUsed,
+            periodLimit: usageInfo.periodLimit,
+            paymentFailed: usageInfo.paymentFailed,
+            needsPlan: usageInfo.needsPlan,
+          }}
         />
 
         <section className="mt-8">
@@ -190,5 +260,16 @@ export default async function DashboardPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+function BuyMoreButton() {
+  return (
+    <a
+      href="/dashboard#buy-more"
+      className="inline-block rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+    >
+      Buy More Analyses
+    </a>
   );
 }
