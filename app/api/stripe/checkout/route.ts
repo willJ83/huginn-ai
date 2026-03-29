@@ -15,7 +15,10 @@ export async function POST(req: Request) {
     const session = await auth();
 
     if (!session?.user?.id || !session.user.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized", redirectTo: "/signup?next=/select-plan" },
+        { status: 401 }
+      );
     }
 
     const { plan } = await req.json();
