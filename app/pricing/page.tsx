@@ -46,6 +46,9 @@ function PricingContent() {
         <p className="mt-1 text-center text-sm text-slate-500">
           Card required to start. Cancel anytime.
         </p>
+        <p className="mt-1 text-center text-sm text-slate-500">
+          We'll send you a reminder email 3 days before your trial ends.
+        </p>
 
         {canceled && (
           <p className="mt-6 text-center text-sm text-red-600">
