@@ -515,7 +515,7 @@ export default function Page() {
 
         <section className="py-4 px-6 border-t border-b border-gray-200">
           <ul className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-gray-400">
-            <li>🔒 Your contracts are never stored</li>
+            <li>🔒 Your contract text is never stored. Only your analysis results are saved to your account.</li>
             <li>⚡ Results in seconds</li>
             <li>🏢 Built by Odens Eye Creative LLC — Melbourne, FL</li>
             <li>✓ No legal expertise required</li>
@@ -556,31 +556,16 @@ export default function Page() {
 
         <section className="py-16 px-6">
           <h2 className="text-2xl font-bold text-center mb-12">
-            Tools Included
+            Every Analysis Includes
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <div className="border rounded-lg p-6">
-              <h3 className="font-semibold mb-2">Contract Risk Analyzer</h3>
-              <p className="text-gray-600 text-sm">
-                Detect clauses that expose your business to legal or financial risk.
-              </p>
-            </div>
-
-            <div className="border rounded-lg p-6">
-              <h3 className="font-semibold mb-2">Compliance Checker</h3>
-              <p className="text-gray-600 text-sm">
-                Identify missing legal protections and compliance issues.
-              </p>
-            </div>
-
-            <div className="border rounded-lg p-6">
-              <h3 className="font-semibold mb-2">Deadline Extractor</h3>
-              <p className="text-gray-600 text-sm">
-                Automatically detect renewal dates, notice periods, and obligations.
-              </p>
-            </div>
-          </div>
+          <ul className="max-w-xl mx-auto space-y-3 text-gray-700">
+            <li>✓ Contract Health Score</li>
+            <li>✓ Plain-English Risk Summary</li>
+            <li>✓ Issue Detection with Severity Ratings</li>
+            <li>✓ Time-Sensitive Clause Extraction</li>
+            <li>✓ Downloadable PDF Report</li>
+          </ul>
         </section>
 
         <section id="features" className="py-16 px-6 bg-gray-50">
@@ -684,12 +669,19 @@ export default function Page() {
         <section id="analyzer" className="mt-24">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-semibold text-gray-900">
-              Try It Now — No Account Needed
+              Start Your Free Trial
             </h2>
 
             <p className="mt-3 text-gray-600">
               Upload a contract or paste text and see your risk report in seconds.
             </p>
+
+            <a
+              href="/signup"
+              className="inline-block mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+            >
+              Start Your Free Trial
+            </a>
           </div>
 
           <div className="mainGrid">
