@@ -38,184 +38,186 @@ export const MARKETING_DEMO: DemoFixture = {
   label: "Marketing Services Agreement",
   fileName: "marketing-services-agreement.txt",
   documentType: "Marketing Services Agreement",
-  riskScore: 18,
-  riskLevel: "high",
+  riskScore: 68,
+  riskLevel: "medium",
   summary:
-    "This is a Marketing Services Agreement between Alpha Solutions LLC and BrightPath Marketing for digital marketing services at $5,000 per month. It is one of the most incomplete contracts of its type — key sections are intentionally omitted, the liability clause protects only the provider and waives your right to recover even direct losses, deliverables are entirely undefined, and critical legal sections like governing law and IP ownership are blank or missing. Do not sign this contract without significant revisions and legal review.",
+    "This is a Marketing Services Agreement between Alpha Solutions LLC (Provider) and BrightPath Marketing (Client) for digital marketing services starting January 1, 2026. The contract is reasonably well-structured with clear deliverables, mutual liability protections, and IP ownership in your favor, but it has a few meaningful gaps — most notably no audit rights over ad spend, a vague data breach notification timeline, and an automatic renewal clause that could lock you in for another full year if you miss a 30-day window. It warrants attention before signing but is not unusually dangerous.",
   issues: [
     {
-      id: "undefined-deliverables",
-      label: "No defined deliverables, timelines, or performance standards",
-      severity: "critical",
-      clauseReference: "Section 1 – Services",
+      id: "auto-renewal-short-window",
+      label: "Auto-Renewal With Only 30-Day Opt-Out Window",
+      severity: "medium",
+      clauseReference: "Section 3 — Term",
       message:
-        "The contract commits you to paying $5,000 per month but leaves what you actually receive entirely undefined.",
+        "The contract automatically renews for a full year unless you cancel at least 30 days before the end of the current term, leaving very little time to act.",
       explanation:
-        "With deliverables 'to be determined at a later date,' you have no legal basis to demand any specific work product, timeline, or quality standard. If the provider delivers minimal or subpar work, you have almost no grounds to dispute it or withhold payment. You are essentially signing a blank check.",
+        "If you miss the 30-day notice window by even one day, you are committed to another 12 months and $60,000 in fees. A 30-day window on a 12-month contract is a tight margin, and the contract contains no fee renegotiation right at renewal, meaning you could be locked in at the same rate regardless of performance or market changes.",
       recommendation:
-        "Require a detailed Statement of Work (SOW) attached to this agreement before signing, specifying exactly what will be delivered, when, and how success will be measured.",
+        "Negotiate the non-renewal notice window to at least 60–90 days and add a right to renegotiate fees before each renewal term.",
       matches: [
-        "The specific deliverables, timelines, and performance metrics for these services are to be determined at a later date.",
+        "this Agreement shall renew for successive one-year terms unless either party provides written notice of non-renewal at least thirty (30) days before the end of the then-current term",
       ],
     },
     {
-      id: "direct-damages-excluded",
-      label:
-        "Provider cannot be held liable for any damages — including direct losses you suffer",
-      severity: "critical",
-      clauseReference: "Section 5 – Liability",
+      id: "narrow-indemnification-scope",
+      label: "Indemnification Only Covers Extreme Misconduct, Not Ordinary Mistakes",
+      severity: "medium",
+      clauseReference: "Section 10 — Indemnification",
       message:
-        "The liability clause eliminates the provider's financial responsibility for all damages, including direct ones, which is extreme and likely unenforceable in most jurisdictions.",
+        "The indemnification clause only protects you if the Provider commits gross negligence or willful misconduct, meaning you bear the cost of any harm caused by ordinary negligence or professional errors.",
       explanation:
-        "Normally, even contracts with liability limits allow you to recover direct losses — money you actually lost because of someone's failure. This clause tries to waive even that. If the provider runs a bad ad campaign that tanks your brand or wastes your ad budget, you could recover nothing. Courts often throw out clauses this broad, but relying on that is a gamble you should not have to take.",
+        "If the Provider makes a careless mistake — for example, publishing inaccurate content that damages your brand or mismanaging ad budgets — you cannot seek indemnification unless you can prove they acted with extreme recklessness or intent. Ordinary professional errors, which are far more common, are excluded. This means you could incur real losses and be left paying your own legal and recovery costs.",
       recommendation:
-        "Strike the exclusion of direct damages entirely and negotiate a liability cap set at a reasonable level, such as the total fees paid in the prior 3 months.",
+        "Expand the indemnification scope to include claims arising from the Provider's general negligence and material breach of contract, not just gross negligence or willful misconduct.",
       matches: [
-        "Provider is not liable for any damages arising from the use of services, including any direct, indirect, incidental, or consequential damages of any kind.",
+        "arising from the Indemnifying Party's: (a) gross negligence or willful misconduct; or (b) infringement of a third party's intellectual property rights",
       ],
     },
     {
-      id: "intentionally-omitted-confidentiality",
-      label: "Confidentiality section was deliberately left out",
-      severity: "critical",
-      clauseReference: "Section 6 – Confidentiality",
+      id: "liability-cap-low",
+      label: "Liability Cap Limited to Just 3 Months of Fees",
+      severity: "medium",
+      clauseReference: "Section 6 — Liability",
       message:
-        "The confidentiality section is explicitly marked as intentionally omitted, meaning there are no enforceable protections for your business's sensitive information.",
+        "The maximum amount either party can recover from the other is capped at only the last 3 months of fees paid, which is $15,000 — potentially far less than the actual harm a serious failure could cause.",
       explanation:
-        "In a marketing relationship, you will likely share customer data, marketing strategies, brand plans, and proprietary business information. With no confidentiality terms, the provider is legally free to share or use that information however they choose. The fact this was deliberately omitted — not just forgotten — is a serious red flag.",
+        "If the Provider mismanages a large paid ad campaign, destroys your SEO rankings, or causes a data breach, your ability to recover damages is capped at $15,000 regardless of actual losses. For a business spending on paid advertising and relying on this provider for its digital presence, real-world losses from a serious failure could easily exceed that amount.",
       recommendation:
-        "Demand a complete confidentiality clause that defines what counts as confidential information, how long it must be protected, and what happens if there is a breach before signing.",
+        "Negotiate a higher liability cap — at minimum 12 months of fees ($60,000) — and ensure data breaches and confidentiality violations are carved out from the cap entirely.",
       matches: [
-        "Both parties agree to keep sensitive information confidential.",
-        "[INTENTIONALLY OMITTED]",
+        "Each party's total cumulative liability to the other under or in connection with this Agreement shall not exceed the total fees paid by Client in the three (3) months immediately preceding the event giving rise to the claim",
       ],
     },
     {
-      id: "blank-governing-law",
-      label: "Governing law section is completely blank",
-      severity: "critical",
-      clauseReference: "Section 7 – Governing Law",
+      id: "vague-breach-notification",
+      label: "No Timeline for Data Breach Notification",
+      severity: "medium",
+      clauseReference: "Section 8 — Data Protection",
       message:
-        "No state or country law is specified to govern this contract, leaving both parties without a clear legal framework if a dispute arises.",
+        "The contract requires the Provider to 'promptly' notify you of a data breach but sets no specific timeframe, which could leave you exposed to regulatory penalties if you are subject to GDPR's 72-hour reporting rule.",
       explanation:
-        "If you ever need to enforce this contract or defend yourself in a dispute, neither side knows which state's laws apply, which court has jurisdiction, or where a case would be filed. This creates expensive uncertainty and could force you to litigate in an inconvenient location. A blank governing law clause is a drafting failure that should never appear in a signed agreement.",
+        "Under GDPR, you may be required to report a breach to regulators within 72 hours of becoming aware of it. If your Provider notifies you on day 4 citing 'prompt' notice, you have already missed your legal deadline and could face significant fines. The word 'promptly' is legally vague and unenforceable as a hard deadline.",
       recommendation:
-        "Insist that the governing law section be completed with your preferred state before signing, and confirm it includes a venue clause specifying where disputes will be heard.",
-      matches: ["[left blank]"],
-    },
-    {
-      id: "no-notice-period-termination",
-      label: "Contract can be terminated instantly with no notice period",
-      severity: "high",
-      clauseReference: "Section 4 – Termination",
-      message:
-        "The termination clause allows either party to exit the agreement at any time but explicitly states no notice period is required, meaning termination could be immediate.",
-      explanation:
-        "If you are the client, this cuts both ways — the provider could stop all work on your campaigns with zero warning, leaving your marketing efforts exposed. If you are mid-campaign with active ad spend, this could cause real financial damage. There is also no cure period, meaning a minor dispute or misunderstanding could lead to immediate termination with no chance to fix the problem.",
-      recommendation:
-        "Negotiate a minimum 30-day written notice period for termination without cause, and add a 14-day cure period that allows either party to fix a breach before termination takes effect.",
+        "Replace 'promptly' with a specific contractual deadline — such as 'within 48 hours of discovery' — to ensure you have time to meet your own regulatory obligations.",
       matches: [
-        "Either party may terminate this agreement at any time with written notice. No notice period is specified.",
+        "Provider shall promptly notify Client of any actual or suspected unauthorized access to Client data",
       ],
     },
     {
-      id: "vague-payment-terms",
-      label:
-        "Payment due date is undefined and late payments carry no consequences",
-      severity: "high",
-      clauseReference: "Section 2 – Payment Terms",
+      id: "outcome-based-seo-obligation",
+      label: "SEO Ranking Obligation Is Outcome-Based and May Be Unenforceable",
+      severity: "low",
+      clauseReference: "Section 1 — Services and Deliverables",
       message:
-        "Payment is due within a 'reasonable time' with no defined window, and the contract explicitly waives any late fees or interest on overdue invoices.",
+        "The Provider is contractually obligated to 'maintain or improve' your organic search rankings, but search rankings are controlled by third parties (Google, Bing) and can shift for reasons entirely outside the Provider's control.",
       explanation:
-        "If you are the provider, you have no legal tool to compel timely payment — a client could delay payment indefinitely and face no financial penalty. If you are the client, 'reasonable time' is ambiguous enough that a dispute over timing could arise unexpectedly. Either way, this clause benefits whichever party wants to delay payment.",
+        "If a search engine algorithm update drops your rankings, the Provider could technically be in breach of contract despite performing all their work correctly. Conversely, the vagueness of this obligation could also make it difficult for you to hold the Provider accountable if their work genuinely causes a ranking decline, since they may argue external factors were responsible.",
       recommendation:
-        "Replace 'reasonable time' with a specific payment window such as Net 15 or Net 30, and add a late payment interest rate of 1.5% per month to incentivize timely payment.",
+        "Clarify that the ranking obligation is subject to a best-efforts or industry-standard-practices qualifier and define a clear process for determining whether underperformance is attributable to the Provider.",
       matches: [
-        "Payment is due within a reasonable time after invoicing. No late fees or interest shall apply to overdue invoices.",
+        "Provider shall maintain or improve Client's organic search ranking for agreed target keywords",
       ],
     },
     {
-      id: "non-functional-dispute-resolution",
-      label: "Dispute resolution clause provides no actual process",
-      severity: "high",
-      clauseReference: "Section 8 – Dispute Resolution",
+      id: "no-deliverable-acceptance-process",
+      label: "No Acceptance or Rejection Process for Deliverables",
+      severity: "low",
+      clauseReference: "Section 1 — Services and Deliverables",
       message:
-        "The dispute resolution clause says disputes will be handled 'in a mutually agreed manner,' which is not an enforceable mechanism.",
+        "The contract specifies what will be delivered each month but contains no process for you to review, accept, request revisions, or reject deliverables.",
       explanation:
-        "If you and the provider disagree and cannot mutually agree on how to resolve it — which is likely in any real dispute — this clause gives you nothing to fall back on. You would default to costly court litigation with no agreed rules, venue, or process. The clause is essentially a placeholder that provides no protection.",
+        "Without an acceptance process, there is no clear point at which a deliverable is deemed complete and approved — or rejected due to quality issues. This creates ambiguity about when payment is owed, how many revisions you are entitled to, and what happens if you are dissatisfied with a blog post, social media asset, or campaign report.",
       recommendation:
-        "Replace this with a defined process — for example, mandatory mediation followed by binding arbitration in a specified city — and include a timeframe for each step.",
-      matches: ["Any disputes will be handled in a mutually agreed manner."],
+        "Add a written acceptance process specifying a review period (e.g., 5 business days), a defined number of revision rounds, and a clear outcome if no response is given within the review window.",
+      matches: [
+        "Provider agrees to deliver the following digital marketing services each calendar month",
+      ],
     },
     {
       id: "missing-0",
-      label: "No IP ownership clause",
+      label: "No Audit Rights Over Ad Spend and Performance Data",
       severity: "missing",
       explanation:
-        "This contract involves the creation of content, ad copy, and creative assets, but there is no clause establishing who owns that work. Without a work-for-hire designation or IP assignment, the provider may legally retain ownership of everything they create for you — meaning you could lose access to your own marketing materials if the relationship ends.",
+        "The Provider is managing your paid search and social ad campaigns, which means they control how your advertising budget is spent. Without a contractual right to audit the Provider's records, you have no independent way to verify that reported ad spend, impressions, clicks, and conversions are accurate. This is a significant financial blind spot, especially as the monthly fee grows or ad budgets increase.",
       recommendation:
-        "Add an IP ownership clause stating that all work product created under this agreement is owned by the client upon full payment, and that the provider retains no rights to it.",
+        "Request an audit rights clause giving you the right to inspect the Provider's performance records, ad account data, and spend reports — at your cost — no more than once per year with reasonable notice.",
       matches: [],
     },
     {
       id: "missing-1",
-      label: "No data protection or privacy terms",
+      label: "No Insurance Requirements",
       severity: "missing",
       explanation:
-        "Digital marketing services almost always involve handling customer data, email lists, website analytics, and potentially personal information subject to laws like GDPR or CCPA. With no data protection clause, there are no rules about how your data is stored, used, or protected — exposing you to regulatory fines and reputational damage if something goes wrong.",
+        "The contract does not require the Provider to carry any insurance — such as professional liability (errors and omissions), cyber liability, or general liability coverage. If the Provider causes a data breach, publishes infringing content, or makes a costly advertising error, there may be no insurance policy available to pay for resulting losses, even if the Provider is technically liable.",
       recommendation:
-        "Add a data protection clause that defines each party's obligations under applicable privacy laws, restricts the provider from using your customer data for any purpose outside this agreement, and requires prompt notification of any data breach.",
+        "Require the Provider to maintain at minimum professional liability (E&O) and cyber liability insurance with specified minimum coverage amounts, and to provide a certificate of insurance upon request.",
       matches: [],
     },
     {
       id: "missing-2",
-      label: "No indemnification clause",
+      label: "No Non-Solicitation Clause",
       severity: "missing",
       explanation:
-        "If the provider's work infringes a third-party copyright, violates advertising regulations, or causes harm to a third party, there are no indemnification terms to determine who is responsible for the resulting legal costs and claims. As the client, you could be exposed to third-party lawsuits with no contractual right to have the provider cover those costs.",
+        "Neither party is restricted from recruiting or hiring the other's employees or contractors during or after the agreement. If the Provider's key team members working on your account are valuable and you want to hire them directly — or if the Provider tries to recruit your marketing staff — there is nothing in this contract preventing it.",
       recommendation:
-        "Add a mutual indemnification clause where each party agrees to cover the other for losses caused by their own actions, with specific carve-outs for IP infringement and regulatory violations caused by the provider's work.",
-      matches: [],
-    },
-    {
-      id: "missing-3",
-      label: "No warranty clause or disclaimer",
-      severity: "missing",
-      explanation:
-        "The provider makes no representations about the quality, legality, or fitness of the services. Combined with the undefined deliverables, this means you have no contractual basis to demand competent, professional-quality work.",
-      recommendation:
-        "Ask for a clause where the provider warrants that services will be performed in a professional manner, comply with applicable laws, and not infringe any third-party intellectual property rights.",
-      matches: [],
-    },
-    {
-      id: "missing-4",
-      label: "No audit rights",
-      severity: "missing",
-      explanation:
-        "You are paying $5,000 per month for services with no defined deliverables and no performance metrics. Without audit rights, you have no contractual ability to review the provider's billing records, time logs, or performance data to verify you are getting what you are paying for.",
-      recommendation:
-        "Request a clause giving you the right to audit the provider's performance records and billing documentation with reasonable notice, no more than once per quarter.",
+        "Add a mutual non-solicitation clause prohibiting either party from directly recruiting or hiring the other's employees or contractors during the agreement term and for 12 months after termination.",
       matches: [],
     },
   ],
   deadlines: [
     {
-      label: "Agreement effective date",
+      label: "Contract Start Date",
       value: "January 1, 2026",
       description:
-        "The contract begins on this date. Given the number of critical issues identified, this agreement should not be signed in its current form — if this date is approaching, prioritize getting revisions completed urgently.",
+        "The agreement becomes effective and services begin on this date. Ensure both parties have signed before this date to avoid disputes about whether the contract is in force.",
     },
     {
-      label: "Contract term end date",
+      label: "Initial Term End Date",
       value: "December 31, 2026",
       description:
-        "The agreement runs for 12 months from January 1, 2026. There is no auto-renewal clause and no renewal process defined, so both parties will need to renegotiate or let the agreement lapse at this date. Plan ahead to avoid a gap in service coverage.",
+        "The 12-month initial term ends on this date. If you do not wish to renew, you must send written non-renewal notice before this date.",
     },
     {
-      label: "Payment due date",
-      value: "Undefined — 'reasonable time' after invoicing",
+      label: "Non-Renewal Notice Deadline (Year 1)",
+      value: "December 1, 2026",
       description:
-        "There is no fixed payment deadline. This ambiguity should be resolved before signing — without a clear due date, either party can dispute what 'reasonable' means, creating unnecessary conflict each month.",
+        "You must provide written notice of non-renewal at least 30 days before the end of the initial term. Missing this deadline automatically locks you into another 12-month term worth $60,000 in fees. Calendar this well in advance.",
+    },
+    {
+      label: "Monthly Invoice Payment Due",
+      value: "Net-30 from invoice date",
+      description:
+        "Each monthly invoice must be paid within 30 days of issue. After 45 days unpaid, the Provider may suspend services with 10 days' written notice. Late invoices also accrue interest at 1.5% per month (18% annually) from the due date.",
+    },
+    {
+      label: "Monthly Ad Performance Summary Deadline",
+      value: "Within 5 business days of month-end",
+      description:
+        "The Provider is contractually required to deliver a written ad campaign performance summary within 5 business days after each month closes. Track this monthly to ensure the Provider is meeting their delivery obligations.",
+    },
+    {
+      label: "Termination for Convenience Notice Period",
+      value: "30 days written notice",
+      description:
+        "Either party can end the agreement at any time by giving 30 days' written notice. You will owe payment for all services rendered through the termination date, so account for one final month of fees.",
+    },
+    {
+      label: "Breach Cure Period",
+      value: "14 days from written notice",
+      description:
+        "If either party breaches the contract, the breaching party has 14 days to fix the problem after receiving written notice. If the breach is not cured within 14 days, the non-breaching party may terminate immediately. Send breach notices in writing and track this window carefully.",
+    },
+    {
+      label: "Confidentiality Obligations Post-Termination",
+      value: "2 years after termination",
+      description:
+        "Both parties must keep each other's confidential information secret for 2 years after the contract ends. Ensure your team is aware of this ongoing obligation when offboarding from this relationship.",
+    },
+    {
+      label: "Annual Deliverable Scope Review",
+      value: "At least once per year",
+      description:
+        "The contract requires both parties to review and update the deliverable scope in writing at least annually. Use this opportunity to renegotiate fees, adjust service levels, or address performance issues before renewal.",
     },
   ],
 };
@@ -423,231 +425,165 @@ export const VENDOR_DEMO: DemoFixture = {
   label: "Vendor Supply Agreement",
   fileName: "vendor-supply-agreement.txt",
   documentType: "Vendor Agreement",
-  riskScore: 12,
-  riskLevel: "high",
+  riskScore: 74,
+  riskLevel: "medium",
   summary:
-    "This is a Vendor Supply Agreement between SteelCore Manufacturing Ltd. and Pinnacle Retail Group, effective February 1, 2026. It is one of the most one-sided contracts a buyer can sign — you pay everything upfront with no guarantee of delivery, lose ownership of any custom products you fund, and face a large financial penalty if you try to leave. Do not sign this contract without significant renegotiation and legal review.",
+    "This is a Vendor Supply Agreement between SteelCore Manufacturing (supplier) and Pinnacle Retail Group (buyer) for recurring goods purchases over a one-year auto-renewing term. The contract is reasonably balanced with good protections on liability, IP, and warranties, but a few terms around auto-renewal notice timing, arbitration location, and warranty remedy limits deserve attention before signing. Overall this is a moderate-risk contract — manageable with a few targeted adjustments.",
   issues: [
     {
-      id: "liability-cap-inadequate",
-      label: "Liability cap is set at just $500",
-      severity: "critical",
-      clauseReference: "Section 6 - Limitation of Liability",
-      message:
-        "The vendor's total financial responsibility for any mistake, defect, or breach is capped at $500, no matter how large the contract or how serious the harm.",
-      explanation:
-        "If SteelCore ships you defective products worth $50,000, fails to deliver after you've paid in full, or causes your business significant losses, you can only recover $500. This cap covers everything — including product defects and negligence — with no exceptions. This is not a negotiating position; it is a near-total removal of your legal protection.",
-      recommendation:
-        "Negotiate the liability cap to reflect the actual contract value, and add carve-outs so the cap does not apply to gross negligence, willful misconduct, or product defects causing personal injury.",
-      matches: [
-        "Vendor's total liability under this Agreement, for any cause whatsoever and regardless of the form of action, shall not exceed five hundred dollars ($500.00).",
-        "This limitation applies to all claims including those for breach of contract, negligence, and product defects.",
-      ],
-    },
-    {
-      id: "ip-ownership-buyer-adverse",
-      label: "You lose ownership of custom products you pay to develop",
-      severity: "critical",
-      clauseReference: "Section 5 - Intellectual Property",
-      message:
-        "Any custom product, mold, design, or specification you fund belongs entirely to the vendor, not to you.",
-      explanation:
-        "If you pay SteelCore to develop a custom product or tooling designed to your specifications, they own it. They can sell that design to your competitors, and you have no right to stop them. You also have no license guaranteeing you can continue using the design if the relationship ends. You are essentially funding their product development for free.",
-      recommendation:
-        "Negotiate so that any custom work funded by Buyer becomes Buyer's property, or at minimum secure an exclusive, irrevocable license for the life of the commercial relationship.",
-      matches: [
-        "Any custom products, tooling, molds, designs, or specifications developed by Vendor for Buyer under this Agreement shall remain the exclusive intellectual property of Vendor.",
-        "Buyer shall have no ownership rights in any custom work product, even if Buyer funded the development of such work.",
-      ],
-    },
-    {
-      id: "upfront-payment-no-recourse",
-      label:
-        "You must pay 100% upfront with no protection if goods are never delivered",
-      severity: "critical",
-      clauseReference: "Section 2 - Payment Terms",
-      message:
-        "You are required to pay the full invoice amount before any goods are shipped, and the contract provides no refund process or remedy if delivery never happens.",
-      explanation:
-        "You hand over all the money first, and SteelCore controls whether and when they ship. There is no defined process for getting your money back if they fail to deliver, and given the $500 liability cap in Section 6, your legal recourse for a failed delivery is essentially nothing. This creates serious cash flow and financial exposure.",
-      recommendation:
-        "Negotiate for milestone-based or net payment terms, and add an explicit refund obligation and delivery guarantee tied to payment.",
-      matches: [
-        "Buyer shall pay 100% of the invoice amount upfront prior to any shipment or delivery.",
-        "Vendor reserves the right to withhold delivery until full payment is confirmed.",
-      ],
-    },
-    {
-      id: "price-increase-no-opt-out",
-      label: "Vendor can raise prices 20% every year and you cannot say no",
-      severity: "critical",
-      clauseReference: "Section 3 - Pricing and Price Adjustments",
-      message:
-        "The vendor can increase prices by up to 20% annually with only 30 days' notice, and you have no right to reject or exit without paying a termination penalty.",
-      explanation:
-        "A 20% annual price increase compounded over a multi-year relationship can dramatically erode your margins. Because you cannot opt out of price increases without triggering the 25% termination penalty in Section 7, you are financially trapped. Simply continuing to place orders is treated as acceptance of any new pricing.",
-      recommendation:
-        "Cap price increases at a lower rate tied to an objective index such as CPI, and negotiate a right to terminate without penalty if increases exceed an agreed threshold.",
-      matches: [
-        "Vendor reserves the right to increase prices by up to twenty percent (20%) annually upon thirty (30) days written notice to Buyer.",
-        "Buyer has no right to reject or opt out of price increases.",
-        "Continued ordering after the notice period constitutes acceptance of the new pricing.",
-      ],
-    },
-    {
-      id: "termination-penalty-excessive",
-      label: "Leaving the contract early costs you 25% of all remaining obligations",
-      severity: "high",
-      clauseReference: "Section 7 - Termination Penalty",
-      message:
-        "If you want to exit this agreement before the term ends for any reason other than the vendor's proven uncured breach, you owe a penalty equal to 25% of all remaining purchase commitments.",
-      explanation:
-        "If you are partway through a one-year term and need to stop — because the vendor is performing poorly, your business needs change, or you find a better supplier — you face a large financial penalty. Combined with the 20% annual price increases and the 15-day renewal window, this creates a contract that is very hard to exit without significant cost. Courts in some jurisdictions may strike down penalty clauses, but relying on litigation is expensive and uncertain.",
-      recommendation:
-        "Negotiate for a termination for convenience right with reasonable notice and no penalty, and clearly define 'material breach' with an explicit cure period so the exception is actually usable.",
-      matches: [
-        "Buyer shall pay Vendor a termination penalty equal to twenty-five percent (25%) of the total value of all remaining purchase obligations for the balance of the term.",
-      ],
-    },
-    {
-      id: "auto-renewal-short-window",
-      label:
-        "You have only 15 days to cancel before the contract automatically renews for another year",
-      severity: "high",
-      clauseReference: "Section 4 - Term and Renewal",
-      message:
-        "The window to cancel auto-renewal is only 15 days before the term ends, and missing it locks you into another full year with a costly exit penalty.",
-      explanation:
-        "Fifteen days is an extremely short window — if your team is travelling, the notice gets lost, or someone forgets to calendar the deadline, the contract renews automatically for another year. Because leaving mid-term triggers the 25% penalty in Section 7, this is not just an inconvenience — it could mean being trapped in a contract you no longer want for up to another 12 months.",
-      recommendation:
-        "Negotiate the auto-renewal notice window to at least 60 or 90 days, and set a calendar reminder immediately if you proceed with this agreement.",
-      matches: [
-        "unless either party provides written notice of cancellation no later than fifteen (15) days prior to the end of the then-current term.",
-        "Failure to provide timely notice shall result in automatic renewal for an additional year.",
-      ],
-    },
-    {
-      id: "no-delivery-obligations",
-      label:
-        "Vendor controls all delivery schedules with no performance obligations",
-      severity: "high",
-      clauseReference: "Section 1 - Supply of Goods",
-      message:
-        "The contract explicitly states there are no delivery timelines, lead times, or performance standards, and the vendor decides when to deliver at their sole discretion.",
-      explanation:
-        "You could pay upfront and wait indefinitely for your goods with no contractual basis to demand timely delivery. If your business depends on receiving stock to meet customer orders or production schedules, this creates serious operational risk. There is no consequence for the vendor if they deliver late or fail to deliver in a commercially reasonable timeframe.",
-      recommendation:
-        "Add a defined delivery schedule or maximum lead time, and include a remedy such as refund rights or fee reductions if delivery timelines are not met.",
-      matches: [
-        "No delivery timelines, lead times, or performance standards are defined in this Agreement.",
-        "Vendor shall determine delivery schedules at its sole discretion.",
-      ],
-    },
-    {
-      id: "dispute-resolution-placeholder",
-      label:
-        "The dispute resolution clause is a blank placeholder with no actual process",
+      id: "auto-renewal-90-day-notice",
+      label: "Auto-Renewal Requires 90-Day Opt-Out Notice",
       severity: "medium",
-      clauseReference: "Section 8 - Dispute Resolution",
+      clauseReference: "Section 4 — Term and Renewal",
       message:
-        "Section 8 contains placeholder text that defers any dispute resolution process to a future agreement between the parties, providing no real mechanism for resolving disagreements.",
+        "The contract auto-renews each year unless you give 90 days' notice of non-renewal, which is an unusually long window to track.",
       explanation:
-        "If a dispute arises — over a failed delivery, defective goods, or a billing error — there is no agreed process for resolving it. This means any disagreement defaults to expensive, time-consuming litigation with no prior agreed steps like mediation or escalation. Given the number of one-sided clauses in this contract, disputes are a realistic prospect.",
+        "If you miss the 90-day window before the anniversary date, you are locked in for another full year with no way out except a 90-day convenience termination — meaning you could end up 6+ months into an unwanted contract year before it ends. Most vendor agreements use a 30–60 day window, making 90 days more burdensome for the Buyer.",
       recommendation:
-        "Replace the placeholder with a real dispute resolution clause specifying escalation to senior management, followed by mediation, and then litigation or arbitration in a mutually agreed venue.",
+        "Negotiate to reduce the auto-renewal opt-out notice period to 30 or 60 days, and set a calendar reminder for the opt-out deadline each year.",
       matches: [
-        "[No dispute resolution process defined. All disputes shall be handled as agreed upon by the parties at the time of the dispute.]",
+        "automatically renew for successive one-year terms unless either party provides written notice of non-renewal at least ninety (90) days before the end of the then-current term",
+      ],
+    },
+    {
+      id: "arbitration-delaware-jurisdiction",
+      label: "Arbitration Fixed in Wilmington, Delaware",
+      severity: "medium",
+      clauseReference: "Section 11 — Dispute Resolution",
+      message:
+        "All binding arbitration must take place in Wilmington, Delaware, regardless of where your business is located.",
+      explanation:
+        "If a dispute escalates to arbitration, your team would need to travel to Delaware or hire local Delaware counsel, adding cost and inconvenience. This is particularly burdensome if Pinnacle Retail Group is headquartered far from Delaware. In a dispute over a modest invoice amount, travel costs alone could outweigh the claim.",
+      recommendation:
+        "Negotiate to allow arbitration to be conducted remotely or in a mutually agreed location closer to your principal place of business.",
+      matches: [
+        "binding arbitration under the rules of the American Arbitration Association in Wilmington, Delaware",
+      ],
+    },
+    {
+      id: "warranty-sole-remedy",
+      label: "Warranty Remedies Are Limited to Repair, Replace, or Credit Only",
+      severity: "medium",
+      clauseReference: "Section 7 — Product Warranties",
+      message:
+        "If goods are defective, your only remedies are repair, replacement, or a purchase price credit — you cannot claim broader damages even if the defect causes downstream losses.",
+      explanation:
+        "Suppose defective goods cause you to miss a major retail season, lose a customer contract, or incur extra labor costs. Under this clause, you can only get the cost of the faulty goods back — not your lost profits or consequential losses. For a retail business where product availability is critical, this gap could be costly.",
+      recommendation:
+        "Request that the sole-remedy limitation be removed or at minimum carve out situations involving widespread defects, recall events, or defects that cause customer-facing harm.",
+      matches: [
+        "repair or replace the defective goods or issue a credit for the purchase price, as Buyer's sole and exclusive remedy for warranty claims",
+      ],
+    },
+    {
+      id: "vendor-shipment-withhold-right",
+      label: "Vendor Can Withhold Shipments for Overdue Invoices",
+      severity: "low",
+      clauseReference: "Section 2 — Payment Terms",
+      message:
+        "The Vendor can stop all future shipments if any single invoice is more than 60 days overdue, after only 10 days' warning.",
+      explanation:
+        "If there is a billing dispute or an administrative payment delay on one invoice, the Vendor could halt your entire supply chain with just 10 days' notice. For a retail business dependent on steady inventory, even a short supply interruption could affect customer commitments. The provision doesn't distinguish between disputed and undisputed invoices.",
+      recommendation:
+        "Request that shipment withholding rights apply only to undisputed overdue invoices, and that the cure period be extended to at least 15–20 days.",
+      matches: [
+        "Vendor may withhold future shipments after providing 10 days' written notice if any invoice remains unpaid for more than 60 days",
+      ],
+    },
+    {
+      id: "liability-cap-12-month-lookback",
+      label: "Liability Cap Based on Prior 12 Months of Payments",
+      severity: "low",
+      clauseReference: "Section 6 — Limitation of Liability",
+      message:
+        "The maximum either party can recover in a dispute is capped at what Buyer paid the Vendor in the prior 12 months.",
+      explanation:
+        "This cap works in your favor when you are the claimant (you can recover up to a full year of payments), but it also limits your exposure as Buyer if the Vendor sues you. The carve-outs for gross negligence, willful misconduct, and payment obligations are reasonable and standard. Overall this provision is balanced, but worth understanding going in.",
+      recommendation:
+        "Confirm the 12-month cap is acceptable given your expected annual spend with this Vendor, and verify the gross negligence and indemnification carve-outs are retained as written.",
+      matches: [
+        "total cumulative liability to the other under or in connection with this Agreement shall not exceed the total amounts paid or payable by Buyer to Vendor in the twelve (12) months immediately preceding the event giving rise to the claim",
       ],
     },
     {
       id: "missing-0",
-      label: "No product warranties of any kind",
+      label: "No Force Majeure Clause",
       severity: "missing",
       explanation:
-        "The vendor makes no promises about the quality, fitness, or conformity of the goods they supply. If products arrive defective, fail to meet specifications, or are unfit for their intended purpose, you have no warranty to enforce — and the $500 liability cap means your legal remedy is essentially worthless.",
+        "There is no provision addressing what happens if either party cannot perform due to events outside their control — such as natural disasters, pandemics, supply chain disruptions, or government actions. Without this, a party could be held in breach for failing to deliver or pay when performance was genuinely impossible. This is particularly relevant for a manufacturing supply relationship where logistics delays are a real risk.",
       recommendation:
-        "Require explicit warranties of merchantability, fitness for purpose, and conformance to agreed specifications, with a defined warranty period and a clear remedy such as replacement, repair, or refund.",
+        "Request a standard force majeure clause that excuses non-performance caused by events outside a party's reasonable control, with a defined notice obligation and a right to terminate if the disruption lasts beyond 60–90 days.",
       matches: [],
     },
     {
       id: "missing-1",
-      label: "No indemnification protections",
+      label: "No Product Recall or Safety Defect Procedure",
       severity: "missing",
       explanation:
-        "There is no clause requiring the vendor to protect you from third-party claims arising from their products — such as a customer injured by a defective product, or an IP infringement claim because the vendor used someone else's design. You could face lawsuits for problems entirely caused by SteelCore.",
+        "For a retail business selling physical goods to consumers, there is no provision addressing what happens if supplied goods need to be recalled due to a safety defect. Without clear obligations on who manages recalls, who bears the cost, and what Vendor's obligations are, Pinnacle Retail Group could face significant unrecovered costs and reputational damage in a recall scenario.",
       recommendation:
-        "Add a mutual indemnification clause requiring each party to cover the other for claims arising from their own negligence, misconduct, or IP infringement.",
+        "Request a clause requiring Vendor to promptly notify Buyer of any known safety defects, to cooperate in any recall, and to bear recall-related costs for defects originating from Vendor's manufacturing.",
       matches: [],
     },
     {
       id: "missing-2",
-      label: "No confidentiality or non-disclosure obligations",
+      label: "No Audit Rights for Pricing or Compliance",
       severity: "missing",
       explanation:
-        "You may need to share custom product designs, pricing strategies, customer requirements, or business plans with the vendor to receive the goods you need. Without a confidentiality clause, SteelCore has no legal obligation to keep any of that information secret and can share or use it freely.",
+        "Buyer has no right to audit Vendor's pricing, invoices, or compliance with the agreement's terms. In a long-term recurring supply relationship, this means Buyer cannot independently verify that it is being charged correctly per Exhibit A or that pricing adjustments are applied as agreed.",
       recommendation:
-        "Add a mutual confidentiality clause covering all business information shared during the relationship, with obligations surviving termination for at least two to three years.",
-      matches: [],
-    },
-    {
-      id: "missing-3",
-      label: "No defined product specifications or deliverables",
-      severity: "missing",
-      explanation:
-        "The contract references a pricing exhibit but does not define what goods are actually being supplied, to what quality standard, or by what acceptance criteria. Without this, there is no contractual basis to reject non-conforming goods or enforce any standard of quality.",
-      recommendation:
-        "Attach a detailed product specification schedule as an exhibit defining the goods, quality standards, inspection rights, and acceptance criteria before signing.",
-      matches: [],
-    },
-    {
-      id: "missing-4",
-      label: "No vendor insurance requirements",
-      severity: "missing",
-      explanation:
-        "SteelCore supplies physical goods that could cause property damage or personal injury. There is no requirement for them to carry product liability insurance, general liability coverage, or any other insurance. If something goes wrong, they may be unable to cover the losses — and with a $500 liability cap, you cannot recover from them anyway.",
-      recommendation:
-        "Require the vendor to maintain adequate product liability and general liability insurance at specified minimum coverage levels and provide certificates of insurance annually.",
-      matches: [],
-    },
-    {
-      id: "missing-5",
-      label: "No dispute resolution mechanism",
-      severity: "missing",
-      explanation:
-        "The existing Section 8 is a non-functional placeholder. Without an agreed process, any disagreement goes straight to litigation — the most expensive and time-consuming option available.",
-      recommendation:
-        "Include a tiered dispute resolution process: first senior management escalation, then mediation, then binding arbitration or litigation in a specified, mutually convenient venue.",
-      matches: [],
-    },
-    {
-      id: "missing-6",
-      label: "No audit rights",
-      severity: "missing",
-      explanation:
-        "Given the vendor has unilateral rights to raise prices by 20% annually and you have no way to verify invoices or pricing calculations, you need the ability to audit relevant records. Without audit rights, you are entirely dependent on SteelCore's self-reported numbers.",
-      recommendation:
-        "Negotiate a right to audit the vendor's pricing, production, and compliance records on reasonable notice, particularly given the unilateral price adjustment rights.",
+        "Request a right to audit Vendor's invoicing records and pricing calculations on reasonable notice, no more than once per year, at Buyer's expense.",
       matches: [],
     },
   ],
   deadlines: [
     {
-      label: "Contract effective date",
+      label: "Auto-Renewal Opt-Out Deadline (Year 1)",
+      value: "November 3, 2026 (90 days before February 1, 2027)",
+      description:
+        "If you do not want this agreement to automatically renew for a second year, you must send written notice of non-renewal by approximately November 3, 2026. Missing this date locks you in for another full year.",
+    },
+    {
+      label: "Agreement Start Date",
       value: "February 1, 2026",
       description:
-        "The agreement commences on this date. Ensure all negotiations, amendments, and signatures are completed before this date, as obligations begin immediately.",
+        "The agreement is effective from this date, meaning supply obligations, payment terms, and all other provisions are live from this point.",
     },
     {
-      label: "Auto-renewal cancellation deadline (Year 1)",
-      value: "January 17, 2027",
+      label: "Initial Term End Date",
+      value: "January 31, 2027",
       description:
-        "You must deliver written notice of cancellation no later than 15 days before the January 31, 2027 end of the first term. Missing this deadline automatically locks you into another full year from February 1, 2027, with a 25% termination penalty if you then try to exit mid-term.",
+        "The one-year initial term ends on this date, after which the agreement automatically rolls over unless notice has been given 90 days prior.",
     },
     {
-      label: "Price increase notice period",
-      value: "30 days written notice",
+      label: "Termination for Convenience Notice Period",
+      value: "90 days written notice",
       description:
-        "The vendor may raise prices by up to 20% at any time with 30 days' notice. You have no right to reject increases, so continuing to order after the 30-day window constitutes acceptance. Monitor all notices carefully as each increase compounds over time.",
+        "Either party can exit the agreement at any time by giving 90 days' written notice. Buyer remains responsible for payment on all orders already confirmed before the termination date takes effect.",
+    },
+    {
+      label: "Price Increase Opt-Out Window",
+      value: "30 days from receipt of price increase notice",
+      description:
+        "If Vendor proposes a price increase, you have 30 days to respond with a termination notice to exit without penalty. Missing this window means you accept the new pricing.",
+    },
+    {
+      label: "Overdue Invoice Cure Period Before Shipment Hold",
+      value: "10 days written notice after 60 days overdue",
+      description:
+        "If an invoice goes 60 days unpaid, Vendor can halt all shipments with just 10 days' notice. Monitor invoice aging closely to avoid supply disruption.",
+    },
+    {
+      label: "Product Warranty Period",
+      value: "12 months from delivery date",
+      description:
+        "Defect claims must be raised within 12 months of delivery. Claims submitted after this window will not be covered under the warranty provisions.",
+    },
+    {
+      label: "Confidentiality Survival Period",
+      value: "2 years after termination",
+      description:
+        "Both parties' confidentiality obligations continue for two years after the agreement ends, meaning sensitive information shared during the relationship remains protected post-contract.",
     },
   ],
 };

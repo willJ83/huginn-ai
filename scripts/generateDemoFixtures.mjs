@@ -137,7 +137,7 @@ RULES:
 `.trim();
 
 // ---------------------------------------------------------------------------
-// Sample contracts (copied from app/dashboard/DashboardAnalyzer.tsx)
+// Sample contracts — marketing and vendor only (updated fair versions)
 // ---------------------------------------------------------------------------
 const SAMPLE_CONTRACTS = [
   {
@@ -148,67 +148,45 @@ const SAMPLE_CONTRACTS = [
 
 This Marketing Services Agreement ("Agreement") is entered into between Alpha Solutions LLC ("Provider") and BrightPath Marketing ("Client") as of January 1, 2026.
 
-1. Services
-Provider agrees to deliver digital marketing services including SEO, content creation, and ad management. The specific deliverables, timelines, and performance metrics for these services are to be determined at a later date.
+1. Services and Deliverables
+Provider agrees to deliver the following digital marketing services each calendar month:
+  (a) Search engine optimization (SEO): minimum 4 optimized blog posts, monthly keyword ranking report, and on-page audit of up to 10 pages;
+  (b) Content creation: up to 8 social media assets and 2 email newsletter drafts;
+  (c) Ad management: management of Client's paid search and social campaigns with a written performance summary delivered within 5 business days of month-end.
+Performance metrics: Provider shall maintain or improve Client's organic search ranking for agreed target keywords and shall provide a monthly dashboard report showing impressions, clicks, conversions, and ad spend efficiency. Parties shall review and update deliverable scope in writing no less than annually.
 
 2. Payment Terms
-Client agrees to pay $5,000 per month. Payment is due within a reasonable time after invoicing. No late fees or interest shall apply to overdue invoices.
+Client shall pay Provider $5,000 per month, due within thirty (30) days of invoice date ("Net-30"). Invoices shall be issued on the first business day of each month for the prior month's services. Overdue invoices shall accrue interest at 1.5% per month (18% per annum) from the due date until paid. Provider may suspend services after providing 10 days' written notice if any invoice remains unpaid for more than 45 days.
 
 3. Term
-This agreement begins on January 1, 2026 and continues for 12 months unless terminated earlier.
+This Agreement commences on January 1, 2026 and continues for twelve (12) months ("Initial Term"), unless terminated earlier in accordance with Section 4. After the Initial Term, this Agreement shall renew for successive one-year terms unless either party provides written notice of non-renewal at least thirty (30) days before the end of the then-current term.
 
 4. Termination
-Either party may terminate this agreement at any time with written notice. No notice period is specified.
+Either party may terminate this Agreement for convenience upon thirty (30) days' prior written notice. Either party may terminate for cause if the other party materially breaches this Agreement and fails to cure such breach within fourteen (14) days of receiving written notice describing the breach in reasonable detail. Upon termination, Client shall pay for all services rendered through the effective termination date.
 
-5. Liability
-Provider is not liable for any damages arising from the use of services, including any direct, indirect, incidental, or consequential damages of any kind.
+5. Intellectual Property
+All work product, content, creative assets, and deliverables created by Provider specifically for Client under this Agreement ("Deliverables") shall become the exclusive property of Client upon receipt of full payment for the applicable invoice. Provider retains ownership of its pre-existing tools, methodologies, templates, and know-how used in performing services, but grants Client a perpetual, royalty-free license to use such elements as incorporated into the Deliverables.
 
-6. Confidentiality
-Both parties agree to keep sensitive information confidential.
+6. Liability
+Each party's total cumulative liability to the other under or in connection with this Agreement shall not exceed the total fees paid by Client in the three (3) months immediately preceding the event giving rise to the claim. This limitation applies to all causes of action in aggregate. Neither party shall be liable to the other for indirect, incidental, consequential, or punitive damages. These limitations shall not apply to claims arising from gross negligence, willful misconduct, or a party's indemnification obligations.
 
-[INTENTIONALLY OMITTED]
+7. Confidentiality
+Each party ("Receiving Party") agrees to hold in strict confidence all non-public business, technical, or financial information disclosed by the other party ("Disclosing Party") that is designated as confidential or that reasonably should be understood to be confidential ("Confidential Information"). Confidential Information does not include information that: (a) is or becomes publicly known through no fault of the Receiving Party; (b) was rightfully known to the Receiving Party before disclosure; (c) is independently developed by the Receiving Party without use of the Disclosing Party's information; or (d) is required to be disclosed by law or court order, provided the Receiving Party gives prompt prior written notice where permitted. These obligations survive termination of this Agreement for two (2) years.
 
-7. Governing Law
-[left blank]
+8. Data Protection
+Provider shall process Client's customer or user data solely for the purpose of performing services under this Agreement. Provider shall implement and maintain reasonable technical and organizational security measures to protect such data. Provider shall promptly notify Client of any actual or suspected unauthorized access to Client data. Each party shall comply with applicable data protection and privacy laws, including GDPR and CCPA where applicable.
 
-8. Dispute Resolution
-Any disputes will be handled in a mutually agreed manner.
-`,
-  },
-  {
-    id: "nda",
-    label: "Non-Disclosure Agreement",
-    fileName: "non-disclosure-agreement.txt",
-    text: `MUTUAL NON-DISCLOSURE AGREEMENT
+9. Warranties
+Provider warrants that: (a) services will be performed in a professional and workmanlike manner consistent with industry standards; (b) Deliverables will not knowingly infringe any third-party intellectual property rights; and (c) Provider has full authority to enter into and perform this Agreement.
 
-This Non-Disclosure Agreement ("Agreement") is entered into between Vertex Innovations Inc. ("Disclosing Party") and the undersigned recipient ("Receiving Party") effective upon signature.
+10. Indemnification
+Each party ("Indemnifying Party") shall defend, indemnify, and hold harmless the other party from and against third-party claims, losses, and expenses (including reasonable attorneys' fees) arising from the Indemnifying Party's: (a) gross negligence or willful misconduct; or (b) infringement of a third party's intellectual property rights in materials the Indemnifying Party provides. Each party's indemnification obligations are subject to the liable party receiving prompt notice, sole control of the defense, and reasonable cooperation.
 
-1. Definition of Confidential Information
-"Confidential Information" means any and all information disclosed by either party to the other, in any form whatsoever, including but not limited to business plans, financial data, customer lists, trade secrets, technical specifications, software, product concepts, marketing strategies, employee information, and any other information of any kind. There are no exceptions or carve-outs to this definition. Information that is already publicly known, independently developed, or disclosed by a third party shall nonetheless be considered Confidential Information under this Agreement.
+11. Governing Law and Dispute Resolution
+This Agreement is governed by the laws of the State of Florida, without regard to its conflict-of-law principles. Any dispute arising under this Agreement shall first be submitted to non-binding mediation administered by a mutually agreed mediator. If mediation does not resolve the dispute within 30 days of submission, either party may submit the dispute to binding arbitration under the rules of the American Arbitration Association, with proceedings conducted in Orlando, Florida. Judgment on the arbitration award may be entered in any court of competent jurisdiction.
 
-2. Obligations of Receiving Party
-The Receiving Party agrees to hold all Confidential Information in strict confidence and shall not disclose any Confidential Information to any third party under any circumstances. The Receiving Party shall use the Confidential Information solely for internal evaluation purposes. These obligations apply only to the Receiving Party and not to the Disclosing Party.
-
-3. No Permitted Disclosures
-There are no permitted disclosures under this Agreement. The Receiving Party may not disclose Confidential Information even if required by law, court order, or government authority.
-
-4. Duration
-The confidentiality obligations of the Receiving Party shall continue in perpetuity and shall survive the termination or expiration of this Agreement without limit.
-
-5. Non-Compete
-In consideration of receiving Confidential Information, the Receiving Party agrees not to directly or indirectly engage in, consult for, or have any business relationship with any company that competes with the Disclosing Party for a period of two (2) years following the termination of this Agreement. This restriction applies globally.
-
-6. Intellectual Property
-All information shared under this Agreement and any work product derived therefrom shall remain the exclusive property of the Disclosing Party.
-
-7. Governing Law
-[left blank — to be determined]
-
-8. Remedies
-The Receiving Party acknowledges that any breach of this Agreement would cause irreparable harm to the Disclosing Party. The Disclosing Party shall be entitled to seek injunctive relief without posting a bond.
-
-9. Entire Agreement
-This Agreement constitutes the entire agreement between the parties with respect to confidentiality and supersedes all prior discussions.
+12. Entire Agreement
+This Agreement constitutes the entire agreement between the parties regarding its subject matter and supersedes all prior discussions and agreements. Amendments must be in writing and signed by both parties.
 `,
   },
   {
@@ -220,67 +198,40 @@ This Agreement constitutes the entire agreement between the parties with respect
 This Vendor Supply Agreement ("Agreement") is entered into between SteelCore Manufacturing Ltd. ("Vendor") and Pinnacle Retail Group ("Buyer") effective as of February 1, 2026.
 
 1. Supply of Goods
-Vendor agrees to supply goods as ordered by Buyer from time to time. No delivery timelines, lead times, or performance standards are defined in this Agreement. Vendor shall determine delivery schedules at its sole discretion.
+Vendor agrees to supply goods as specified in purchase orders submitted by Buyer ("Orders"). Each Order shall specify the product description, quantity, unit price, and required delivery date. Vendor shall confirm or reject each Order in writing within three (3) business days of receipt. Confirmed Orders constitute binding obligations on both parties. Vendor shall use commercially reasonable efforts to meet the delivery date in each confirmed Order and shall notify Buyer at least five (5) business days in advance if any delivery will be delayed. Standard lead times for Vendor's catalog products are fourteen (14) business days from Order confirmation.
 
 2. Payment Terms
-Buyer shall pay 100% of the invoice amount upfront prior to any shipment or delivery. No credit terms are available. Vendor reserves the right to withhold delivery until full payment is confirmed.
+Buyer shall pay each invoice within thirty (30) days of the invoice date ("Net-30"). Invoices shall be issued upon shipment of goods. For Orders exceeding $50,000, the parties may agree to a milestone payment structure set forth in the applicable Order. Overdue invoices shall accrue interest at 1.0% per month from the due date until paid. Vendor may withhold future shipments after providing 10 days' written notice if any invoice remains unpaid for more than 60 days.
 
 3. Pricing and Price Adjustments
-The initial price schedule is set forth in Exhibit A. Vendor reserves the right to increase prices by up to twenty percent (20%) annually upon thirty (30) days written notice to Buyer. Buyer has no right to reject or opt out of price increases. Continued ordering after the notice period constitutes acceptance of the new pricing.
+The initial price schedule for Vendor's catalog products is set forth in Exhibit A. Either party may request a price adjustment by providing sixty (60) days' prior written notice. If Buyer objects to a proposed price increase, Buyer may terminate this Agreement without penalty by providing written notice within thirty (30) days of receiving the price increase notice, with termination effective at the end of the 60-day notice period. Price increases shall not apply to Orders already confirmed before the effective date of the adjustment.
 
 4. Term and Renewal
-This Agreement shall commence on February 1, 2026 and shall automatically renew for successive one-year terms unless either party provides written notice of cancellation no later than fifteen (15) days prior to the end of the then-current term. Failure to provide timely notice shall result in automatic renewal for an additional year.
+This Agreement commences on February 1, 2026 and continues for one (1) year ("Initial Term"). After the Initial Term, this Agreement shall automatically renew for successive one-year terms unless either party provides written notice of non-renewal at least ninety (90) days before the end of the then-current term. Either party may terminate this Agreement for convenience upon ninety (90) days' prior written notice.
 
 5. Intellectual Property
-Any custom products, tooling, molds, designs, or specifications developed by Vendor for Buyer under this Agreement shall remain the exclusive intellectual property of Vendor. Buyer shall have no ownership rights in any custom work product, even if Buyer funded the development of such work.
+Any custom products, tooling, molds, designs, or specifications developed by Vendor exclusively for Buyer and funded by Buyer under this Agreement ("Custom Work") shall be the exclusive property of Buyer upon full payment of the applicable development fees. Vendor retains ownership of all pre-existing intellectual property and general manufacturing know-how. Vendor grants Buyer a non-exclusive license to any of Vendor's background IP incorporated into Custom Work solely to the extent necessary for Buyer to use, sell, and maintain the Custom Work products.
 
 6. Limitation of Liability
-Vendor's total liability under this Agreement, for any cause whatsoever and regardless of the form of action, shall not exceed five hundred dollars ($500.00). This limitation applies to all claims including those for breach of contract, negligence, and product defects.
+Each party's total cumulative liability to the other under or in connection with this Agreement shall not exceed the total amounts paid or payable by Buyer to Vendor in the twelve (12) months immediately preceding the event giving rise to the claim. Neither party shall be liable for indirect, incidental, consequential, or punitive damages. These limitations shall not apply to: (a) claims arising from gross negligence or willful misconduct; (b) a party's indemnification obligations; or (c) Buyer's payment obligations.
 
-7. Termination Penalty
-If Buyer terminates this Agreement prior to the end of the then-current term for any reason other than Vendor's uncured material breach, Buyer shall pay Vendor a termination penalty equal to twenty-five percent (25%) of the total value of all remaining purchase obligations for the balance of the term.
+7. Product Warranties
+Vendor warrants that all goods supplied under this Agreement shall: (a) conform to the specifications set forth in the applicable Order; (b) be merchantable and fit for their ordinary intended purpose; (c) be free from material defects in materials and workmanship for a period of twelve (12) months from the date of delivery ("Warranty Period"). If any goods fail to meet these warranties during the Warranty Period, Vendor shall, at its option, repair or replace the defective goods or issue a credit for the purchase price, as Buyer's sole and exclusive remedy for warranty claims.
 
-8. Dispute Resolution
-[No dispute resolution process defined. All disputes shall be handled as agreed upon by the parties at the time of the dispute.]
+8. Termination
+There is no termination penalty for terminating this Agreement for convenience in accordance with Section 4. Buyer shall remain liable for payment of all confirmed Orders placed prior to the effective date of termination.
 
-9. Governing Law
-This Agreement shall be governed by the laws of the State of Delaware.
-`,
-  },
-  {
-    id: "freelance",
-    label: "Freelance Contract",
-    fileName: "freelance-contract.txt",
-    text: `FREELANCE SERVICES AGREEMENT
+9. Confidentiality
+Each party agrees to hold in strict confidence all non-public information disclosed by the other party that is designated as confidential or that reasonably should be understood to be confidential ("Confidential Information"). Confidential Information excludes information that: (a) becomes publicly known through no fault of the Receiving Party; (b) was known to the Receiving Party prior to disclosure; (c) is independently developed without use of the Disclosing Party's information; or (d) is required to be disclosed by law or court order, with prompt prior written notice where permitted. These obligations survive termination for two (2) years.
 
-This Freelance Services Agreement ("Agreement") is entered into between Nova Digital LLC ("Client") and the undersigned independent contractor ("Freelancer") effective as of March 1, 2026.
+10. Indemnification
+Each party shall defend, indemnify, and hold harmless the other party from third-party claims, losses, and expenses (including reasonable attorneys' fees) arising from the Indemnifying Party's: (a) gross negligence or willful misconduct; (b) infringement of a third party's intellectual property rights in materials the Indemnifying Party provides; or (c) in Vendor's case, personal injury or property damage caused by a defect in goods supplied under this Agreement. Indemnification obligations require prompt notice, tender of defense control to the Indemnifying Party, and reasonable cooperation.
 
-1. Services
-Freelancer agrees to provide web development and design services as directed by Client. The scope of work, deliverables, and deadlines shall be communicated by Client via email or verbal instruction and may be modified by Client at any time.
+11. Dispute Resolution
+This Agreement is governed by the laws of the State of Delaware. Any dispute arising under this Agreement shall first be escalated to senior management of each party for good-faith negotiation for a period of fifteen (15) days. If not resolved, the dispute shall be submitted to non-binding mediation. If mediation does not resolve the dispute within thirty (30) days of submission, either party may pursue binding arbitration under the rules of the American Arbitration Association in Wilmington, Delaware. Judgment on any arbitration award may be entered in any court of competent jurisdiction.
 
-2. Revisions and Scope
-Client may request unlimited revisions to any deliverable at any time, including after final delivery. Freelancer agrees to complete all requested revisions at no additional charge regardless of the nature or volume of changes requested.
-
-3. Intellectual Property — Work for Hire
-All work product created by Freelancer under this Agreement, including all deliverables, code, designs, concepts, and documentation, shall be considered works made for hire and shall be the exclusive property of Client. This assignment includes all pre-existing tools, frameworks, libraries, and methodologies used by Freelancer in the performance of services, including any open-source or proprietary tools developed prior to this engagement. Freelancer waives all moral rights in the work product.
-
-4. Payment
-Client shall pay Freelancer within ninety (90) days of invoice submission. No interest or late fees shall accrue on overdue payments. Client reserves the right to dispute any invoice within the 90-day period, which shall restart the payment clock upon resolution.
-
-5. Kill Fee
-If Client cancels the project after work has commenced, no cancellation fee or kill fee shall be payable to Freelancer. Freelancer shall be compensated only for hours worked and accepted by Client prior to cancellation.
-
-6. Non-Solicitation
-Freelancer agrees that during the term of this Agreement and for a period of three (3) years following termination, Freelancer shall not provide services to, consult for, or be employed by any person or entity that competes with Client's business in any market in which Client operates, directly or indirectly.
-
-7. Legal Compliance Costs
-Freelancer shall be solely responsible for ensuring that all deliverables comply with applicable laws, regulations, and third-party intellectual property rights. In the event that Client incurs any legal costs, penalties, or settlements arising from Freelancer's failure to ensure compliance, Freelancer shall indemnify and reimburse Client for all such costs without limitation.
-
-8. Jurisdiction and Governing Law
-This Agreement shall be governed by the laws of the State of Alaska, and any disputes shall be resolved exclusively in the state or federal courts located in Fairbanks, Alaska. Freelancer waives any objection to personal jurisdiction or venue in such courts.
-
-9. Entire Agreement
-This Agreement constitutes the entire agreement between the parties and supersedes all prior discussions or agreements.
+12. Entire Agreement
+This Agreement, together with all Exhibits and confirmed Orders, constitutes the entire agreement between the parties and supersedes all prior understandings. Amendments must be in writing and signed by authorized representatives of both parties.
 `,
   },
 ];
