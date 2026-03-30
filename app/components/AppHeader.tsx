@@ -30,6 +30,12 @@ export default function AppHeader() {
           >
             Pricing
           </Link>
+          <Link
+            href="/demo"
+            className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+          >
+            Demo
+          </Link>
           <AccountMenu />
         </nav>
 
@@ -71,6 +77,13 @@ export default function AppHeader() {
             className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
           >
             Pricing
+          </Link>
+          <Link
+            href="/demo"
+            onClick={() => setMenuOpen(false)}
+            className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+          >
+            Demo
           </Link>
         </div>
       )}
