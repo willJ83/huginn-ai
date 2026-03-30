@@ -50,36 +50,6 @@ interface AnalysisResult {
   };
 }
 
-const SAMPLE_CONTRACT_TEXT = `SERVICE AGREEMENT
-
-This Service Agreement is entered into between Alpha Solutions LLC ("Provider") and BrightPath Marketing ("Client").
-
-1. Services
-Provider agrees to deliver digital marketing services including SEO, content creation, and ad management.
-
-2. Payment Terms
-Client agrees to pay $5,000 per month. Payment is due within a reasonable time after invoicing.
-
-3. Term
-This agreement begins on January 1, 2026 and continues for 12 months unless terminated earlier.
-
-4. Termination
-Either party may terminate this agreement at any time with written notice.
-
-5. Liability
-Provider is not liable for any damages arising from the use of services.
-
-6. Confidentiality
-Both parties agree to keep sensitive information confidential.
-
-[INTENTIONALLY OMITTED]
-
-7. Governing Law
-
-8. Dispute Resolution
-Any disputes will be handled in a mutually agreed manner.
-`;
-
 function titleCaseRiskLevel(value?: "low" | "medium" | "high") {
   if (!value) return "Unknown";
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -428,28 +398,6 @@ export default function Page() {
     }
   }
 
-  function loadSampleContract() {
-    if (!session) {
-      router.push("/signup?demo=true");
-      return;
-    }
-
-    setDocumentText(SAMPLE_CONTRACT_TEXT);
-    setFileName(null);
-    setError("");
-    setResult(null);
-    setWarning("");
-    setProcessedFileType(null);
-    setExtractionStatus(null);
-
-    void runAnalysis(SAMPLE_CONTRACT_TEXT, template);
-
-    document.getElementById("analyzer")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }
-
   function handleDownloadReport() {
     if (!result) return;
 
@@ -499,12 +447,6 @@ export default function Page() {
               Get Started Free
             </Link>
 
-            <button
-              onClick={loadSampleContract}
-              className="border border-gray-300 px-6 py-3 rounded-lg hover:bg-gray-100"
-            >
-              Try Sample Contract
-            </button>
           </div>
 
           <p className="mt-4 text-sm text-gray-400 text-center max-w-xl mx-auto">
