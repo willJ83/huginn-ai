@@ -103,7 +103,6 @@ export async function POST(req: Request) {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       subscription_data: {
-        trial_period_days: 30,
         metadata: {
           userId: user.id,
           plan,
@@ -115,7 +114,6 @@ export async function POST(req: Request) {
         userId: user.id,
         plan,
       },
-      payment_method_collection: "always",
     });
 
     return NextResponse.json({ url: checkoutSession.url });

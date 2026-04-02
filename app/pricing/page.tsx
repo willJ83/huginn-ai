@@ -41,13 +41,10 @@ function PricingContent() {
           Simple, Transparent Pricing
         </h1>
         <p className="mt-3 text-center text-slate-600">
-          30-day free trial on every plan. No charge until day 30.
+          Start with 3 free analyses — no credit card required.
         </p>
         <p className="mt-1 text-center text-sm text-slate-500">
-          Card required to start. Cancel anytime.
-        </p>
-        <p className="mt-1 text-center text-sm text-slate-500">
-          We'll send you a reminder email 3 days before your trial ends.
+          Subscribe when you&apos;re ready. Cancel anytime.
         </p>
 
         {canceled && (
@@ -62,25 +59,17 @@ function PricingContent() {
 
         <div className="mt-10 grid gap-5 sm:mt-12 sm:gap-8 sm:grid-cols-2">
           {/* Starter */}
-          <div className="relative rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <div className="absolute -top-3 left-6 rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">
-              First month free
-            </div>
-
-            <h2 className="mt-2 text-xl font-semibold text-slate-900">Starter</h2>
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <h2 className="text-xl font-semibold text-slate-900">Starter</h2>
             <p className="mt-1 text-3xl font-bold text-slate-900">
               $9.99
-              <span className="text-base font-normal text-slate-500">/mo after trial</span>
+              <span className="text-base font-normal text-slate-500">/mo</span>
             </p>
 
             <ul className="mt-6 space-y-2 text-sm text-slate-600">
               <li className="flex items-center gap-2">
                 <span className="text-emerald-500 font-bold">✓</span>
                 15 analyses per month
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span>
-                5 analyses during your free trial
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-emerald-500 font-bold">✓</span>
@@ -101,7 +90,7 @@ function PricingContent() {
               disabled={loading !== null}
               className="mt-8 w-full rounded-xl border border-slate-300 px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
             >
-              {loading === "STARTER" ? "Redirecting..." : "Start free trial — Starter"}
+              {loading === "STARTER" ? "Redirecting..." : "Subscribe — Starter"}
             </button>
           </div>
 
@@ -110,24 +99,17 @@ function PricingContent() {
             <div className="absolute -top-3 left-6 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
               Most Popular
             </div>
-            <div className="absolute -top-3 right-6 rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">
-              First month free
-            </div>
 
             <h2 className="mt-2 text-xl font-semibold text-slate-900">Pro</h2>
             <p className="mt-1 text-3xl font-bold text-slate-900">
               $29.99
-              <span className="text-base font-normal text-slate-500">/mo after trial</span>
+              <span className="text-base font-normal text-slate-500">/mo</span>
             </p>
 
             <ul className="mt-6 space-y-2 text-sm text-slate-600">
               <li className="flex items-center gap-2">
                 <span className="text-blue-500 font-bold">✓</span>
                 70 analyses per month
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-blue-500 font-bold">✓</span>
-                5 analyses during your free trial
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-blue-500 font-bold">✓</span>
@@ -152,7 +134,7 @@ function PricingContent() {
               disabled={loading !== null}
               className="mt-8 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading === "PRO" ? "Redirecting..." : "Start free trial — Pro"}
+              {loading === "PRO" ? "Redirecting..." : "Subscribe — Pro"}
             </button>
           </div>
         </div>

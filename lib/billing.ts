@@ -2,11 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { SubscriptionStatus, UserPlan } from "@prisma/client";
 
 export const PLAN_LIMITS = {
-  TRIAL: 5,
+  FREE: 3,
   STARTER: 15,
   PRO: 70,
   // Legacy values — not used for new users
-  FREE: 3,
+  TRIAL: 5,
   UNLIMITED: 70,
 } as const;
 
@@ -41,17 +41,19 @@ export async function getUserPlan(userId: string) {
       trialEndsAt: true,
       addonAnalysesRemaining: true,
       billingCycleStart: true,
+      createdAt: true,
     },
   });
 
   if (!user) {
     return {
-      plan: "STARTER" as UserPlan,
+      plan: "FREE" as UserPlan,
       subscriptionStatus: "INACTIVE" as SubscriptionStatus,
       currentPeriodEnd: null,
       trialEndsAt: null,
       addonAnalysesRemaining: 0,
       billingCycleStart: null,
+      createdAt: new Date(),
     };
   }
 
@@ -109,7 +111,28 @@ export async function canUseFeature(
   const user = await getUserPlan(userId);
   const addonRemaining = user.addonAnalysesRemaining ?? 0;
 
-  // No subscription set up yet
+  // Free tier: unsubscribed users on the FREE plan get 3 analyses (counted since account creation)
+  if (user.subscriptionStatus === SubscriptionStatus.INACTIVE && user.plan === UserPlan.FREE) {
+    const since = user.createdAt ?? new Date(0);
+    const periodUsed = await getUsageCountSince(userId, since, action);
+    const periodLimit = PLAN_LIMITS.FREE;
+    const planRemaining = Math.max(0, periodLimit - periodUsed);
+    return {
+      allowed: planRemaining > 0,
+      plan: user.plan,
+      subscriptionStatus: user.subscriptionStatus,
+      inTrial: false,
+      periodUsed,
+      periodLimit,
+      planRemaining,
+      addonRemaining: 0,
+      remaining: planRemaining,
+      needsPlan: planRemaining === 0,
+      paymentFailed: false,
+    };
+  }
+
+  // No subscription set up yet (non-FREE plan somehow has no subscription)
   if (user.subscriptionStatus === SubscriptionStatus.INACTIVE) {
     return {
       allowed: false,

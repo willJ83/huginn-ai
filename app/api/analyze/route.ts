@@ -175,6 +175,8 @@ export async function POST(req: Request) {
     if (!usage.allowed) {
       const errorMessage = usage.paymentFailed
         ? "Your payment failed. Update your billing information to continue."
+        : usage.needsPlan && usage.plan === "FREE"
+        ? "You've used your 3 free analyses. Subscribe to continue."
         : usage.needsPlan
         ? "Please select a plan to run analyses."
         : "You've used all your analyses this month. Buy more or upgrade your plan.";

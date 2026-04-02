@@ -7,7 +7,7 @@ import { Suspense, useState } from "react";
 function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/select-plan";
+  const next = searchParams.get("next") ?? "/dashboard";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,7 +38,7 @@ function SignupForm() {
       <div className="mx-auto max-w-md rounded-2xl bg-white p-8 shadow-sm">
         <h1 className="text-3xl font-bold text-slate-900">Create your account</h1>
         <p className="mt-2 text-sm text-slate-600">
-          Start your 30-day free trial. No charge until day 30.
+          3 free analyses included. No credit card required.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
@@ -74,12 +74,12 @@ function SignupForm() {
             type="submit"
             className="w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700"
           >
-            Continue to Plan Selection
+            Create Account — It&apos;s Free
           </button>
         </form>
 
         <p className="mt-4 text-xs text-slate-500 text-center">
-          A credit card is required to start your trial. Cancel anytime.
+          No credit card required. Subscribe anytime to unlock more analyses.
         </p>
 
         <p className="mt-6 text-sm text-slate-600">

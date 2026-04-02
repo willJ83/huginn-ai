@@ -135,22 +135,17 @@ export default function Page() {
 
         <section id="pricing" className="py-20 px-6 text-center">
           <h2 className="text-2xl font-bold mb-3">Simple Pricing</h2>
-          <p className="text-gray-500 mb-2">30-day free trial on every plan. No charge until day 30.</p>
-          <p className="text-sm text-gray-400 mb-10">Card required to start. Cancel anytime.</p>
+          <p className="text-gray-500 mb-2">Start with 3 free analyses — no credit card required.</p>
+          <p className="text-sm text-gray-400 mb-10">Subscribe when you&apos;re ready. Cancel anytime.</p>
 
           <div className="flex flex-col md:flex-row gap-6 max-w-3xl mx-auto justify-center items-stretch">
             {/* Starter */}
-            <div className="flex-1 border rounded-xl p-8 shadow-sm relative">
-              <div className="absolute -top-3 left-6 bg-emerald-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                First month free
-              </div>
-              <h3 className="text-xl font-semibold mb-2 mt-2">Starter</h3>
+            <div className="flex-1 border rounded-xl p-8 shadow-sm">
+              <h3 className="text-xl font-semibold mb-2">Starter</h3>
               <p className="text-3xl font-bold mb-1">$9.99<span className="text-lg font-normal text-gray-500">/mo</span></p>
-              <p className="text-xs text-gray-400 mb-6">after 30-day free trial</p>
 
-              <ul className="text-gray-600 mb-8 space-y-2 text-left">
+              <ul className="text-gray-600 mb-8 mt-6 space-y-2 text-left">
                 <li>✓ 15 analyses per month</li>
-                <li>✓ 5 analyses during trial</li>
                 <li>✓ Risk scoring with severity levels</li>
                 <li>✓ Clause-level recommendations</li>
                 <li>✓ PDF export</li>
@@ -160,7 +155,7 @@ export default function Page() {
                 href="/signup"
                 className="block w-full border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50"
               >
-                Start Free Trial
+                Start for Free
               </a>
             </div>
 
@@ -169,16 +164,11 @@ export default function Page() {
               <div className="absolute -top-3 left-6 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
                 Most Popular
               </div>
-              <div className="absolute -top-3 right-6 bg-emerald-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                First month free
-              </div>
               <h3 className="text-xl font-semibold mb-2 mt-2">Pro</h3>
               <p className="text-3xl font-bold mb-1">$29.99<span className="text-lg font-normal text-gray-500">/mo</span></p>
-              <p className="text-xs text-gray-400 mb-6">after 30-day free trial</p>
 
-              <ul className="text-gray-600 mb-8 space-y-2 text-left">
+              <ul className="text-gray-600 mb-8 mt-6 space-y-2 text-left">
                 <li>✓ 70 analyses per month</li>
-                <li>✓ 5 analyses during trial</li>
                 <li>✓ Risk scoring with severity levels</li>
                 <li>✓ Clause-level recommendations</li>
                 <li>✓ PDF export</li>
@@ -189,7 +179,7 @@ export default function Page() {
                 href="/signup"
                 className="block w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
               >
-                Start Free Trial
+                Start for Free
               </a>
             </div>
           </div>

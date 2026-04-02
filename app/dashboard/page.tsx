@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { canUseFeature } from "@/lib/billing";
+import { canUseFeature, PLAN_LIMITS } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -43,15 +43,19 @@ export default async function DashboardPage({
     }),
   ]);
 
-  // Redirect to plan selection if no subscription set up yet
-  // (only if not in the middle of a Stripe redirect)
-  if (usageInfo.needsPlan && !justUpgraded) {
+  // Redirect to plan selection if no subscription set up — but not for FREE tier users
+  // (FREE users stay on dashboard until they exhaust their free analyses)
+  if (usageInfo.needsPlan && usageInfo.plan !== "FREE" && !justUpgraded) {
     redirect("/select-plan");
   }
 
   // Plan label
   let planLabel: string;
-  if (usageInfo.inTrial) {
+  if (user?.plan === "FREE" && user?.subscriptionStatus === "INACTIVE") {
+    const used = usageInfo.periodUsed ?? 0;
+    const limit = usageInfo.periodLimit ?? PLAN_LIMITS.FREE;
+    planLabel = `Free — ${used} of ${limit} free analyses used`;
+  } else if (usageInfo.inTrial) {
     const daysLeft = user?.trialEndsAt
       ? Math.max(0, Math.ceil((user.trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
       : 0;
@@ -92,15 +96,8 @@ export default async function DashboardPage({
             </p>
           )}
 
-          {/* Trial usage */}
-          {usageInfo.inTrial && (
-            <p className="mt-1 text-sm text-slate-500">
-              Trial: {usageInfo.periodUsed} / {usageInfo.periodLimit} analyses used
-            </p>
-          )}
-
-          {/* Post-trial usage */}
-          {!usageInfo.inTrial && !usageInfo.needsPlan && !usageInfo.paymentFailed && (
+          {/* Paid plan usage */}
+          {!usageInfo.inTrial && usageInfo.plan !== "FREE" && !usageInfo.needsPlan && !usageInfo.paymentFailed && (
             <p className="mt-1 text-sm text-slate-500">
               This month: {usageInfo.periodUsed} / {usageInfo.periodLimit} analyses used
               {usageInfo.addonRemaining > 0
@@ -113,6 +110,17 @@ export default async function DashboardPage({
           {addedAnalyses && addedAnalyses > 0 && (
             <p className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
               {addedAnalyses} extra {addedAnalyses === 1 ? "analysis" : "analyses"} added to your account.
+            </p>
+          )}
+
+          {/* Free tier exhausted — prompt to subscribe */}
+          {usageInfo.plan === "FREE" && usageInfo.remaining === 0 && (
+            <p className="mt-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-medium text-blue-800">
+              You&apos;ve used your 3 free analyses.{" "}
+              <a href="/select-plan" className="underline">
+                Subscribe to continue
+              </a>{" "}
+              — Starter $9.99/mo or Pro $29.99/mo.
             </p>
           )}
 
@@ -171,6 +179,7 @@ export default async function DashboardPage({
 
         <DashboardAnalyzer
           usageInfo={{
+            plan: usageInfo.plan,
             inTrial: usageInfo.inTrial,
             remaining: usageInfo.remaining,
             planRemaining: usageInfo.planRemaining,

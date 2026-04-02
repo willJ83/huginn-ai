@@ -271,7 +271,7 @@ export default function DemoPage() {
                   href="/signup"
                   className="inline-flex items-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700"
                 >
-                  Start Your Free Trial
+                  Analyze Your Own Contracts — Free
                 </Link>
                 <DownloadPdfButton
                   data={{

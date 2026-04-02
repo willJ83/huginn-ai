@@ -53,7 +53,7 @@ model User {
   name                   String?
   email                  String             @unique
   password               String
-  plan                   UserPlan           @default(STARTER)
+  plan                   UserPlan           @default(FREE)
   subscriptionStatus     SubscriptionStatus @default(INACTIVE)
   stripeCustomerId       String?            @unique
   stripeSubId            String?            @unique

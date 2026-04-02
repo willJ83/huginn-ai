@@ -28,6 +28,7 @@ type AnalysisResponse = {
 };
 
 type UsageInfo = {
+  plan: string;
   inTrial: boolean;
   remaining: number;
   planRemaining: number;
@@ -436,6 +437,8 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
 
   const blockedMessage = usageInfo.paymentFailed
     ? "Your payment failed. Update your billing information to continue."
+    : usageInfo.needsPlan && usageInfo.plan === "FREE"
+    ? "You've used your 3 free analyses. Subscribe to continue."
     : usageInfo.needsPlan
     ? "Please select a plan to run analyses."
     : remainingAnalyses === 0
@@ -487,8 +490,8 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
         {/* Usage counter */}
         {!usageInfo.paymentFailed && !usageInfo.needsPlan && (
           <p className="mt-3 text-sm text-slate-600">
-            {usageInfo.inTrial
-              ? `Trial: ${usageInfo.periodUsed} / ${usageInfo.periodLimit} analyses used`
+            {usageInfo.plan === "FREE"
+              ? `Free analyses: ${usageInfo.periodUsed} / ${usageInfo.periodLimit} used`
               : `${usageInfo.periodUsed} / ${usageInfo.periodLimit} analyses used this month`}
             {usageInfo.addonRemaining > 0 ? ` + ${usageInfo.addonRemaining} add-on` : ""}
           </p>
@@ -560,7 +563,25 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
           </p>
         )}
 
-        {/* Buy more / upgrade prompt when at limit */}
+        {/* Subscribe prompt for exhausted free tier */}
+        {!canAnalyze && usageInfo.needsPlan && usageInfo.plan === "FREE" && (
+          <div className="mt-4 flex flex-wrap gap-2" id="subscribe">
+            <a
+              href="/select-plan"
+              className="inline-block rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              Subscribe — Starter $9.99/mo
+            </a>
+            <a
+              href="/select-plan"
+              className="inline-block rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100"
+            >
+              Pro $29.99/mo
+            </a>
+          </div>
+        )}
+
+        {/* Buy more / upgrade prompt for paid plan at limit */}
         {!canAnalyze && !usageInfo.paymentFailed && !usageInfo.needsPlan && (
           <div className="mt-4 flex flex-wrap gap-2" id="buy-more">
             <BuyAnalysesButton pack="5" label="Buy 5 analyses — $4.99" />

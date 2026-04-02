@@ -36,6 +36,7 @@ export async function POST(req: Request) {
         password: hashedPassword,
         email: email.toLowerCase().trim(),
         name,
+        plan: "FREE",
       },
     });
 
