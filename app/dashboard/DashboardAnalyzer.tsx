@@ -300,10 +300,18 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
   const [resultTimestamp, setResultTimestamp] = useState("");
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [remainingAnalyses, setRemainingAnalyses] = useState(usageInfo.remaining);
+  const [periodUsed, setPeriodUsed] = useState(usageInfo.periodUsed);
   const [expandedIssues, setExpandedIssues] = useState<Set<number>>(new Set());
 
+  // Derive free-tier exhaustion from local state so it updates mid-session
+  // (usageInfo.needsPlan is frozen at SSR time and won't reflect in-session usage)
+  const isFreeExhausted = usageInfo.plan === "FREE" && remainingAnalyses === 0;
+
   const canAnalyze =
-    !usageInfo.paymentFailed && !usageInfo.needsPlan && remainingAnalyses > 0;
+    !usageInfo.paymentFailed &&
+    !usageInfo.needsPlan &&
+    !isFreeExhausted &&
+    remainingAnalyses > 0;
 
   function toggleIssue(index: number) {
     setExpandedIssues((prev) => {
@@ -402,6 +410,7 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
       });
       setResultTimestamp(new Date().toLocaleString());
       setRemainingAnalyses((prev) => Math.max(0, prev - 1));
+      setPeriodUsed((prev) => prev + 1);
     } catch (err) {
       setError(toUserFacingError(err));
     } finally {
@@ -437,7 +446,7 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
 
   const blockedMessage = usageInfo.paymentFailed
     ? "Your payment failed. Update your billing information to continue."
-    : usageInfo.needsPlan && usageInfo.plan === "FREE"
+    : isFreeExhausted || (usageInfo.needsPlan && usageInfo.plan === "FREE")
     ? "You've used your 3 free analyses. Subscribe to continue."
     : usageInfo.needsPlan
     ? "Please select a plan to run analyses."
@@ -491,8 +500,8 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
         {!usageInfo.paymentFailed && !usageInfo.needsPlan && (
           <p className="mt-3 text-sm text-slate-600">
             {usageInfo.plan === "FREE"
-              ? `Free analyses: ${usageInfo.periodUsed} / ${usageInfo.periodLimit} used`
-              : `${usageInfo.periodUsed} / ${usageInfo.periodLimit} analyses used this month`}
+              ? `Free analyses: ${periodUsed} / ${usageInfo.periodLimit} used`
+              : `${periodUsed} / ${usageInfo.periodLimit} analyses used this month`}
             {usageInfo.addonRemaining > 0 ? ` + ${usageInfo.addonRemaining} add-on` : ""}
           </p>
         )}
@@ -564,7 +573,7 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
         )}
 
         {/* Subscribe prompt for exhausted free tier */}
-        {!canAnalyze && usageInfo.needsPlan && usageInfo.plan === "FREE" && (
+        {!canAnalyze && (isFreeExhausted || (usageInfo.needsPlan && usageInfo.plan === "FREE")) && (
           <div className="mt-4 flex flex-wrap gap-2" id="subscribe">
             <a
               href="/select-plan"
