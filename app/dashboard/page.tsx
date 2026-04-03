@@ -113,17 +113,6 @@ export default async function DashboardPage({
             </p>
           )}
 
-          {/* Free tier exhausted — prompt to subscribe */}
-          {usageInfo.plan === "FREE" && usageInfo.remaining === 0 && (
-            <p className="mt-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-medium text-blue-800">
-              You&apos;ve used your 3 free analyses.{" "}
-              <a href="/select-plan" className="underline">
-                Subscribe to continue
-              </a>{" "}
-              — Starter $9.99/mo or Pro $29.99/mo.
-            </p>
-          )}
-
           {/* Payment failed */}
           {usageInfo.paymentFailed && (
             <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
@@ -153,29 +142,31 @@ export default async function DashboardPage({
           />
         </div>
 
-        {/* Subscription management */}
-        <div className="mt-6 flex flex-wrap gap-3">
-          {(user?.subscriptionStatus === "ACTIVE" || user?.subscriptionStatus === "CANCELED") ? (
-            <a
-              href="/api/stripe/portal"
-              className="inline-block rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"
-            >
-              Manage Subscription
-            </a>
-          ) : (
-            <a
-              href="/select-plan"
-              className="inline-block rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              Choose a Plan
-            </a>
-          )}
+        {/* Subscription management — hidden for FREE plan users */}
+        {user?.plan !== "FREE" && (
+          <div className="mt-6 flex flex-wrap gap-3">
+            {(user?.subscriptionStatus === "ACTIVE" || user?.subscriptionStatus === "CANCELED") ? (
+              <a
+                href="/api/stripe/portal"
+                className="inline-block rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"
+              >
+                Manage Subscription
+              </a>
+            ) : (
+              <a
+                href="/select-plan"
+                className="inline-block rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Choose a Plan
+              </a>
+            )}
 
-          {/* Buy more analyses button — shown at limit */}
-          {usageInfo.remaining === 0 && !usageInfo.paymentFailed && (
-            <BuyMoreButton />
-          )}
-        </div>
+            {/* Buy more analyses button — shown at limit */}
+            {usageInfo.remaining === 0 && !usageInfo.paymentFailed && (
+              <BuyMoreButton />
+            )}
+          </div>
+        )}
 
         <DashboardAnalyzer
           usageInfo={{

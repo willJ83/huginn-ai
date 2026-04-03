@@ -19,9 +19,9 @@ export default function UsageWarningBanner({
 
   const isFree = plan === "FREE";
 
-  // For FREE tier: show when 1 or 0 remaining
+  // For FREE tier: only show when fully exhausted (0 remaining)
   // For paid plans: show when 3 or fewer remaining
-  const threshold = isFree ? 1 : 3;
+  const threshold = isFree ? 0 : 3;
   if (remaining > threshold || dismissed) return null;
 
   let bgClass: string;
@@ -40,9 +40,7 @@ export default function UsageWarningBanner({
     bgClass = "bg-orange-50";
     borderClass = "border-orange-200";
     textClass = "text-orange-800";
-    message = isFree
-      ? "1 free analysis remaining. Subscribe after this one to keep going."
-      : "Last analysis remaining this month. Buy more or upgrade to avoid interruption.";
+    message = "Last analysis remaining this month. Buy more or upgrade to avoid interruption.";
   } else {
     bgClass = "bg-yellow-50";
     borderClass = "border-yellow-200";
