@@ -586,6 +586,13 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
 
           {shieldMode && (
             <div className="mt-3 space-y-3 border-t border-blue-200 pt-3">
+              {/* Feature description — shown once when panel opens */}
+              <p className="text-xs text-blue-800 leading-relaxed">
+                Huginn Shield Deep Scan includes jurisdiction analysis across all 50 states and
+                Florida F.S. §559.9613 disclosure checks.{" "}
+                <span className="font-semibold">Included with Pro ($29.99/mo).</span>
+              </p>
+
               {/* Jurisdiction selector */}
               <div>
                 <p className="mb-1 text-xs font-semibold text-slate-600 uppercase tracking-wide">
@@ -681,22 +688,22 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
                       <div className="font-semibold">Deep Scan 🛡️</div>
                       <div className="opacity-70">
                         {isPro
-                          ? "Pro · Unlimited"
+                          ? "Unlimited with Pro"
                           : hasAddon
-                          ? `${usageInfo.addonRemaining} add-on remaining`
-                          : `${deepTrialsRemaining} of 2 free trials left`}
+                          ? `${usageInfo.addonRemaining} add-on ${usageInfo.addonRemaining === 1 ? "analysis" : "analyses"} remaining`
+                          : `${deepTrialsRemaining} of 2 free ${deepTrialsRemaining === 1 ? "trial" : "trials"} left`}
                       </div>
                     </button>
                   ) : (
-                    // Not eligible — show locked state with upgrade prompt
+                    // Trials exhausted and not on Pro — locked card with value-focused upgrade prompt
                     <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs">
-                      <div className="font-semibold text-slate-400">Deep Scan 🛡️</div>
-                      <div className="text-slate-400">Pro plan required</div>
+                      <div className="font-semibold text-slate-500">Deep Scan 🛡️</div>
+                      <div className="mt-0.5 text-slate-400">Requires Pro plan</div>
                       <a
-                        href="/select-plan"
-                        className="mt-1 block font-semibold text-blue-600 hover:text-blue-800"
+                        href="/pricing"
+                        className="mt-1.5 block font-semibold text-blue-600 hover:text-blue-800 leading-snug"
                       >
-                        Upgrade to Pro →
+                        Upgrade to Pro for unlimited jurisdiction protection →
                       </a>
                     </div>
                   )}
