@@ -133,70 +133,58 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Huginn Shield section — Shield Deep Scan is the primary Pro differentiator */}
-        <section className="py-16 px-6 bg-slate-900 text-white">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-3xl" aria-hidden="true">🛡️</span>
-              <h2 className="text-2xl font-bold">Huginn Shield Deep Scan</h2>
-            </div>
-            <p className="text-slate-300 text-base mb-8 max-w-xl mx-auto">
-              Standard analysis tells you what&apos;s risky. Deep Scan tells you whether the contract
-              is even in your jurisdiction — and whether it meets the disclosure requirements your state requires.
-            </p>
+        {/* === HUGINN SHIELD HERO BANNER === */}
+        <section className="py-16 px-6 bg-white">
+          <div className="mx-auto max-w-4xl px-6 py-12 bg-white border border-slate-100 rounded-3xl shadow-sm">
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              {/* Left content */}
+              <div className="flex-1">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-2xl text-sm font-semibold mb-4">
+                  <span className="text-2xl" aria-hidden="true">🛡️</span>
+                  HUGINN SHIELD
+                </div>
 
-            {/* Three distinct capabilities — no overlap */}
-            <div className="grid md:grid-cols-3 gap-5 text-left mb-10">
-              <div className="bg-slate-800 rounded-xl p-5">
-                <h3 className="font-semibold text-white mb-2">Governing Law &amp; Forum</h3>
-                <p className="text-slate-400 text-sm">
-                  Finds the clause that dictates which state&apos;s laws apply and where disputes must be filed.
-                  Flags when that state isn&apos;t yours.
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-3">
+                  Protect your contracts nationwide
+                </h2>
+
+                <p className="text-slate-600 text-lg mb-6">
+                  Instant 50-state jurisdiction analysis • Camera + document upload • Installable PWA •{" "}
+                  Florida F.S. §559.9613 checklist (when relevant)
+                </p>
+
+                <div className="flex flex-wrap gap-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" aria-hidden="true"></div>
+                    <span className="text-slate-600">Basic Scan included</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full" aria-hidden="true"></div>
+                    <span className="text-slate-600 font-medium">Deep Scan = Pro</span>
+                  </div>
+                </div>
+
+                <p className="mt-4 text-sm text-slate-500">
+                  Every new user gets <span className="font-semibold text-blue-700">2 free Deep Scans</span> to try the full power.
                 </p>
               </div>
-              <div className="bg-slate-800 rounded-xl p-5">
-                <h3 className="font-semibold text-white mb-2">50-State Jurisdiction Analysis</h3>
-                <p className="text-slate-400 text-sm">
-                  Compares the contract&apos;s jurisdiction against your selected state across all 50 states.
-                  Florida users also get an automatic F.S. §559.9613 disclosure check.
-                </p>
-              </div>
-              <div className="bg-slate-800 rounded-xl p-5">
-                <h3 className="font-semibold text-white mb-2">Plain-English Verdict</h3>
-                <p className="text-slate-400 text-sm">
-                  A clear risk rating (Low / Medium / High) with a specific recommendation —
-                  not just flags, but what to actually do about them.
-                </p>
-              </div>
-            </div>
 
-            {/* Upgrade intent — two paths: try free or go straight to Pro */}
-            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm mb-6">
-              <div className="flex items-center gap-2 font-semibold text-blue-700">
-                INCLUDES HUGINN SHIELD DEEP SCAN
-              </div>
-              <p className="mt-3">
-                Deep Scan delivers advanced jurisdiction and governing-law analysis across all 50 states.
-                When Florida is selected, it also automatically checks required disclosures under F.S. §559.9613.
-              </p>
-              <p className="mt-4 text-xs text-blue-600 font-medium">
-                Free and Starter users get 2 free Deep Scans as a trial.
-              </p>
-            </div>
+              {/* Right side CTA */}
+              <div className="flex-1 md:text-right">
+                <div className="inline-flex flex-col items-center md:items-end gap-4">
+                  <Link
+                    href="/shield"
+                    className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl inline-flex items-center gap-3 transition"
+                  >
+                    Try Shield Free
+                    <span aria-hidden="true">→</span>
+                  </Link>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-3">
-              <Link
-                href="/signup"
-                className="inline-flex items-center justify-center rounded-2xl bg-blue-500 px-7 py-3.5 text-base font-semibold text-white hover:bg-blue-400"
-              >
-                Get 2 Free Deep Scans
-              </Link>
-              <Link
-                href="/pricing"
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-600 px-7 py-3.5 text-base font-semibold text-slate-200 hover:bg-slate-800"
-              >
-                Upgrade to Pro →
-              </Link>
+                  <Link href="/pricing" className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1">
+                    See Pro pricing with Deep Scan →
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </section>
