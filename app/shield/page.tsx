@@ -48,10 +48,20 @@ export default async function ShieldPage() {
                 <span><span className="text-white font-medium">Plain-English Warnings</span> — tells you exactly what to negotiate or walk away from</span>
               </li>
             </ul>
-            <p className="mt-3 text-xs text-slate-500">
-              Deep Scan included with Pro ($29.99/mo). Free and Starter users get 2 free Deep Scans as a trial.
-            </p>
           </div>
+        </div>
+
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm mb-6">
+          <div className="flex items-center gap-2 font-semibold text-blue-700">
+            INCLUDES HUGINN SHIELD DEEP SCAN
+          </div>
+          <p className="mt-3">
+            Deep Scan delivers advanced jurisdiction and governing-law analysis across all 50 states.
+            When Florida is selected, it also automatically checks required disclosures under F.S. §559.9613.
+          </p>
+          <p className="mt-4 text-xs text-blue-600 font-medium">
+            Free and Starter users get 2 free Deep Scans as a trial.
+          </p>
         </div>
 
         <ShieldScanner usageInfo={usage} />

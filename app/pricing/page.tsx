@@ -107,7 +107,7 @@ function PricingContent() {
             </p>
 
             {/* Shield callout — placed before the standard feature list so it reads first */}
-            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm mb-6">
               <div className="flex items-center gap-2 font-semibold text-blue-700">
                 INCLUDES HUGINN SHIELD DEEP SCAN
               </div>

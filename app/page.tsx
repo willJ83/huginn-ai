@@ -171,11 +171,16 @@ export default function Page() {
             </div>
 
             {/* Upgrade intent — two paths: try free or go straight to Pro */}
-            <div className="rounded-xl border border-slate-700 bg-slate-800 px-6 py-5 text-left mb-8">
-              <p className="text-white font-semibold mb-1">Included with Pro — $29.99/mo</p>
-              <p className="text-slate-400 text-sm">
-                Unlimited Deep Scans with every Pro subscription. Free and Starter users get
-                2 free Deep Scans as a trial to see what they&apos;re missing.
+            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm mb-6">
+              <div className="flex items-center gap-2 font-semibold text-blue-700">
+                INCLUDES HUGINN SHIELD DEEP SCAN
+              </div>
+              <p className="mt-3">
+                Deep Scan delivers advanced jurisdiction and governing-law analysis across all 50 states.
+                When Florida is selected, it also automatically checks required disclosures under F.S. §559.9613.
+              </p>
+              <p className="mt-4 text-xs text-blue-600 font-medium">
+                Free and Starter users get 2 free Deep Scans as a trial.
               </p>
             </div>
 
@@ -231,7 +236,7 @@ export default function Page() {
               <p className="text-3xl font-bold mb-1">$29.99<span className="text-lg font-normal text-gray-500">/mo</span></p>
 
               {/* Shield callout — visually separated before the standard feature list */}
-              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm">
+              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm mb-6">
                 <div className="flex items-center gap-2 font-semibold text-blue-700">
                   INCLUDES HUGINN SHIELD DEEP SCAN
                 </div>
