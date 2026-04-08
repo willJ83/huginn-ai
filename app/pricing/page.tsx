@@ -107,15 +107,15 @@ function PricingContent() {
             </p>
 
             {/* Shield callout — placed before the standard feature list so it reads first */}
-            <div className="mt-5 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1">
-                Includes Huginn Shield Deep Scan 🛡️
+            <div className="mt-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm">
+              <strong className="flex items-center gap-1">
+                INCLUDES HUGINN SHIELD DEEP SCAN
+              </strong>
+              <p className="mt-2">
+                Deep Scan delivers advanced jurisdiction and governing-law analysis across all 50 states.
+                When Florida is selected, it also automatically checks required disclosures under F.S. §559.9613.
               </p>
-              <p className="text-sm text-blue-800">
-                Unlimited jurisdiction analysis across all 50 states.
-                When Florida is selected, also checks required disclosures under F.S. §559.9613.
-              </p>
-              <p className="mt-1.5 text-xs text-blue-600">
+              <p className="mt-3 text-blue-700 text-xs font-medium">
                 Free and Starter users get 2 free Deep Scans as a trial.
               </p>
             </div>
