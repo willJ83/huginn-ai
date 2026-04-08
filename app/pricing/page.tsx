@@ -94,7 +94,7 @@ function PricingContent() {
             </button>
           </div>
 
-          {/* Pro */}
+          {/* Pro — Shield Deep Scan leads as the primary differentiator */}
           <div className="relative rounded-2xl border-2 border-blue-500 bg-white p-6 shadow-sm sm:p-8">
             <div className="absolute -top-3 left-6 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
               Most Popular
@@ -106,7 +106,22 @@ function PricingContent() {
               <span className="text-base font-normal text-slate-500">/mo</span>
             </p>
 
-            <ul className="mt-6 space-y-2 text-sm text-slate-600">
+            {/* Shield callout — placed before the standard feature list so it reads first */}
+            <div className="mt-5 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1">
+                Includes Huginn Shield Deep Scan 🛡️
+              </p>
+              <p className="text-sm text-blue-800">
+                Unlimited jurisdiction analysis across all 50 states.
+                When Florida is selected, also checks required disclosures under F.S. §559.9613.
+              </p>
+              <p className="mt-1.5 text-xs text-blue-600">
+                Free and Starter users get 2 free Deep Scans as a trial.
+              </p>
+            </div>
+
+            {/* Standard Pro features */}
+            <ul className="mt-5 space-y-2 text-sm text-slate-600">
               <li className="flex items-center gap-2">
                 <span className="text-blue-500 font-bold">✓</span>
                 70 analyses per month
@@ -126,13 +141,6 @@ function PricingContent() {
               <li className="flex items-center gap-2">
                 <span className="text-blue-500 font-bold">✓</span>
                 Priority support
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 font-bold mt-0.5">🛡️</span>
-                <span>
-                  <span className="font-semibold text-slate-800">Huginn Shield Deep Scan</span>
-                  {" "}— analyzes jurisdiction and governing law across all 50 states; checks F.S. §559.9613 disclosures when Florida is selected
-                </span>
               </li>
             </ul>
 

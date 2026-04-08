@@ -133,54 +133,66 @@ export default function Page() {
           </div>
         </section>
 
-        {/* Huginn Shield section */}
-        <section className="py-16 px-6 text-center bg-slate-900 text-white">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex items-center justify-center gap-2 mb-4">
+        {/* Huginn Shield section — Shield Deep Scan is the primary Pro differentiator */}
+        <section className="py-16 px-6 bg-slate-900 text-white">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="flex items-center justify-center gap-2 mb-3">
               <span className="text-3xl" aria-hidden="true">🛡️</span>
-              <h2 className="text-2xl font-bold">Introducing Huginn Shield</h2>
+              <h2 className="text-2xl font-bold">Huginn Shield Deep Scan</h2>
             </div>
-            <p className="text-slate-300 text-lg mb-8">
-              Know exactly what you&apos;re signing — before you sign it.
+            <p className="text-slate-300 text-base mb-8 max-w-xl mx-auto">
+              Standard analysis tells you what&apos;s risky. Deep Scan tells you whether the contract
+              is even in your jurisdiction — and whether it meets the disclosure requirements your state requires.
             </p>
 
-            <div className="grid md:grid-cols-3 gap-6 text-left mb-10">
+            {/* Three distinct capabilities — no overlap */}
+            <div className="grid md:grid-cols-3 gap-5 text-left mb-10">
               <div className="bg-slate-800 rounded-xl p-5">
-                <h3 className="font-semibold text-white mb-2">Jurisdiction &amp; Governing Law</h3>
+                <h3 className="font-semibold text-white mb-2">Governing Law &amp; Forum</h3>
                 <p className="text-slate-400 text-sm">
-                  Flags contracts that force you into out-of-state courts or unfavorable dispute venues.
+                  Finds the clause that dictates which state&apos;s laws apply and where disputes must be filed.
+                  Flags when that state isn&apos;t yours.
                 </p>
               </div>
               <div className="bg-slate-800 rounded-xl p-5">
-                <h3 className="font-semibold text-white mb-2">50-State Jurisdiction Coverage</h3>
+                <h3 className="font-semibold text-white mb-2">50-State Jurisdiction Analysis</h3>
                 <p className="text-slate-400 text-sm">
-                  Deep Scan analyzes jurisdiction and governing law clauses across all 50 states. When Florida is selected, it also checks required disclosures under F.S. §559.9613. More states will be added over time.
+                  Compares the contract&apos;s jurisdiction against your selected state across all 50 states.
+                  Florida users also get an automatic F.S. §559.9613 disclosure check.
                 </p>
               </div>
               <div className="bg-slate-800 rounded-xl p-5">
-                <h3 className="font-semibold text-white mb-2">Plain-English Warnings</h3>
+                <h3 className="font-semibold text-white mb-2">Plain-English Verdict</h3>
                 <p className="text-slate-400 text-sm">
-                  Tells you exactly what to negotiate or walk away from — no legal jargon.
+                  A clear risk rating (Low / Medium / High) with a specific recommendation —
+                  not just flags, but what to actually do about them.
                 </p>
               </div>
             </div>
 
-            <p className="text-slate-400 text-sm mb-2">
-              Built for everyday business owners, contractors, and real estate professionals.
-            </p>
-            <p className="text-white font-semibold mb-2">
-              Huginn Shield Deep Scan is included with Pro ($29.99/mo)
-            </p>
-            <p className="text-slate-400 text-sm mb-8">
-              Free and Starter users get 2 free Deep Scans as a trial.
-            </p>
+            {/* Upgrade intent — two paths: try free or go straight to Pro */}
+            <div className="rounded-xl border border-slate-700 bg-slate-800 px-6 py-5 text-left mb-8">
+              <p className="text-white font-semibold mb-1">Included with Pro — $29.99/mo</p>
+              <p className="text-slate-400 text-sm">
+                Unlimited Deep Scans with every Pro subscription. Free and Starter users get
+                2 free Deep Scans as a trial to see what they&apos;re missing.
+              </p>
+            </div>
 
-            <Link
-              href="/shield"
-              className="inline-flex items-center justify-center rounded-2xl bg-blue-500 px-8 py-4 text-lg font-semibold text-white hover:bg-blue-400"
-            >
-              Try Huginn Shield
-            </Link>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <Link
+                href="/signup"
+                className="inline-flex items-center justify-center rounded-2xl bg-blue-500 px-7 py-3.5 text-base font-semibold text-white hover:bg-blue-400"
+              >
+                Get 2 Free Deep Scans
+              </Link>
+              <Link
+                href="/pricing"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-600 px-7 py-3.5 text-base font-semibold text-slate-200 hover:bg-slate-800"
+              >
+                Upgrade to Pro →
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -210,7 +222,7 @@ export default function Page() {
               </a>
             </div>
 
-            {/* Pro */}
+            {/* Pro — Shield Deep Scan is the headline differentiator */}
             <div className="flex-1 border-2 border-blue-500 rounded-xl p-8 shadow-sm relative">
               <div className="absolute -top-3 left-6 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
                 Most Popular
@@ -218,7 +230,16 @@ export default function Page() {
               <h3 className="text-xl font-semibold mb-2 mt-2">Pro</h3>
               <p className="text-3xl font-bold mb-1">$29.99<span className="text-lg font-normal text-gray-500">/mo</span></p>
 
-              <ul className="text-gray-600 mb-8 mt-6 space-y-2 text-left">
+              {/* Shield callout — visually separated before the standard feature list */}
+              <div className="mt-5 rounded-lg bg-blue-50 border border-blue-200 px-4 py-3 text-left">
+                <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">Includes Huginn Shield 🛡️</p>
+                <p className="text-sm text-blue-800">
+                  Unlimited Deep Scans — jurisdiction analysis across all 50 states,
+                  plus Florida F.S. §559.9613 disclosure checks.
+                </p>
+              </div>
+
+              <ul className="text-gray-600 mb-8 mt-4 space-y-2 text-left">
                 <li>✓ 70 analyses per month</li>
                 <li>✓ Risk scoring with severity levels</li>
                 <li>✓ Clause-level recommendations</li>
