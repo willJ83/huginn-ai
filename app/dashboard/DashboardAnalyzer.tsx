@@ -662,6 +662,7 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
                   Scan Type
                 </p>
                 <div className="grid grid-cols-2 gap-2">
+                  {/* Basic Scan — always available */}
                   <button
                     type="button"
                     onClick={() => setScanMode("basic")}
@@ -674,7 +675,8 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
                     <div className="font-semibold">Basic Scan</div>
                     <div className="opacity-70">Standard analysis</div>
                   </button>
-                  {/* Deep Scan — gated by plan/add-on/trial eligibility */}
+
+                  {/* Deep Scan — selectable when Pro, add-on, or free trials remain */}
                   {canDeepScan ? (
                     <button
                       type="button"
@@ -695,19 +697,28 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
                       </div>
                     </button>
                   ) : (
-                    // Trials exhausted and not on Pro — locked card with value-focused upgrade prompt
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs">
-                      <div className="font-semibold text-slate-500">Deep Scan 🛡️</div>
-                      <div className="mt-0.5 text-slate-400">Requires Pro plan</div>
+                    // Locked state — trials exhausted, not Pro, no add-on.
+                    // Spans full width so the upgrade copy has room to breathe.
+                    <div className="col-span-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs">
+                      <div className="flex items-center gap-1.5 font-semibold text-slate-700">
+                        <span>🛡️</span>
+                        <span>Deep Scan — Requires Pro</span>
+                      </div>
+                      <p className="mt-1 text-slate-500 leading-snug">
+                        Unlock unlimited jurisdiction analysis across all 50 states
+                        {" "}and Florida F.S. §559.9613 disclosure checks.
+                      </p>
                       <a
                         href="/pricing"
-                        className="mt-1.5 block font-semibold text-blue-600 hover:text-blue-800 leading-snug"
+                        className="mt-2 inline-block font-semibold text-blue-600 hover:text-blue-800"
                       >
-                        Upgrade to Pro for unlimited jurisdiction protection →
+                        Upgrade to Pro ($29.99/mo) →
                       </a>
                     </div>
                   )}
                 </div>
+
+                {/* Usage note shown only when Deep Scan is actively selected */}
                 {scanMode === "shield_deep" && canDeepScan && (
                   <p className="mt-1.5 text-xs text-slate-500">
                     Uses 1 analysis from your quota · Includes governing law comparison
