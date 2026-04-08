@@ -231,11 +231,11 @@ export async function POST(req: Request) {
         userId: session.user.id,
         fileName: fileName ?? null,
         template: "compliance_checker",
-        // undefined omits the field (Prisma uses column default); null would fail non-nullable String columns
-        product: "error" in deterministicResult ? undefined : deterministicResult.product,
-        label: "error" in deterministicResult ? undefined : deterministicResult.label,
-        description: "error" in deterministicResult ? undefined : deterministicResult.description,
-        documentType: "error" in deterministicResult ? undefined : deterministicResult.documentType,
+        // Non-nullable String columns — always provide a string, never null or undefined
+        product: "error" in deterministicResult ? "unknown" : deterministicResult.product ?? "",
+        label: "error" in deterministicResult ? "unknown" : deterministicResult.label ?? "",
+        description: "error" in deterministicResult ? "unknown" : deterministicResult.description ?? "",
+        documentType: "error" in deterministicResult ? "unknown" : deterministicResult.documentType ?? "",
         riskScore: finalRiskScore,
         riskLevel: finalRiskLevel,
         summary: finalSummary,
