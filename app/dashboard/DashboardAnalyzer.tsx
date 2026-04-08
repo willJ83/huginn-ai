@@ -662,7 +662,7 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
                   Scan Type
                 </p>
                 <div className="grid grid-cols-2 gap-2">
-                  {/* Basic Scan — always available */}
+                  {/* Basic Scan — neutral styling, always available */}
                   <button
                     type="button"
                     onClick={() => setScanMode("basic")}
@@ -673,22 +673,24 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
                     }`}
                   >
                     <div className="font-semibold">Basic Scan</div>
-                    <div className="opacity-70">Standard analysis</div>
+                    <div className="mt-0.5 text-slate-400">Standard analysis</div>
                   </button>
 
-                  {/* Deep Scan — selectable when Pro, add-on, or free trials remain */}
+                  {/* Deep Scan — available to Pro, add-on holders, or users with free trials remaining.
+                      Unselected state uses a persistent blue tint so it reads as premium, not just inactive. */}
                   {canDeepScan ? (
                     <button
                       type="button"
                       onClick={() => setScanMode("shield_deep")}
                       className={`rounded-lg border px-3 py-2.5 text-left text-xs font-medium transition ${
                         scanMode === "shield_deep"
-                          ? "border-blue-500 bg-blue-100 text-blue-800"
-                          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                          ? "border-blue-500 bg-blue-600 text-white"
+                          : "border-blue-300 bg-blue-50 text-blue-800 hover:bg-blue-100"
                       }`}
                     >
                       <div className="font-semibold">Deep Scan 🛡️</div>
-                      <div className="opacity-70">
+                      {/* Subtitle at full opacity — this is the key eligibility info */}
+                      <div className={`mt-0.5 text-xs ${scanMode === "shield_deep" ? "text-blue-100" : "text-blue-500"}`}>
                         {isPro
                           ? "Unlimited with Pro"
                           : hasAddon
@@ -698,11 +700,11 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
                     </button>
                   ) : (
                     // Locked state — trials exhausted, not Pro, no add-on.
-                    // Spans full width so the upgrade copy has room to breathe.
-                    <div className="col-span-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs">
-                      <div className="flex items-center gap-1.5 font-semibold text-slate-700">
+                    // Spans full width; blue-tinted border signals this is the premium option.
+                    <div className="col-span-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs">
+                      <div className="flex items-center gap-1.5 font-semibold text-slate-800">
                         <span>🛡️</span>
-                        <span>Deep Scan — Requires Pro</span>
+                        <span>Deep Scan — Pro Feature</span>
                       </div>
                       <p className="mt-1 text-slate-500 leading-snug">
                         Unlock unlimited jurisdiction analysis across all 50 states
