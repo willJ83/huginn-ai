@@ -131,7 +131,7 @@ function PricingContent() {
                 <span className="text-blue-500 font-bold mt-0.5">🛡️</span>
                 <span>
                   <span className="font-semibold text-slate-800">Huginn Shield Deep Scan</span>
-                  {" "}— jurisdiction analysis across all 50 states, governing law checks, and F.S. §559.9613 checks when Florida is selected
+                  {" "}— analyzes jurisdiction and governing law across all 50 states; checks F.S. §559.9613 disclosures when Florida is selected
                 </span>
               </li>
             </ul>
@@ -153,16 +153,16 @@ function PricingContent() {
             <h2 className="text-lg font-semibold">Huginn Shield Deep Scan</h2>
           </div>
           <p className="text-slate-300 text-sm mb-4">
-            Our most powerful contract analysis mode — goes beyond risk scoring to analyze jurisdiction and governing law across all 50 states.
+            Deep Scan analyzes jurisdiction and governing law clauses across all 50 states. When Florida is selected, it also checks required disclosures under F.S. §559.9613. More states will be added over time.
           </p>
           <ul className="space-y-2 text-sm text-slate-300 mb-4">
             <li className="flex items-start gap-2">
               <span className="text-blue-400 font-bold mt-0.5">✓</span>
-              Jurisdiction &amp; Governing Law — flags contracts forcing you into out-of-state courts, across all 50 states
+              Jurisdiction &amp; Governing Law — flags contracts that force you into out-of-state courts
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-400 font-bold mt-0.5">✓</span>
-              Florida F.S. §559.9613 — all 6 required disclosures checked automatically when Florida is selected
+              Florida F.S. §559.9613 — required disclosures checked automatically when Florida is selected
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-400 font-bold mt-0.5">✓</span>

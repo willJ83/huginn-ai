@@ -154,7 +154,7 @@ export default function Page() {
               <div className="bg-slate-800 rounded-xl p-5">
                 <h3 className="font-semibold text-white mb-2">50-State Jurisdiction Coverage</h3>
                 <p className="text-slate-400 text-sm">
-                  Analyzes governing law and forum clauses across all 50 states. Florida users also get F.S. §559.9613 disclosure checks automatically.
+                  Deep Scan analyzes jurisdiction and governing law clauses across all 50 states. When Florida is selected, it also checks required disclosures under F.S. §559.9613. More states will be added over time.
                 </p>
               </div>
               <div className="bg-slate-800 rounded-xl p-5">
