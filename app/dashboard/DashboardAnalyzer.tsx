@@ -595,9 +595,9 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
 
               {/* Jurisdiction selector */}
               <div>
-                <p className="mb-1 text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                <label htmlFor="dashboard-jurisdiction-select" className="mb-1 text-xs font-semibold text-slate-600 uppercase tracking-wide block">
                   Your Jurisdiction
-                </p>
+                </label>
 
                 {jurisdictionSaved && !showJurisdictionEdit ? (
                   <div className="flex items-center gap-2 text-sm">
@@ -613,6 +613,7 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
                 ) : (
                   <div className="space-y-2">
                     <select
+                      id="dashboard-jurisdiction-select"
                       value={jurisdiction}
                       onChange={(e) => setJurisdiction(e.target.value)}
                       className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -831,6 +832,7 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
         {/* Camera capture — shown always; useful on mobile */}
         <button
           type="button"
+          aria-label="Take photo of contract"
           onClick={() => cameraInputRef.current?.click()}
           disabled={isAnalyzing || !canAnalyze}
           className="mt-3 inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -846,6 +848,7 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
           type="file"
           accept="image/*"
           capture="environment"
+          aria-label="Take photo of contract"
           className="hidden"
           onChange={async (e) => {
             const input = e.currentTarget;

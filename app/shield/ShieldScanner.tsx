@@ -229,10 +229,11 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
       {/* ── Jurisdiction selector ─────────────────────────────────────────── */}
       <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 flex flex-col gap-2">
-        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <label htmlFor="jurisdiction-select" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
           Your State (optional)
         </label>
         <select
+          id="jurisdiction-select"
           value={jurisdiction}
           onChange={(e) => setJurisdiction(e.target.value)}
           className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -309,6 +310,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
         {/* Camera button — phone-first */}
         <button
           type="button"
+          aria-label="Take photo of contract"
           onClick={() => openPicker("camera")}
           disabled={isScanning}
           className="flex items-center justify-center gap-3 w-full rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-4 text-white font-semibold text-base transition"
@@ -322,6 +324,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
         <button
           type="button"
+          aria-label="Upload contract file (PDF, DOCX, or TXT)"
           onClick={() => openPicker("file")}
           disabled={isScanning}
           className="flex items-center justify-center gap-3 w-full rounded-xl border border-slate-600 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-3 text-slate-200 font-medium text-sm transition"
@@ -341,6 +344,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
           ref={fileInputRef}
           type="file"
           accept=".pdf,.docx,.txt"
+          aria-label="Upload contract file"
           onChange={handleFileInput}
           className="hidden"
         />
@@ -349,6 +353,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
           type="file"
           accept="image/*"
           capture="environment"
+          aria-label="Take photo of contract"
           onChange={handleFileInput}
           className="hidden"
         />
