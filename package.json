@@ -6,10 +6,10 @@
     "node": ">=20.11 <24"
   },
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "prisma generate && next build --webpack",
-    "postinstall": "prisma generate",
-    "start": "next start"
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
