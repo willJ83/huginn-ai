@@ -127,6 +127,13 @@ function PricingContent() {
                 <span className="text-blue-500 font-bold">✓</span>
                 Priority support
               </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-500 font-bold mt-0.5">🛡️</span>
+                <span>
+                  <span className="font-semibold text-slate-800">Huginn Shield Deep Scan</span>
+                  {" "}— jurisdiction analysis, governing law checks, and Florida F.S. §559.9613 compliance
+                </span>
+              </li>
             </ul>
 
             <button
@@ -137,6 +144,35 @@ function PricingContent() {
               {loading === "PRO" ? "Redirecting..." : "Subscribe — Pro"}
             </button>
           </div>
+        </div>
+
+        {/* Huginn Shield callout */}
+        <div className="mt-10 rounded-2xl border border-blue-100 bg-slate-900 p-6 sm:p-8 text-white">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-2xl" aria-hidden="true">🛡️</span>
+            <h2 className="text-lg font-semibold">Huginn Shield Deep Scan</h2>
+          </div>
+          <p className="text-slate-300 text-sm mb-4">
+            Our most powerful contract analysis mode — goes beyond risk scoring to check jurisdiction, governing law clauses, and Florida F.S. §559.9613 required disclosures.
+          </p>
+          <ul className="space-y-2 text-sm text-slate-300 mb-4">
+            <li className="flex items-start gap-2">
+              <span className="text-blue-400 font-bold mt-0.5">✓</span>
+              Jurisdiction &amp; Governing Law — flags contracts forcing you into out-of-state courts
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-400 font-bold mt-0.5">✓</span>
+              Florida F.S. §559.9613 disclosure checks — all 6 required items verified automatically
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-400 font-bold mt-0.5">✓</span>
+              Plain-English warnings — exactly what to negotiate or walk away from
+            </li>
+          </ul>
+          <p className="text-sm">
+            <span className="font-semibold text-white">Included with Pro.</span>
+            <span className="text-slate-400 ml-2">Free and Starter users get 2 free Deep Scans as a trial.</span>
+          </p>
         </div>
 
         {/* Add-on packs */}
