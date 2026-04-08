@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { runDeterministicExtraction } from "../../lib/riskEngine";
-import { HUGINN_V2_PROMPT } from "../../lib/huginnPrompt";
+import { HUGINN_V2_PROMPT, SHIELD_JURISDICTION_STAGE_PROMPT } from "../../lib/huginnPrompt";
 import type { ProductTemplate } from "../../lib/productConfigs";
 import { auth } from "@/lib/auth";
 import { canUseFeature, consumeAddonAnalysis, recordUsage } from "@/lib/billing";
@@ -153,6 +153,51 @@ async function runClaudePipeline(
   }
 }
 
+// ─── Stage 4: Jurisdiction Analysis (Shield Deep only) ────────────────────────
+
+interface JurisdictionAnalysis {
+  risk: "Low" | "Medium" | "High";
+  explanation: string;
+  recommendation: string;
+  governingLaw: string | null;
+  forumClause: string | null;
+  jurisdictionMatch: boolean | null;
+  floridaChecklist?: { item: string; present: boolean }[];
+}
+
+async function runJurisdictionStage(
+  contractText: string,
+  jurisdiction: string
+): Promise<JurisdictionAnalysis | null> {
+  try {
+    const isFL = /\bfl\b|florida/i.test(jurisdiction);
+    const floridaInstruction = isFL
+      ? "\n\nThe user's jurisdiction IS Florida. You MUST include the floridaChecklist array in your JSON."
+      : "\n\nThe user's jurisdiction is NOT Florida. Omit the floridaChecklist field entirely.";
+
+    const msg = await anthropic.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1024,
+      system: SHIELD_JURISDICTION_STAGE_PROMPT,
+      messages: [
+        {
+          role: "user",
+          content: `User's selected jurisdiction: ${jurisdiction}${floridaInstruction}\n\nFull contract text:\n${contractText}`,
+        },
+      ],
+    });
+
+    const raw = msg.content[0]?.type === "text" ? msg.content[0].text : "";
+    const stripped = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    const match = stripped.match(/\{[\s\S]*\}/);
+    if (!match) return null;
+    return JSON.parse(match[0]) as JurisdictionAnalysis;
+  } catch (err) {
+    console.error("[Jurisdiction Stage] ERROR:", err);
+    return null;
+  }
+}
+
 function deriveRiskLevel(score: number): string {
   if (score >= 80) return "low";
   if (score >= 50) return "medium";
@@ -188,7 +233,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { text, template, config, fileName } = body;
+    const { text, template, config, fileName, scanMode, jurisdiction } = body;
 
     if (!text || typeof text !== "string" || !text.trim()) {
       return NextResponse.json(
@@ -242,6 +287,19 @@ export async function POST(req: Request) {
       await consumeAddonAnalysis(session.user.id);
     }
 
+    // Stage 4 — Jurisdiction Analysis (Shield Deep only, non-blocking)
+    let jurisdictionAnalysis: JurisdictionAnalysis | null = null;
+    if (scanMode === "shield_deep" && jurisdiction && typeof jurisdiction === "string") {
+      jurisdictionAnalysis = await runJurisdictionStage(text, jurisdiction);
+    }
+
+    const baseMetadata = (deterministicResult.metadata && typeof deterministicResult.metadata === "object")
+      ? deterministicResult.metadata
+      : {};
+    const finalMetadata = jurisdictionAnalysis
+      ? { ...baseMetadata, jurisdictionAnalysis, jurisdiction }
+      : baseMetadata;
+
     const saved = await prisma.analysis.create({
       data: {
         userId: session.user.id,
@@ -259,7 +317,7 @@ export async function POST(req: Request) {
         forbiddenKeywordHits: deterministicResult.forbiddenKeywordHits as any,
         issues: finalIssues as any,
         deadlines: finalDeadlines as any,
-        metadata: deterministicResult.metadata as any,
+        metadata: finalMetadata as any,
       },
     });
 
@@ -272,6 +330,7 @@ export async function POST(req: Request) {
       riskLevel: finalRiskLevel,
       label: deterministicResult.label,
       fileName: fileName ?? null,
+      ...(jurisdictionAnalysis ? { jurisdictionAnalysis } : {}),
     });
   } catch (error) {
     console.error("ANALYZE ROUTE ERROR:", error);

@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Huginn AI",
   description: "AI-powered contract analysis — identify risks, compliance issues, and critical deadlines in seconds",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -26,6 +27,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="application-name" content="Huginn Shield" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Shield" />
+        <meta name="theme-color" content="#1e40af" />
+        <link rel="apple-touch-icon" href="/huginn-logo.png" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}`,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

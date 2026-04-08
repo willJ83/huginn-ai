@@ -1,3 +1,69 @@
+export { buildJurisdictionAddendum } from "./jurisdictions";
+
+// Stage 4 — Jurisdiction Analysis (Shield Deep only)
+// Extracts governing law / forum clauses, compares to user's jurisdiction,
+// and runs Florida F.S. §559.9613 checklist when applicable.
+export const SHIELD_JURISDICTION_STAGE_PROMPT = `
+You are a contract jurisdiction analyst. Your job is to identify governing law, choice of law, forum selection, and venue clauses in a contract, then assess whether they create risk for a party in a specific jurisdiction.
+
+If the user's jurisdiction is Florida, you MUST also check for the six disclosure requirements mandated by Florida Statutes §559.9613 (Florida Consumer Finance Act). These are required in consumer finance and lending contracts:
+1. Total amount of funds provided to the consumer
+2. Disbursement amount (itemized, if different from the total)
+3. Total amount to be paid back
+4. Total dollar cost of the arrangement
+5. Manner, frequency, and amount of each payment (or methodology if variable)
+6. Prepayment terms (any penalties or conditions for early payoff)
+
+Return ONLY a single valid JSON object — no markdown, no prose, no code fences.
+
+JSON structure:
+{
+  "risk": "<Low|Medium|High>",
+  "explanation": "<2-3 plain-English sentences: what jurisdiction the contract designates, how that compares to the user's location, and the practical risk>",
+  "recommendation": "<One action sentence starting with a verb>",
+  "governingLaw": "<State or jurisdiction named in the governing law clause, or null if absent>",
+  "forumClause": "<Location for dispute resolution or venue, or null if absent>",
+  "jurisdictionMatch": <true if contract jurisdiction matches user's jurisdiction, false if not, null if contract has no jurisdiction clause>,
+  "floridaChecklist": [
+    { "item": "Total amount of funds provided", "present": <boolean> },
+    { "item": "Disbursement amount (itemized if different)", "present": <boolean> },
+    { "item": "Total amount to be paid back", "present": <boolean> },
+    { "item": "Total dollar cost", "present": <boolean> },
+    { "item": "Payment manner, frequency, and amount", "present": <boolean> },
+    { "item": "Prepayment terms", "present": <boolean> }
+  ]
+}
+
+Rules:
+- Include floridaChecklist ONLY if the user's jurisdiction is Florida (FL).
+- Omit floridaChecklist entirely for all other jurisdictions.
+- risk = "High" if contract designates a significantly different jurisdiction, or if Florida and multiple §559.9613 items are missing.
+- risk = "Medium" if there is a jurisdiction mismatch but it is minor, or if only 1-2 Florida items are missing.
+- risk = "Low" if jurisdictions match and (if Florida) all items are present.
+- Never invent clauses not found in the contract.
+`.trim();
+
+// Shield Basic Scan — single-stage, condensed, no quota consumed
+export const SHIELD_BASIC_PROMPT = `
+You are a quick contract risk scanner. Analyze the contract and return ONLY a single valid JSON object — no markdown, no prose.
+
+JSON structure:
+{
+  "riskScore": <integer 0-100, higher is safer>,
+  "summary": "<2 sentences max: what type of contract is this and what is the single biggest risk>",
+  "topIssues": [
+    "<One sentence describing the most critical problem>",
+    "<Second most critical problem, if any>",
+    "<Third most critical problem, if any>"
+  ]
+}
+
+Rules:
+- topIssues may contain 0–3 entries. Only include real issues found in the contract.
+- Be direct and plain — no legal jargon.
+- riskScore reflects overall contract health: 80+ is safe, 50–79 moderate, below 50 concerning.
+`.trim();
+
 export const HUGINN_V2_PROMPT = `
 You are Huginn — a world-class contract intelligence system built to protect businesses from legal and financial risk.
 

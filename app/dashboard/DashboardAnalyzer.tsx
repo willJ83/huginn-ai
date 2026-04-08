@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import DownloadPdfButton from "@/app/components/DownloadPdfButton";
+import { US_STATES } from "@/app/lib/jurisdictions";
 
 type AnalysisIssue = {
   id?: string;
@@ -20,11 +21,22 @@ type AnalysisDeadline = {
   description?: string;
 };
 
+type JurisdictionAnalysis = {
+  risk: "Low" | "Medium" | "High";
+  explanation: string;
+  recommendation: string;
+  governingLaw?: string | null;
+  forumClause?: string | null;
+  jurisdictionMatch?: boolean | null;
+  floridaChecklist?: { item: string; present: boolean }[];
+};
+
 type AnalysisResponse = {
   riskScore?: number;
   summary?: string;
   issues?: AnalysisIssue[];
   deadlines?: AnalysisDeadline[];
+  jurisdictionAnalysis?: JurisdictionAnalysis;
 };
 
 type UsageInfo = {
@@ -287,8 +299,12 @@ function getSeverityLabel(severity?: string) {
   return "LOW";
 }
 
+const JURISDICTION_STORAGE_KEY = "huginnPreferredJurisdiction";
+
 export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
   const [selectedSample, setSelectedSample] = useState<SampleId>("marketing");
   const [isDragActive, setIsDragActive] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -302,6 +318,46 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
   const [remainingAnalyses, setRemainingAnalyses] = useState(usageInfo.remaining);
   const [periodUsed, setPeriodUsed] = useState(usageInfo.periodUsed);
   const [expandedIssues, setExpandedIssues] = useState<Set<number>>(new Set());
+
+  // ── Huginn Shield state ────────────────────────────────────────────────────
+  const [shieldMode, setShieldMode] = useState(false);
+  const [scanMode, setScanMode] = useState<"basic" | "shield_deep">("basic");
+  const [jurisdiction, setJurisdiction] = useState("none");
+  const [customJurisdiction, setCustomJurisdiction] = useState("");
+  const [jurisdictionSaved, setJurisdictionSaved] = useState(false);
+  const [showJurisdictionEdit, setShowJurisdictionEdit] = useState(false);
+
+  // Load saved jurisdiction from localStorage on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(JURISDICTION_STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw) as { code: string; custom: string };
+        if (saved.code) {
+          setJurisdiction(saved.code);
+          setCustomJurisdiction(saved.custom ?? "");
+          setJurisdictionSaved(true);
+        }
+      }
+    } catch { /* ignore parse errors */ }
+  }, []);
+
+  function saveJurisdiction() {
+    try {
+      localStorage.setItem(
+        JURISDICTION_STORAGE_KEY,
+        JSON.stringify({ code: jurisdiction, custom: customJurisdiction })
+      );
+    } catch { /* ignore storage errors */ }
+    setJurisdictionSaved(true);
+    setShowJurisdictionEdit(false);
+  }
+
+  function getJurisdictionLabel(): string {
+    if (jurisdiction === "none") return "None selected";
+    if (jurisdiction === "other") return customJurisdiction || "Custom";
+    return US_STATES.find((s) => s.code === jurisdiction)?.name ?? jurisdiction;
+  }
 
   // Derive free-tier exhaustion from local state so it updates mid-session
   // (usageInfo.needsPlan is frozen at SSR time and won't reflect in-session usage)
@@ -344,7 +400,18 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
       return String(data.text || "");
     }
 
-    throw new Error("Please upload a PDF, DOCX, or TXT file.");
+    // Camera photo or image upload — extracted via Claude Vision
+    if (file.type.startsWith("image/")) {
+      if (file.size > 4.5 * 1024 * 1024) {
+        throw new Error("Image is too large. Please use a photo under 4.5 MB.");
+      }
+      const response = await fetchWithTimeout("/api/extract-image", { method: "POST", body: formData });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to read image.");
+      return String(data.text || "");
+    }
+
+    throw new Error("Please upload a PDF, DOCX, TXT, or image file.");
   }
 
   async function runAnalysis(file: File) {
@@ -372,6 +439,14 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
         setExtractionStatus("Full");
       }
 
+      // Build jurisdiction value for Shield Deep scans
+      const activeJurisdiction =
+        shieldMode && scanMode === "shield_deep" && jurisdiction !== "none"
+          ? jurisdiction === "other"
+            ? customJurisdiction.trim()
+            : jurisdiction
+          : undefined;
+
       const response = await fetchWithTimeout("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -381,6 +456,8 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
           template: "compliance_checker",
           config: {},
           fileName: file.name,
+          scanMode: shieldMode ? scanMode : "basic",
+          ...(activeJurisdiction ? { jurisdiction: activeJurisdiction } : {}),
         }),
       });
 
@@ -407,6 +484,7 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
         summary: data.summary,
         issues: Array.isArray(data.issues) ? data.issues : [],
         deadlines: Array.isArray(data.deadlines) ? data.deadlines : [],
+        jurisdictionAnalysis: data.jurisdictionAnalysis ?? undefined,
       });
       setResultTimestamp(new Date().toLocaleString());
       setRemainingAnalyses((prev) => Math.max(0, prev - 1));
@@ -465,6 +543,138 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
         <p className="mt-1 text-sm text-slate-600">
           Your documents are not stored permanently beyond operational retention needs.
         </p>
+
+        {/* ── Huginn Shield Panel ─────────────────────────────────────────────── */}
+        <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4">
+          {/* Toggle header */}
+          <button
+            type="button"
+            onClick={() => setShieldMode((m) => !m)}
+            className="flex w-full items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              <span aria-hidden="true">🛡️</span>
+              <span className="text-sm font-semibold text-blue-900">Huginn Shield</span>
+              <span className="hidden sm:block text-xs text-blue-600">
+                Jurisdiction-aware deep analysis
+              </span>
+            </div>
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                shieldMode
+                  ? "bg-blue-600 text-white"
+                  : "bg-slate-200 text-slate-500"
+              }`}
+            >
+              {shieldMode ? "ON" : "OFF"}
+            </span>
+          </button>
+
+          {shieldMode && (
+            <div className="mt-3 space-y-3 border-t border-blue-200 pt-3">
+              {/* Jurisdiction selector */}
+              <div>
+                <p className="mb-1 text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                  Your Jurisdiction
+                </p>
+
+                {jurisdictionSaved && !showJurisdictionEdit ? (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-slate-700 font-medium">{getJurisdictionLabel()}</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowJurisdictionEdit(true)}
+                      className="text-xs text-blue-600 underline hover:text-blue-800"
+                    >
+                      Change?
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <select
+                      value={jurisdiction}
+                      onChange={(e) => setJurisdiction(e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+                      <option value="none">— No state selected —</option>
+                      {US_STATES.map((s) => (
+                        <option key={s.code} value={s.code}>
+                          {s.name}
+                        </option>
+                      ))}
+                      <option value="other">Other – specify state or county</option>
+                    </select>
+
+                    {jurisdiction === "other" && (
+                      <input
+                        type="text"
+                        value={customJurisdiction}
+                        onChange={(e) => setCustomJurisdiction(e.target.value)}
+                        placeholder="e.g. Brevard County, FL or Miami-Dade County, FL"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    )}
+
+                    {jurisdiction === "FL" && (
+                      <p className="text-xs text-blue-600">
+                        Florida selected — F.S. §559.9613 disclosure check will run on Deep Scan.
+                      </p>
+                    )}
+
+                    {(jurisdiction !== "none" || jurisdiction === "other") && (
+                      <button
+                        type="button"
+                        onClick={saveJurisdiction}
+                        className="text-xs text-blue-700 font-semibold underline hover:text-blue-900"
+                      >
+                        Save jurisdiction preference
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Scan mode toggle */}
+              <div>
+                <p className="mb-1 text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                  Scan Type
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setScanMode("basic")}
+                    className={`rounded-lg border px-3 py-2.5 text-left text-xs font-medium transition ${
+                      scanMode === "basic"
+                        ? "border-blue-500 bg-blue-100 text-blue-800"
+                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="font-semibold">Basic Scan</div>
+                    <div className="opacity-70">Standard analysis</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setScanMode("shield_deep")}
+                    className={`rounded-lg border px-3 py-2.5 text-left text-xs font-medium transition ${
+                      scanMode === "shield_deep"
+                        ? "border-blue-500 bg-blue-100 text-blue-800"
+                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="font-semibold">Deep Scan 🛡️</div>
+                    <div className="opacity-70">+ Jurisdiction check</div>
+                  </button>
+                </div>
+                {scanMode === "shield_deep" && (
+                  <p className="mt-1.5 text-xs text-slate-500">
+                    Uses 1 analysis from your quota · Includes governing law comparison
+                    {jurisdiction === "FL" ? " + F.S. §559.9613 checklist" : ""}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
           <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -553,6 +763,34 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
           accept=".pdf,.docx,.txt"
           className="hidden"
           title="Upload contract document"
+          onChange={async (e) => {
+            const input = e.currentTarget;
+            const file = input.files?.[0] ?? null;
+            if (!file) return;
+            try { await handleFile(file); }
+            finally { input.value = ""; }
+          }}
+        />
+
+        {/* Camera capture — shown always; useful on mobile */}
+        <button
+          type="button"
+          onClick={() => cameraInputRef.current?.click()}
+          disabled={isAnalyzing || !canAnalyze}
+          className="mt-3 inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg className="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Take Photo of Contract
+        </button>
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
           onChange={async (e) => {
             const input = e.currentTarget;
             const file = input.files?.[0] ?? null;
@@ -664,6 +902,60 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
                     {deadlines.length} {deadlines.length === 1 ? "Deadline" : "Deadlines"}
                   </span>
                 </div>
+              </div>
+            )}
+
+            {/* Jurisdiction Analysis — only shown for Shield Deep scans */}
+            {result.jurisdictionAnalysis && (
+              <div className={`rounded-xl border p-4 ${
+                result.jurisdictionAnalysis.risk === "High"
+                  ? "border-red-200 bg-red-50"
+                  : result.jurisdictionAnalysis.risk === "Medium"
+                  ? "border-amber-200 bg-amber-50"
+                  : "border-green-200 bg-green-50"
+              }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span aria-hidden="true">🛡️</span>
+                  <h3 className="text-sm font-semibold text-slate-800">Jurisdiction Analysis</h3>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                    result.jurisdictionAnalysis.risk === "High"
+                      ? "bg-red-100 text-red-700"
+                      : result.jurisdictionAnalysis.risk === "Medium"
+                      ? "bg-amber-100 text-amber-700"
+                      : "bg-green-100 text-green-700"
+                  }`}>
+                    {result.jurisdictionAnalysis.risk} Risk
+                  </span>
+                </div>
+                <p className="text-sm text-slate-700 leading-relaxed">
+                  {result.jurisdictionAnalysis.explanation}
+                </p>
+                {result.jurisdictionAnalysis.recommendation && (
+                  <p className="mt-2 text-xs font-semibold text-slate-600">
+                    Action: {result.jurisdictionAnalysis.recommendation}
+                  </p>
+                )}
+                {result.jurisdictionAnalysis.governingLaw && (
+                  <p className="mt-2 text-xs text-slate-500">
+                    Governing law: <span className="font-medium text-slate-700">{result.jurisdictionAnalysis.governingLaw}</span>
+                    {result.jurisdictionAnalysis.forumClause ? ` · Forum: ${result.jurisdictionAnalysis.forumClause}` : ""}
+                  </p>
+                )}
+                {result.jurisdictionAnalysis.floridaChecklist && result.jurisdictionAnalysis.floridaChecklist.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs font-semibold text-slate-600 mb-1">F.S. §559.9613 Disclosure Checklist</p>
+                    <ul className="space-y-0.5">
+                      {result.jurisdictionAnalysis.floridaChecklist.map((item, i) => (
+                        <li key={i} className="flex items-center gap-2 text-xs">
+                          <span>{item.present ? "✅" : "❌"}</span>
+                          <span className={item.present ? "text-slate-600" : "text-red-700 font-medium"}>
+                            {item.item}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
 
@@ -787,7 +1079,9 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
                 }}
                 className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
               />
-              <p className="text-xs text-slate-400">This tool is not a substitute for professional legal advice.</p>
+              <p className="text-xs text-slate-400">
+                <strong>Disclaimer:</strong> This is informational only and not legal advice. Laws change and vary by jurisdiction; always consult a licensed attorney in your jurisdiction for binding decisions.
+              </p>
             </div>
           </div>
         )}
