@@ -53,6 +53,8 @@ type UsageInfo = {
 
 type DashboardAnalyzerProps = {
   usageInfo: UsageInfo;
+  // Lifetime count of shield_deep scans — used to gate the 2-trial allowance for Free/Starter
+  shieldDeepTrialsUsed: number;
 };
 
 const REQUEST_TIMEOUT_MS = 120000;
@@ -301,7 +303,7 @@ function getSeverityLabel(severity?: string) {
 
 const JURISDICTION_STORAGE_KEY = "huginnPreferredJurisdiction";
 
-export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps) {
+export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: DashboardAnalyzerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -326,6 +328,14 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
   const [customJurisdiction, setCustomJurisdiction] = useState("");
   const [jurisdictionSaved, setJurisdictionSaved] = useState(false);
   const [showJurisdictionEdit, setShowJurisdictionEdit] = useState(false);
+
+  // Deep Scan eligibility — tracked locally so it updates after each scan
+  const [localDeepTrialsUsed, setLocalDeepTrialsUsed] = useState(shieldDeepTrialsUsed);
+  const isPro = usageInfo.plan === "PRO";
+  const hasAddon = usageInfo.addonRemaining > 0;
+  const deepTrialsRemaining = Math.max(0, 2 - localDeepTrialsUsed);
+  // Allowed: Pro (unlimited), active add-on, or < 2 lifetime free trials
+  const canDeepScan = !usageInfo.paymentFailed && (isPro || hasAddon || deepTrialsRemaining > 0);
 
   // Load saved jurisdiction from localStorage on mount
   useEffect(() => {
@@ -489,6 +499,10 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
       setResultTimestamp(new Date().toLocaleString());
       setRemainingAnalyses((prev) => Math.max(0, prev - 1));
       setPeriodUsed((prev) => prev + 1);
+      // Track deep scan trial usage locally so the UI updates without a page reload
+      if (shieldMode && scanMode === "shield_deep" && !isPro && !hasAddon) {
+        setLocalDeepTrialsUsed((prev) => prev + 1);
+      }
     } catch (err) {
       setError(toUserFacingError(err));
     } finally {
@@ -653,20 +667,41 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
                     <div className="font-semibold">Basic Scan</div>
                     <div className="opacity-70">Standard analysis</div>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setScanMode("shield_deep")}
-                    className={`rounded-lg border px-3 py-2.5 text-left text-xs font-medium transition ${
-                      scanMode === "shield_deep"
-                        ? "border-blue-500 bg-blue-100 text-blue-800"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    <div className="font-semibold">Deep Scan 🛡️</div>
-                    <div className="opacity-70">+ Jurisdiction check</div>
-                  </button>
+                  {/* Deep Scan — gated by plan/add-on/trial eligibility */}
+                  {canDeepScan ? (
+                    <button
+                      type="button"
+                      onClick={() => setScanMode("shield_deep")}
+                      className={`rounded-lg border px-3 py-2.5 text-left text-xs font-medium transition ${
+                        scanMode === "shield_deep"
+                          ? "border-blue-500 bg-blue-100 text-blue-800"
+                          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="font-semibold">Deep Scan 🛡️</div>
+                      <div className="opacity-70">
+                        {isPro
+                          ? "Pro · Unlimited"
+                          : hasAddon
+                          ? `${usageInfo.addonRemaining} add-on remaining`
+                          : `${deepTrialsRemaining} of 2 free trials left`}
+                      </div>
+                    </button>
+                  ) : (
+                    // Not eligible — show locked state with upgrade prompt
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs">
+                      <div className="font-semibold text-slate-400">Deep Scan 🛡️</div>
+                      <div className="text-slate-400">Pro plan required</div>
+                      <a
+                        href="/select-plan"
+                        className="mt-1 block font-semibold text-blue-600 hover:text-blue-800"
+                      >
+                        Upgrade to Pro →
+                      </a>
+                    </div>
+                  )}
                 </div>
-                {scanMode === "shield_deep" && (
+                {scanMode === "shield_deep" && canDeepScan && (
                   <p className="mt-1.5 text-xs text-slate-500">
                     Uses 1 analysis from your quota · Includes governing law comparison
                     {jurisdiction === "FL" ? " + F.S. §559.9613 checklist" : ""}

@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { canUseFeature, PLAN_LIMITS } from "@/lib/billing";
+import { canUseFeature, getUsageCountSince, PLAN_LIMITS } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -23,7 +23,7 @@ export default async function DashboardPage({
   const justUpgraded = params.upgraded === "true";
   const addedAnalyses = params.added_analyses ? parseInt(params.added_analyses, 10) : null;
 
-  const [user, usageInfo, recentAnalyses] = await Promise.all([
+  const [user, usageInfo, recentAnalyses, shieldDeepTrialsUsed] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
@@ -41,6 +41,8 @@ export default async function DashboardPage({
       take: 5,
       select: { id: true, fileName: true, createdAt: true, riskScore: true, riskLevel: true },
     }),
+    // Lifetime Deep Scan count — used to gate the 2-trial allowance for Free/Starter users
+    getUsageCountSince(session.user.id, new Date(0), "shield_deep"),
   ]);
 
   // Redirect to plan selection if no subscription set up — but not for FREE tier users
@@ -180,6 +182,7 @@ export default async function DashboardPage({
             paymentFailed: usageInfo.paymentFailed,
             needsPlan: usageInfo.needsPlan,
           }}
+          shieldDeepTrialsUsed={shieldDeepTrialsUsed}
         />
 
         <section className="mt-8">
