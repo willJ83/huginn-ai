@@ -231,15 +231,15 @@ export default function Page() {
               <p className="text-3xl font-bold mb-1">$29.99<span className="text-lg font-normal text-gray-500">/mo</span></p>
 
               {/* Shield callout — visually separated before the standard feature list */}
-              <div className="mt-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-left">
-                <strong className="flex items-center gap-1">
+              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm">
+                <div className="flex items-center gap-2 font-semibold text-blue-700">
                   INCLUDES HUGINN SHIELD DEEP SCAN
-                </strong>
-                <p className="mt-2">
+                </div>
+                <p className="mt-3">
                   Deep Scan delivers advanced jurisdiction and governing-law analysis across all 50 states.
                   When Florida is selected, it also automatically checks required disclosures under F.S. §559.9613.
                 </p>
-                <p className="mt-3 text-blue-700 text-xs font-medium">
+                <p className="mt-4 text-xs text-blue-600 font-medium">
                   Free and Starter users get 2 free Deep Scans as a trial.
                 </p>
               </div>
