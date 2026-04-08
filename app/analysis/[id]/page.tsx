@@ -64,6 +64,8 @@ export default async function AnalysisPage({
   const issues = Array.isArray(report.issues) ? report.issues : [];
   const deadlines = Array.isArray(report.deadlines) ? report.deadlines : [];
   const riskInfo = getRiskInfo(report.riskScore);
+  const metadata = report.metadata && typeof report.metadata === "object" ? report.metadata as any : {};
+  const jurisdictionAnalysis = metadata.jurisdictionAnalysis ?? null;
 
   const issuesTyped = issues as any[];
   const highCount = issuesTyped.filter((i) => i.severity === "high").length;
@@ -262,6 +264,80 @@ export default async function AnalysisPage({
             </div>
           </section>
 
+          {/* Jurisdiction Analysis — only present for Shield Deep scans */}
+          {jurisdictionAnalysis && (
+            <section className={`mb-8 rounded-3xl border p-6 shadow-sm ${
+              jurisdictionAnalysis.risk === "High"
+                ? "border-red-200 bg-red-50"
+                : jurisdictionAnalysis.risk === "Medium"
+                ? "border-amber-200 bg-amber-50"
+                : "border-green-200 bg-green-50"
+            }`}>
+              <div className="flex flex-wrap items-center gap-3 mb-4">
+                <span aria-hidden="true" className="text-xl">🛡️</span>
+                <h2 className="text-xl font-bold text-slate-900">Jurisdiction Analysis</h2>
+                <span className={`rounded-full px-3 py-1 text-sm font-bold ${
+                  jurisdictionAnalysis.risk === "High"
+                    ? "bg-red-100 text-red-700"
+                    : jurisdictionAnalysis.risk === "Medium"
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-green-100 text-green-700"
+                }`}>
+                  {jurisdictionAnalysis.risk} Risk
+                </span>
+              </div>
+
+              <p className="leading-relaxed text-slate-700">{jurisdictionAnalysis.explanation}</p>
+
+              {jurisdictionAnalysis.recommendation && (
+                <div className="mt-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Recommended Action</p>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-700">{jurisdictionAnalysis.recommendation}</p>
+                </div>
+              )}
+
+              {(jurisdictionAnalysis.governingLaw || jurisdictionAnalysis.forumClause) && (
+                <div className="mt-4 flex flex-wrap gap-4">
+                  {jurisdictionAnalysis.governingLaw && (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Governing Law</p>
+                      <p className="mt-1 text-sm font-medium text-slate-700">{jurisdictionAnalysis.governingLaw}</p>
+                    </div>
+                  )}
+                  {jurisdictionAnalysis.forumClause && (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Forum / Venue</p>
+                      <p className="mt-1 text-sm font-medium text-slate-700">{jurisdictionAnalysis.forumClause}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {Array.isArray(jurisdictionAnalysis.floridaChecklist) && jurisdictionAnalysis.floridaChecklist.length > 0 && (
+                <div className="mt-5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">
+                    Florida F.S. §559.9613 — Required Disclosure Checklist
+                  </p>
+                  <div className="space-y-2">
+                    {jurisdictionAnalysis.floridaChecklist.map((item: { item: string; present: boolean }, i: number) => (
+                      <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
+                        item.present
+                          ? "border-green-200 bg-white"
+                          : "border-red-200 bg-red-50"
+                      }`}>
+                        <span className="text-base mt-0.5">{item.present ? "✅" : "❌"}</span>
+                        <span className={`text-sm ${item.present ? "text-slate-600" : "font-semibold text-red-700"}`}>
+                          {item.item}
+                          {!item.present && " — Missing"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
           {/* CTA bar */}
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -287,8 +363,8 @@ export default async function AnalysisPage({
                   Analyze Another Contract
                 </Link>
               </div>
-              <p className="text-xs text-slate-400">
-                Your contract was not stored. All analysis is private.
+              <p className="text-xs text-slate-400 max-w-md">
+                <strong>Disclaimer:</strong> This is informational only and not legal advice. Laws change and vary by jurisdiction; always consult a licensed attorney in your jurisdiction for binding decisions.
               </p>
             </div>
           </section>

@@ -1,0 +1,25 @@
+{
+  "name": "Huginn Shield",
+  "short_name": "Shield",
+  "description": "Scan contracts instantly from your phone — protect yourself before you sign.",
+  "start_url": "/shield",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#1e40af",
+  "icons": [
+    {
+      "src": "/huginn-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/huginn-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

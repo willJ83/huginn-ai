@@ -2,13 +2,11 @@
   "name": "huginn-ai",
   "version": "0.1.0",
   "private": true,
-  "engines": {
-    "node": ">=20.11 <24"
-  },
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "next build --webpack",
-    "start": "next start"
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
