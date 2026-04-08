@@ -4,7 +4,7 @@ import { runDeterministicExtraction } from "../../lib/riskEngine";
 import { HUGINN_V2_PROMPT, SHIELD_JURISDICTION_STAGE_PROMPT } from "../../lib/huginnPrompt";
 import type { ProductTemplate } from "../../lib/productConfigs";
 import { auth } from "@/lib/auth";
-import { canUseFeature, consumeAddonAnalysis, recordUsage } from "@/lib/billing";
+import { canUseFeature, consumeAddonAnalysis, recordUsage, getUsageCountSince } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -242,6 +242,33 @@ export async function POST(req: Request) {
       );
     }
 
+    // ── Shield Deep Scan eligibility gate ────────────────────────────────────
+    // Checked early — before any Claude calls — so no quota is consumed if blocked.
+    // Allowed: Pro plan, active add-on analyses, or < 2 lifetime deep scans (trial).
+    if (scanMode === "shield_deep" && jurisdiction && typeof jurisdiction === "string") {
+      const isPro = usage.plan === "PRO" || usage.plan === "UNLIMITED";
+      const hasAddon = usage.addonRemaining > 0;
+
+      if (!isPro && !hasAddon) {
+        const lifetimeDeepScans = await getUsageCountSince(
+          session.user.id,
+          new Date(0),
+          "shield_deep"
+        );
+        if (lifetimeDeepScans >= 2) {
+          return NextResponse.json(
+            {
+              ok: false,
+              error:
+                "Deep Scan requires a Pro plan. You've used both free Deep Scan trials — upgrade to Pro for unlimited jurisdiction analysis.",
+              code: "shield_deep_upgrade_required",
+            },
+            { status: 403 }
+          );
+        }
+      }
+    }
+
     const activeTemplate = (template as ProductTemplate) ?? "compliance_checker";
 
     const deterministicResult = runDeterministicExtraction({
@@ -288,9 +315,11 @@ export async function POST(req: Request) {
     }
 
     // Stage 4 — Jurisdiction Analysis (Shield Deep only, non-blocking)
+    // Eligibility already verified above; record shield_deep usage for trial tracking.
     let jurisdictionAnalysis: JurisdictionAnalysis | null = null;
     if (scanMode === "shield_deep" && jurisdiction && typeof jurisdiction === "string") {
       jurisdictionAnalysis = await runJurisdictionStage(text, jurisdiction);
+      await recordUsage(session.user.id, "shield_deep");
     }
 
     const baseMetadata = (deterministicResult.metadata && typeof deterministicResult.metadata === "object")
