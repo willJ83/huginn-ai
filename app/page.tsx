@@ -152,9 +152,9 @@ export default function Page() {
                 </p>
               </div>
               <div className="bg-slate-800 rounded-xl p-5">
-                <h3 className="font-semibold text-white mb-2">Florida-Specific Protections</h3>
+                <h3 className="font-semibold text-white mb-2">50-State Jurisdiction Coverage</h3>
                 <p className="text-slate-400 text-sm">
-                  Automatically checks for required disclosures under F.S. §559.9613 for Florida businesses.
+                  Analyzes governing law and forum clauses across all 50 states. Florida users also get F.S. §559.9613 disclosure checks automatically.
                 </p>
               </div>
               <div className="bg-slate-800 rounded-xl p-5">

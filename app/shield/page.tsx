@@ -40,7 +40,8 @@ export default async function ShieldPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 font-bold mt-0.5">📋</span>
-                <span><span className="text-white font-medium">Florida-Specific Protections</span> — automatically checks for required disclosures under F.S. §559.9613</span>
+                {/* Florida checklist only runs when Florida is selected — copy reflects this */}
+                <span><span className="text-white font-medium">50-State Jurisdiction Coverage</span> — when Florida is selected, also checks F.S. §559.9613 required disclosures automatically</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 font-bold mt-0.5">💬</span>

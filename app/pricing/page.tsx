@@ -131,7 +131,7 @@ function PricingContent() {
                 <span className="text-blue-500 font-bold mt-0.5">🛡️</span>
                 <span>
                   <span className="font-semibold text-slate-800">Huginn Shield Deep Scan</span>
-                  {" "}— jurisdiction analysis, governing law checks, and Florida F.S. §559.9613 compliance
+                  {" "}— jurisdiction analysis across all 50 states, governing law checks, and F.S. §559.9613 checks when Florida is selected
                 </span>
               </li>
             </ul>
@@ -153,16 +153,16 @@ function PricingContent() {
             <h2 className="text-lg font-semibold">Huginn Shield Deep Scan</h2>
           </div>
           <p className="text-slate-300 text-sm mb-4">
-            Our most powerful contract analysis mode — goes beyond risk scoring to check jurisdiction, governing law clauses, and Florida F.S. §559.9613 required disclosures.
+            Our most powerful contract analysis mode — goes beyond risk scoring to analyze jurisdiction and governing law across all 50 states.
           </p>
           <ul className="space-y-2 text-sm text-slate-300 mb-4">
             <li className="flex items-start gap-2">
               <span className="text-blue-400 font-bold mt-0.5">✓</span>
-              Jurisdiction &amp; Governing Law — flags contracts forcing you into out-of-state courts
+              Jurisdiction &amp; Governing Law — flags contracts forcing you into out-of-state courts, across all 50 states
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-400 font-bold mt-0.5">✓</span>
-              Florida F.S. §559.9613 disclosure checks — all 6 required items verified automatically
+              Florida F.S. §559.9613 — all 6 required disclosures checked automatically when Florida is selected
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-400 font-bold mt-0.5">✓</span>
