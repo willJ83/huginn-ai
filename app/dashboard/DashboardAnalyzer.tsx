@@ -621,7 +621,8 @@ export default function DashboardAnalyzer({ usageInfo }: DashboardAnalyzerProps)
                       </p>
                     )}
 
-                    {(jurisdiction !== "none" || jurisdiction === "other") && (
+                    {/* "other" !== "none" already, so this single check covers all non-empty selections */}
+                    {jurisdiction !== "none" && (
                       <button
                         type="button"
                         onClick={saveJurisdiction}
