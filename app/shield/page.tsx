@@ -51,15 +51,16 @@ export default async function ShieldPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm mb-6">
-          <div className="flex items-center gap-2 font-semibold text-blue-700">
+        {/* Clean high-contrast Deep Scan Pro box for dark Shield page */}
+        <div className="mt-6 w-full rounded-2xl border border-blue-400 bg-slate-800 p-5 text-left">
+          <div className="flex items-center gap-2 font-semibold text-blue-400">
             INCLUDES HUGINN SHIELD DEEP SCAN
           </div>
-          <p className="mt-3">
+          <p className="mt-3 text-slate-200 text-[15px] leading-relaxed">
             Deep Scan delivers advanced jurisdiction and governing-law analysis across all 50 states.
             When Florida is selected, it also automatically checks required disclosures under F.S. §559.9613.
           </p>
-          <p className="mt-4 text-xs text-blue-600 font-medium">
+          <p className="mt-4 text-xs text-blue-400 font-medium">
             Free and Starter users get 2 free Deep Scans as a trial.
           </p>
         </div>
