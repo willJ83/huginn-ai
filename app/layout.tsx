@@ -35,8 +35,21 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Shield" />
-        <meta name="theme-color" content="#1e40af" />
-        <link rel="apple-touch-icon" href="/huginn-logo.png" />
+
+        {/*
+          Two theme-color tags silence the Edge Tools "single theme-color" warning
+          and give browsers the correct chrome colour in both colour schemes.
+          Light: white nav bar · Dark: slate-900 (#0f172a) nav bar.
+        */}
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+
+        {/*
+          `sizes="180x180"` silences the Edge Tools apple-touch-icon warning.
+          180×180 is the canonical size for modern iOS home-screen icons.
+        */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/huginn-logo.png" />
+
         <script
           dangerouslySetInnerHTML={{
             __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}`,

@@ -3,9 +3,10 @@
 // ── COMPONENT VERSION ────────────────────────────────────────────────────────
 // Bump this string on every deploy so you can verify the PWA loaded fresh code:
 // open DevTools → Elements → find data-shield-version on the root div.
-const SHIELD_VERSION = "2.2.0";
+const SHIELD_VERSION = "2.3.0";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { US_STATES } from "@/app/lib/jurisdictions";
 import type { UsageInfo } from "@/lib/billing";
@@ -51,27 +52,34 @@ type DeepDeadline = {
 type ScanResult = BasicResult | DeepResult;
 
 // ── Deep scan progress ─────────────────────────────────────────────────────
-// Populated while a deep scan is streaming. Cleared when results arrive.
 type DeepScanProgress = {
   stage: number;   // 1 | 2 | 3
   total: number;   // always 3
-  message: string; // human-readable label shown in the UI
+  message: string;
+};
+
+// ── Toast notification ─────────────────────────────────────────────────────
+type Toast = {
+  message: string;
+  type: "success" | "info" | "error";
 };
 
 // Max characters sent to the AI (~50 pages of dense legal text).
-// Contracts exceeding this are truncated with a user-visible warning.
 const MAX_TEXT_CHARS = 150_000;
 
-// REQUEST_TIMEOUT_MS is only used for the basic scan (single fetch + JSON).
+// REQUEST_TIMEOUT_MS applies only to the basic scan and file-extraction calls.
 // Deep scans use a streaming SSE connection with no hard client-side timeout.
 const REQUEST_TIMEOUT_MS = 60_000;
 
-// Image file extensions — used as a fallback when the browser reports an empty
-// or unexpected MIME type (common with camera captures on Android & some iOS).
+// Image file extensions — fallback for Android/iOS camera files with empty MIME.
 const IMAGE_EXTENSIONS = /\.(jpe?g|png|gif|webp|heic|heif|bmp|tiff?)$/i;
 
-// Stage labels shown in the progress indicator dots.
+// Stage labels shown in the deep-scan progress dots.
 const STAGE_LABELS = ["Classify", "Extract", "Score"] as const;
+
+// How long (ms) to wait after results arrive before navigating to the full
+// analysis report page. Gives the user a moment to read the toast.
+const REDIRECT_DELAY_MS = 2_500;
 
 async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   const controller = new AbortController();
@@ -106,16 +114,14 @@ function getSeverityLabel(severity?: string) {
 }
 
 export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
+  const router = useRouter();
+
   // ── PWA cache-busting ──────────────────────────────────────────────────────
-  // On every Shield page visit, tell the browser to re-check sw.js for updates.
-  // If a new SW is found (new cache version string), it installs immediately via
-  // skipWaiting() and the controllerchange event reloads the page with fresh JS.
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistrations().then((regs) => {
         regs.forEach((reg) => reg.update());
       });
-
       const onControllerChange = () => window.location.reload();
       navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
       return () => {
@@ -124,42 +130,45 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     }
   }, []);
 
-  // ── Input refs ─────────────────────────────────────────────────────────────
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
+  // ── Refs ───────────────────────────────────────────────────────────────────
+  const fileInputRef    = useRef<HTMLInputElement>(null);
+  const cameraInputRef  = useRef<HTMLInputElement>(null);
   const addMoreInputRef = useRef<HTMLInputElement>(null);
 
-  // ── Ref to cancel an in-progress deep scan stream ─────────────────────────
-  // Stored in a ref so resetAll() can cancel without a stale closure.
+  // Cancels an in-progress deep-scan stream reader when resetAll() is called.
   const scanReaderRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(null);
 
-  // ── Ref to auto-scroll to results when they appear ────────────────────────
+  // Auto-scrolls the results section into view when analysis completes.
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  // Timers for toast auto-dismiss and post-result redirect.
+  const toastTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── State ──────────────────────────────────────────────────────────────────
   const [scanMode, setScanMode] = useState<ScanMode>("basic");
   const [jurisdiction, setJurisdiction] = useState("none");
 
-  // ── Multi-page accumulation state ─────────────────────────────────────────
-  const [pendingPages, setPendingPages] = useState<string[]>([]);
+  const [pendingPages, setPendingPages]       = useState<string[]>([]);
   const [pendingFileNames, setPendingFileNames] = useState<string[]>([]);
-  const [awaitingMore, setAwaitingMore] = useState(false);
+  const [awaitingMore, setAwaitingMore]       = useState(false);
 
-  // ── Scan lifecycle ────────────────────────────────────────────────────────
-  const [extracting, setExtracting] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
+  const [extracting, setExtracting]           = useState(false);
+  const [isScanning, setIsScanning]           = useState(false);
   const [deepScanProgress, setDeepScanProgress] = useState<DeepScanProgress | null>(null);
-  const [truncated, setTruncated] = useState(false);
-  const [error, setError] = useState("");
-  const [fileName, setFileName] = useState("");
-  const [result, setResult] = useState<ScanResult | null>(null);
-  const [expandedIssues, setExpandedIssues] = useState<Set<number>>(new Set());
+  const [truncated, setTruncated]             = useState(false);
+  const [error, setError]                     = useState("");
+  const [fileName, setFileName]               = useState("");
+  const [result, setResult]                   = useState<ScanResult | null>(null);
+  const [expandedIssues, setExpandedIssues]   = useState<Set<number>>(new Set());
   const [remainingAnalyses, setRemainingAnalyses] = useState(usageInfo.remaining);
+  const [toast, setToast]                     = useState<Toast | null>(null);
 
   const canDeepScan =
     !usageInfo.paymentFailed && !usageInfo.needsPlan && remainingAnalyses > 0;
   const busy = extracting || isScanning;
 
-  // ── Auto-scroll to results when they appear ───────────────────────────────
+  // ── Auto-scroll to results ─────────────────────────────────────────────────
   useEffect(() => {
     if (result && resultsRef.current) {
       setTimeout(() => {
@@ -168,6 +177,28 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     }
   }, [result]);
 
+  // ── Cleanup timers on unmount ──────────────────────────────────────────────
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
+    };
+  }, []);
+
+  // ── Toast helper ───────────────────────────────────────────────────────────
+  // Shows a notification for `duration` ms then auto-dismisses.
+  function showToast(message: string, type: Toast["type"] = "success", duration = 5000) {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ message, type });
+    toastTimerRef.current = setTimeout(() => setToast(null), duration);
+  }
+
+  function dismissToast() {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast(null);
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
   function toggleIssue(i: number) {
     setExpandedIssues((prev) => {
       const next = new Set(prev);
@@ -178,11 +209,15 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
   }
 
   function resetAll() {
-    // Cancel any in-progress deep scan stream so we don't update state after reset.
+    // Cancel any in-progress stream.
     if (scanReaderRef.current) {
       scanReaderRef.current.cancel();
       scanReaderRef.current = null;
     }
+    // Cancel any pending redirect or toast.
+    if (redirectTimerRef.current) { clearTimeout(redirectTimerRef.current); redirectTimerRef.current = null; }
+    if (toastTimerRef.current)    { clearTimeout(toastTimerRef.current);    toastTimerRef.current = null;    }
+
     setDeepScanProgress(null);
     setResult(null);
     setError("");
@@ -194,6 +229,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     setFileName("");
     setIsScanning(false);
     setExtracting(false);
+    setToast(null);
   }
 
   // ── Text extraction ────────────────────────────────────────────────────────
@@ -212,22 +248,21 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
       return String(data.text ?? "");
     }
 
-    if (lower.endsWith(".docx")) {
+    if (lower.endsWith(".docx") || lower.endsWith(".doc")) {
       const res = await fetchWithTimeout("/api/extract-docx", { method: "POST", body: formData });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Failed to read DOCX.");
+      if (!res.ok) throw new Error(data.error ?? "Failed to read document.");
       return String(data.text ?? "");
     }
 
     // ── Image detection ──────────────────────────────────────────────────────
-    // Some camera implementations (Android, older iOS) return file.type="" or
-    // "application/octet-stream" even for JPEG captures. Always fall back to
-    // extension check so camera photos are never mis-routed to the error path.
+    // Some Android/iOS camera captures report file.type="" or "application/octet-stream".
+    // Always fall back to extension check so camera photos never mis-route to the error path.
     const isImage =
       file.type.startsWith("image/") ||
       IMAGE_EXTENSIONS.test(lower) ||
-      file.type === "" || // camera captures on some Android browsers
-      file.type === "application/octet-stream"; // fallback MIME from certain cameras
+      file.type === "" ||
+      file.type === "application/octet-stream";
 
     if (isImage) {
       if (file.size > 4.5 * 1024 * 1024) {
@@ -264,10 +299,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
     if (!res.ok) {
       let msg = "Scan failed. Please try again.";
-      try {
-        const data = await res.json();
-        if (data.error) msg = data.error;
-      } catch { /* ignore */ }
+      try { const d = await res.json(); if (d.error) msg = d.error; } catch { /* ignore */ }
       setError(msg);
       setIsScanning(false);
       return false;
@@ -278,21 +310,23 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     setPendingPages([]);
     setPendingFileNames([]);
     setIsScanning(false);
+
+    // ── Toast: basic scan complete ─────────────────────────────────────────
+    showToast("Analysis complete! Your results are below.", "success");
     return true;
   }
 
   // ── Deep scan: SSE streaming response ─────────────────────────────────────
-  // The API emits progress events between each of the 3 Claude stages, then
-  // emits the final result. We read the stream live so:
-  //   1. The UI shows real stage-by-stage progress (no blind spinning).
-  //   2. Results appear automatically — no manual refresh needed.
-  //   3. There is no hard client timeout that could abort a large scan.
+  // The API emits a progress event between each Claude stage, then a result event.
+  // We consume the stream live so:
+  //   1. The UI shows real stage-by-stage progress instead of a blind spinner.
+  //   2. setResult() fires automatically — no manual refresh needed.
+  //   3. The client has no hard timeout that could abort a large-contract scan.
   async function runDeepScanStream(text: string, name: string): Promise<boolean> {
     setDeepScanProgress({ stage: 0, total: 3, message: "Connecting…" });
 
     let response: Response;
     try {
-      // No AbortController timeout here — the stream has its own lifecycle.
       response = await fetch("/api/shield/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -309,7 +343,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
       setError(
         msg.includes("abort") || msg.includes("cancel")
           ? "Scan was cancelled."
-          : "Connection failed. Please check your internet and try again."
+          : "Connection failed. Check your internet and try again."
       );
       setIsScanning(false);
       setDeepScanProgress(null);
@@ -325,10 +359,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
     if (!response.ok) {
       let msg = "Scan failed. Please try again.";
-      try {
-        const data = await response.json();
-        if (data.error) msg = data.error;
-      } catch { /* ignore */ }
+      try { const d = await response.json(); if (d.error) msg = d.error; } catch { /* ignore */ }
       setError(msg);
       setIsScanning(false);
       setDeepScanProgress(null);
@@ -354,9 +385,8 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
         buffer += decoder.decode(value, { stream: true });
 
-        // SSE events are delimited by double newlines (\n\n).
+        // SSE events are delimited by \n\n.
         const parts = buffer.split("\n\n");
-        // Keep any incomplete trailing chunk in the buffer.
         buffer = parts.pop() ?? "";
 
         for (const part of parts) {
@@ -364,16 +394,13 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
           if (!dataLine) continue;
 
           let event: { type: string; [key: string]: unknown };
-          try {
-            event = JSON.parse(dataLine.slice(6));
-          } catch {
-            continue; // malformed line — skip
-          }
+          try { event = JSON.parse(dataLine.slice(6)); }
+          catch { continue; }
 
           if (event.type === "progress") {
             setDeepScanProgress({
-              stage: event.stage as number,
-              total: event.total as number,
+              stage:   event.stage   as number,
+              total:   event.total   as number,
               message: event.message as string,
             });
           } else if (event.type === "result") {
@@ -387,6 +414,18 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
             setDeepScanProgress(null);
             setIsScanning(false);
             scanReaderRef.current = null;
+
+            // ── Toast + auto-redirect to full report ──────────────────────
+            // Show a success notification, then navigate to the analysis page
+            // so the user sees the fully formatted report without any manual
+            // navigation. The redirect fires after REDIRECT_DELAY_MS so the
+            // toast is visible for a moment before the page changes.
+            const analysisId = (payload as DeepResult).id;
+            showToast("Analysis complete! Opening your full report…", "success", REDIRECT_DELAY_MS + 500);
+            redirectTimerRef.current = setTimeout(() => {
+              router.push(`/analysis/${analysisId}`);
+            }, REDIRECT_DELAY_MS);
+
             return true;
           } else if (event.type === "error") {
             setError((event.message as string) ?? "Scan failed. Please try again.");
@@ -399,7 +438,6 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
-      // Ignore cancellation errors triggered by resetAll().
       if (!msg.includes("cancel") && !msg.includes("abort")) {
         setError("Stream interrupted. Please try again.");
       }
@@ -409,7 +447,6 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
       return false;
     }
 
-    // Stream ended without a result event (unexpected).
     setError("Scan completed without a result. Please try again.");
     setDeepScanProgress(null);
     setIsScanning(false);
@@ -417,12 +454,11 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     return false;
   }
 
-  // ── Dispatch to the right scan function based on mode ─────────────────────
+  // ── Dispatch to correct scan function ─────────────────────────────────────
   async function runScanWithText(text: string, name: string): Promise<boolean> {
-    if (scanMode === "deep") {
-      return runDeepScanStream(text, name);
-    }
-    return runBasicScanRequest(text, name);
+    return scanMode === "deep"
+      ? runDeepScanStream(text, name)
+      : runBasicScanRequest(text, name);
   }
 
   // ── Multi-page image handler ───────────────────────────────────────────────
@@ -443,9 +479,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
         file.name === "blob" ||
         /^(image|photo|img|capture|scan|camera)\d*\.(jpe?g|png|heic|webp)$/i.test(file.name);
 
-      const displayName = isGenericName
-        ? `Photo ${pendingPages.length + 1}`
-        : file.name;
+      const displayName = isGenericName ? `Photo ${pendingPages.length + 1}` : file.name;
 
       setPendingPages((prev) => [...prev, text]);
       setPendingFileNames((prev) => [...prev, displayName]);
@@ -472,7 +506,6 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
     try {
       const text = await extractText(file);
-
       if (!text.trim()) throw new Error("Could not extract text from this file.");
       if (text.length < 200)
         throw new Error("File is too short to analyze. Make sure the full contract is included.");
@@ -508,13 +541,10 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     setIsScanning(true);
 
     const combinedName =
-      pendingFileNames.length === 1
-        ? pendingFileNames[0]
-        : `${pendingFileNames.length} pages`;
+      pendingFileNames.length === 1 ? pendingFileNames[0] : `${pendingFileNames.length} pages`;
     setFileName(combinedName);
 
     let combinedText = pendingPages.join("\n\n--- Page Break ---\n\n");
-
     if (combinedText.length > MAX_TEXT_CHARS) {
       let trimPoint = MAX_TEXT_CHARS;
       const lastBreak = combinedText.lastIndexOf("\n\n", MAX_TEXT_CHARS);
@@ -531,9 +561,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     }
 
     const success = await runScanWithText(combinedText, combinedName);
-    if (!success && pendingPages.length > 0) {
-      setAwaitingMore(true);
-    }
+    if (!success && pendingPages.length > 0) setAwaitingMore(true);
   }
 
   // ── Deep scan gate ─────────────────────────────────────────────────────────
@@ -577,7 +605,6 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
   const riskInfo = result ? getRiskColor(result.riskScore) : null;
 
-  // Progress bar percentage: stage 0 = 5% (just connected), stage N = N/total * 100
   const progressPct = deepScanProgress
     ? deepScanProgress.stage === 0
       ? 5
@@ -586,6 +613,53 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
   return (
     <div className="w-full flex flex-col gap-4" data-shield-version={SHIELD_VERSION}>
+
+      {/* ── Toast notification ────────────────────────────────────────────── */}
+      {/*
+        Fixed to the top-center of the viewport. Appears when any scan completes,
+        auto-dismisses after the timeout, and can be closed manually.
+        For deep scans it acts as a countdown notice before the redirect fires.
+      */}
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`fixed top-4 left-1/2 z-50 flex w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 items-center gap-3 rounded-xl border px-4 py-3 shadow-xl text-sm font-medium transition-all ${
+            toast.type === "success"
+              ? "border-green-600 bg-green-900 text-green-200"
+              : toast.type === "error"
+              ? "border-red-600 bg-red-900 text-red-200"
+              : "border-blue-600 bg-blue-900 text-blue-200"
+          }`}
+        >
+          {toast.type === "success" && (
+            <svg className="h-5 w-5 shrink-0 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          )}
+          {toast.type === "error" && (
+            <svg className="h-5 w-5 shrink-0 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          )}
+          {toast.type === "info" && (
+            <svg className="h-5 w-5 shrink-0 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          )}
+          <span className="flex-1">{toast.message}</span>
+          <button
+            type="button"
+            onClick={dismissToast}
+            aria-label="Dismiss notification"
+            className="ml-auto shrink-0 opacity-70 hover:opacity-100 transition"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* ── Disclaimer ──────────────────────────────────────────────────────── */}
       <div className="rounded-xl border border-amber-600/40 bg-amber-950/30 px-4 py-3">
@@ -693,9 +767,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
         <div className="rounded-xl border border-blue-600/40 bg-blue-950/30 p-4 flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <span className="text-green-400 text-base" aria-hidden="true">✓</span>
-            <p className="text-sm font-semibold text-white">
-              Page {pendingPages.length} added
-            </p>
+            <p className="text-sm font-semibold text-white">Page {pendingPages.length} added</p>
           </div>
           <p className="text-xs text-slate-400">
             {pendingPages.length === 1
@@ -706,12 +778,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
           <div className="flex flex-col gap-2">
             <button
               type="button"
-              onClick={() =>
-                guardedOpen(() => {
-                  setAwaitingMore(false);
-                  cameraInputRef.current?.click();
-                })
-              }
+              onClick={() => guardedOpen(() => { setAwaitingMore(false); cameraInputRef.current?.click(); })}
               className="flex items-center justify-center gap-2 w-full rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 px-4 py-3 text-sm font-medium text-slate-200 transition"
             >
               <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -723,12 +790,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
             <button
               type="button"
-              onClick={() =>
-                guardedOpen(() => {
-                  setAwaitingMore(false);
-                  addMoreInputRef.current?.click();
-                })
-              }
+              onClick={() => guardedOpen(() => { setAwaitingMore(false); addMoreInputRef.current?.click(); })}
               className="flex items-center justify-center gap-2 w-full rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 px-4 py-3 text-sm font-medium text-slate-200 transition"
             >
               <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -792,13 +854,26 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
           </button>
 
           <p className="text-center text-xs text-slate-500">
-            PDF · DOCX · TXT · JPG · PNG · WebP
+            PDF · DOCX · TXT · JPG · PNG · WebP · HEIC
           </p>
         </div>
       )}
 
       {/*
-        Hidden file inputs.
+        ── Hidden file inputs ───────────────────────────────────────────────────
+
+        THREE separate inputs to avoid browser picker-state conflicts.
+
+        1. cameraInputRef — `capture="environment"` opens rear camera directly on mobile.
+           ONLY this input has a capture attribute; the others must NOT have it or mobile
+           browsers will restrict them to camera/gallery and hide the Files picker.
+
+        2. fileInputRef — document + image upload. accept lists MIME-friendly extensions
+           so Android/iOS shows "Files" in the picker sheet alongside Photos. Do NOT add
+           capture here or the system sheet will be replaced with the camera viewfinder.
+
+        3. addMoreInputRef — "add another page" image picker (no capture, shows gallery).
+
         `capture="environment"` is a valid W3C Media Capture attribute
         (https://www.w3.org/TR/html-media-capture/) typed as string in React's InputHTMLAttributes.
       */}
@@ -811,10 +886,16 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
         onChange={handleCameraChange}
         className="hidden"
       />
+      {/*
+        FIX: No `capture` attribute here. With capture present, iOS/Android restricts
+        the picker to camera/gallery only and hides the document browser. Removing it
+        lets the OS show its full "Files / Photos / Browse" sheet so users can pick a
+        PDF, Word doc, or image from anywhere on the device.
+      */}
       <input
         ref={fileInputRef}
         type="file"
-        accept=".pdf,.docx,.txt,image/*"
+        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.heic,.heif,.webp,image/*"
         aria-label="Upload contract file"
         onChange={handleFileChange}
         className="hidden"
@@ -822,36 +903,27 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
       <input
         ref={addMoreInputRef}
         type="file"
-        accept="image/*"
+        accept=".jpg,.jpeg,.png,.heic,.heif,.webp,image/*"
         aria-label="Upload additional contract page"
         onChange={handleCameraChange}
         className="hidden"
       />
 
       {/* ── Scanning progress ─────────────────────────────────────────────── */}
-      {/*
-        CHANGED: Replaced the dumb "spinning radar" with a real 3-stage progress
-        indicator for deep scans. Each stage emits an SSE event from the API, which
-        updates deepScanProgress state here. Basic scan keeps the simple spinner.
-      */}
       {isScanning && (
         <div className="rounded-xl border border-blue-700/50 bg-blue-950/40 p-5 flex flex-col items-center gap-4">
-          {/* Spinner */}
           <svg className="h-8 w-8 text-blue-400 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
 
-          {/* Stage message */}
           <p className="text-sm text-blue-300 font-semibold text-center">
             {deepScanProgress?.message ??
               (scanMode === "basic" ? "Running basic scan…" : "Starting deep analysis…")}
           </p>
 
-          {/* Deep scan: animated progress bar + stage dots */}
           {deepScanProgress && scanMode === "deep" && (
             <div className="w-full flex flex-col gap-3">
-              {/* Progress bar */}
               <div className="w-full">
                 <div className="flex justify-between text-[11px] text-slate-500 mb-1.5">
                   <span>
@@ -861,7 +933,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
                   </span>
                   <span>{progressPct}%</span>
                 </div>
-                {/* Dynamic width — Tailwind cannot generate arbitrary runtime percentages */}
+                {/* Dynamic width — Tailwind cannot generate arbitrary runtime percentage values */}
                 <div className="w-full h-1.5 rounded-full bg-slate-700">
                   <div
                     className="h-1.5 rounded-full bg-blue-500 transition-all duration-700 ease-out"
@@ -870,28 +942,23 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
                 </div>
               </div>
 
-              {/* Stage indicator dots */}
               <div className="flex justify-center gap-6">
                 {STAGE_LABELS.map((label, idx) => {
                   const stageNum = idx + 1;
-                  const done = stageNum < deepScanProgress.stage;
+                  const done   = stageNum < deepScanProgress.stage;
                   const active = stageNum === deepScanProgress.stage;
                   return (
                     <div key={label} className="flex flex-col items-center gap-1">
-                      <div
-                        className={`h-2.5 w-2.5 rounded-full transition-all duration-500 ${
-                          done
-                            ? "bg-green-400"
-                            : active
-                            ? "bg-blue-400 ring-2 ring-blue-400/40"
-                            : "bg-slate-600"
-                        }`}
-                      />
-                      <span
-                        className={`text-[10px] transition-colors ${
-                          done ? "text-green-400" : active ? "text-blue-300" : "text-slate-600"
-                        }`}
-                      >
+                      <div className={`h-2.5 w-2.5 rounded-full transition-all duration-500 ${
+                        done   ? "bg-green-400"
+                        : active ? "bg-blue-400 ring-2 ring-blue-400/40"
+                        : "bg-slate-600"
+                      }`} />
+                      <span className={`text-[10px] transition-colors ${
+                        done   ? "text-green-400"
+                        : active ? "text-blue-300"
+                        : "text-slate-600"
+                      }`}>
                         {label}
                       </span>
                     </div>
@@ -901,19 +968,16 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
             </div>
           )}
 
-          {/* File name */}
           {fileName && (
             <p className="text-xs text-slate-400 truncate max-w-full">{fileName}</p>
           )}
 
-          {/* Time estimate */}
           <p className="text-xs text-slate-500 text-center">
             {scanMode === "deep"
               ? "Deep scan runs 3 AI stages — typically 1–3 minutes for most contracts."
               : "This usually takes under 30 seconds."}
           </p>
 
-          {/* Cancel button — only shown for deep scan (basic is fast enough) */}
           {scanMode === "deep" && (
             <button
               type="button"
@@ -940,11 +1004,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
                 Back to page queue
               </button>
             )}
-            <button
-              type="button"
-              onClick={resetAll}
-              className="text-xs text-slate-400 underline"
-            >
+            <button type="button" onClick={resetAll} className="text-xs text-slate-400 underline">
               Start over
             </button>
           </div>
@@ -953,13 +1013,13 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
       {/* ── Results ───────────────────────────────────────────────────────── */}
       {/*
-        CHANGED: Added ref={resultsRef} so the useEffect above auto-scrolls here
-        the moment setResult() fires — no manual refresh or navigation needed.
+        ref={resultsRef} — useEffect auto-scrolls here the moment setResult() fires.
+        For deep scans the user also gets redirected to /analysis/:id after
+        REDIRECT_DELAY_MS so they land on the full formatted report automatically.
       */}
       {result && !isScanning && (
         <div ref={resultsRef} className="flex flex-col gap-4">
 
-          {/* Large-contract truncation warning */}
           {truncated && (
             <div className="rounded-xl border border-amber-600/40 bg-amber-950/30 px-4 py-3">
               <p className="text-xs text-amber-300">
@@ -1070,9 +1130,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <span
-                                className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold border ${getSeverityBadge(issue.severity)}`}
-                              >
+                              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold border ${getSeverityBadge(issue.severity)}`}>
                                 {getSeverityLabel(issue.severity)}
                               </span>
                               <span className="text-sm font-medium text-white leading-tight">
@@ -1084,13 +1142,8 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
                             )}
                           </div>
                           <svg
-                            className={`h-4 w-4 shrink-0 text-slate-500 mt-0.5 transition-transform ${
-                              expandedIssues.has(i) ? "rotate-180" : ""
-                            }`}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
+                            className={`h-4 w-4 shrink-0 text-slate-500 mt-0.5 transition-transform ${expandedIssues.has(i) ? "rotate-180" : ""}`}
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                           </svg>
@@ -1158,7 +1211,6 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
             </>
           )}
 
-          {/* Scan another contract */}
           <button
             type="button"
             onClick={resetAll}
