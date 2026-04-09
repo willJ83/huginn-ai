@@ -1,6 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+// ── COMPONENT VERSION ────────────────────────────────────────────────────────
+// Bump this string on every deploy so you can verify the PWA loaded fresh code:
+// open DevTools → Elements → find data-shield-version on the root div.
+const SHIELD_VERSION = "2.1.0";
+
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { US_STATES } from "@/app/lib/jurisdictions";
 import type { UsageInfo } from "@/lib/billing";
@@ -50,6 +55,10 @@ type ScanResult = BasicResult | DeepResult;
 const MAX_TEXT_CHARS = 150_000;
 const REQUEST_TIMEOUT_MS = 120_000;
 
+// Image file extensions — used as a fallback when the browser reports an empty
+// or unexpected MIME type (common with camera captures on Android & some iOS).
+const IMAGE_EXTENSIONS = /\.(jpe?g|png|gif|webp|heic|heif|bmp|tiff?)$/i;
+
 async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -83,7 +92,30 @@ function getSeverityLabel(severity?: string) {
 }
 
 export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
-  // Input refs — three separate hidden inputs to avoid browser file-picker state conflicts
+  // ── PWA cache-busting ──────────────────────────────────────────────────────
+  // On every Shield page visit, tell the browser to re-check sw.js for updates.
+  // If a new SW is found (new cache version string), it installs immediately via
+  // skipWaiting() and the controllerchange event reloads the page with fresh JS.
+  // ─── ADD THIS ONE useEffect TO FORCE PWA UPDATES ON MOBILE ───────────────
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      // Check for a new service worker on every visit
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((reg) => reg.update());
+      });
+
+      // When the new SW takes control (after skipWaiting + clients.claim),
+      // reload the page so it picks up the fresh JS bundles.
+      const onControllerChange = () => window.location.reload();
+      navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
+      return () => {
+        navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
+      };
+    }
+  }, []);
+
+  // ── Input refs ─────────────────────────────────────────────────────────────
+  // Three separate hidden inputs to avoid browser file-picker state conflicts.
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const addMoreInputRef = useRef<HTMLInputElement>(null);
@@ -91,12 +123,12 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
   const [scanMode, setScanMode] = useState<ScanMode>("basic");
   const [jurisdiction, setJurisdiction] = useState("none");
 
-  // Multi-page accumulation state
+  // ── Multi-page accumulation state ─────────────────────────────────────────
   const [pendingPages, setPendingPages] = useState<string[]>([]);
   const [pendingFileNames, setPendingFileNames] = useState<string[]>([]);
   const [awaitingMore, setAwaitingMore] = useState(false);
 
-  // Scan lifecycle
+  // ── Scan lifecycle ────────────────────────────────────────────────────────
   const [extracting, setExtracting] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [truncated, setTruncated] = useState(false);
@@ -130,6 +162,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     setFileName("");
   }
 
+  // ── Text extraction ────────────────────────────────────────────────────────
   async function extractText(file: File): Promise<string> {
     const lower = file.name.toLowerCase();
 
@@ -152,7 +185,17 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
       return String(data.text ?? "");
     }
 
-    if (file.type.startsWith("image/")) {
+    // ── Image detection ──────────────────────────────────────────────────────
+    // FIX: Some camera implementations (Android, older iOS) return file.type=""
+    // or "application/octet-stream" even for JPEG captures. Always fall back to
+    // extension check so camera photos are never mis-routed to the error path.
+    const isImage =
+      file.type.startsWith("image/") ||
+      IMAGE_EXTENSIONS.test(lower) ||
+      file.type === "" || // camera captures on some Android browsers
+      file.type === "application/octet-stream"; // fallback MIME from certain cameras
+
+    if (isImage) {
       if (file.size > 4.5 * 1024 * 1024) {
         throw new Error("Image is too large. Please use an image under 4.5 MB.");
       }
@@ -165,6 +208,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     throw new Error("Unsupported file type. Upload a PDF, DOCX, TXT, or photo.");
   }
 
+  // ── Scan API call ──────────────────────────────────────────────────────────
   // Sends the combined text to the scan API and updates state.
   // Returns true on success, false on a handled error.
   async function runScanWithText(text: string, name: string): Promise<boolean> {
@@ -209,35 +253,47 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     return true;
   }
 
-  // Images (camera or uploaded) enter the multi-page accumulation flow.
+  // ── Multi-page image handler ───────────────────────────────────────────────
+  // Camera captures and image uploads enter this flow.
+  // After extraction completes, we show the "Page N added — add another?" prompt
+  // instead of immediately scanning.
   async function handleImageAdded(file: File) {
     if (busy) return;
     setError("");
     setResult(null);
     setExpandedIssues(new Set());
     setTruncated(false);
-    setExtracting(true);
+    setExtracting(true); // shows "Reading page…" spinner
 
     try {
       const text = await extractText(file);
       if (!text.trim()) throw new Error("Could not read this photo. Try a clearer, well-lit image.");
 
-      const displayName =
-        file.name.startsWith("image") || file.name === "blob"
-          ? `Photo ${pendingPages.length + 1}`
-          : file.name;
+      // Build a human-readable display name for the queued-pages list.
+      // Camera files are often named "image.jpg", "photo.jpg", or just "blob".
+      const isGenericName =
+        !file.name ||
+        file.name === "blob" ||
+        /^(image|photo|img|capture|scan|camera)\d*\.(jpe?g|png|heic|webp)$/i.test(file.name);
 
+      const displayName = isGenericName
+        ? `Photo ${pendingPages.length + 1}`
+        : file.name;
+
+      // Append to queue and show the "Add another?" prompt.
+      // Using functional updates so batched React 18 renders get the right prev values.
       setPendingPages((prev) => [...prev, text]);
       setPendingFileNames((prev) => [...prev, displayName]);
-      setAwaitingMore(true);
+      setAwaitingMore(true); // ← this is what shows the Yes/No prompt
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to read file. Please try again.");
     } finally {
-      setExtracting(false);
+      setExtracting(false); // ← extracting=false + awaitingMore=true → prompt renders
     }
   }
 
-  // PDFs, DOCX, and TXT files are complete documents — scan immediately.
+  // ── Direct document upload (PDF / DOCX / TXT) ─────────────────────────────
+  // Complete documents scan immediately — no "add another page?" needed.
   async function handleDocumentUpload(file: File) {
     if (busy) return;
     setError("");
@@ -278,7 +334,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     }
   }
 
-  // Combines all accumulated photo pages and runs the scan.
+  // ── Scan all accumulated pages ─────────────────────────────────────────────
   async function scanAllPages() {
     if (pendingPages.length === 0) return;
     setAwaitingMore(false);
@@ -312,12 +368,12 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
     const success = await runScanWithText(combinedText, combinedName);
     if (!success && pendingPages.length > 0) {
-      // Restore the prompt so the user can retry without re-photographing
+      // Restore the prompt so the user can retry without re-photographing.
       setAwaitingMore(true);
     }
   }
 
-  // Deep scan gate — checks before opening any file picker
+  // ── Deep scan gate ─────────────────────────────────────────────────────────
   function guardedOpen(action: () => void) {
     if (scanMode === "deep" && !canDeepScan) {
       setError(
@@ -330,17 +386,28 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     action();
   }
 
+  // ── onChange handlers ──────────────────────────────────────────────────────
+  // Camera input and "add more" input both funnel into handleImageAdded.
   function handleCameraChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
-    e.target.value = "";
+    e.target.value = ""; // reset so the same photo can be re-selected if needed
     if (file) handleImageAdded(file);
   }
 
+  // File picker routes images to the multi-page flow, documents to direct scan.
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
     e.target.value = "";
     if (!file) return;
-    if (file.type.startsWith("image/")) {
+
+    const lower = file.name.toLowerCase();
+    const isImage =
+      file.type.startsWith("image/") ||
+      IMAGE_EXTENSIONS.test(lower) ||
+      file.type === "" ||
+      file.type === "application/octet-stream";
+
+    if (isImage) {
       handleImageAdded(file);
     } else {
       handleDocumentUpload(file);
@@ -350,7 +417,9 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
   const riskInfo = result ? getRiskColor(result.riskScore) : null;
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    // data-shield-version lets you verify in DevTools that the new bundle is loaded.
+    // If DevTools shows an old version string, the PWA is still serving cached JS.
+    <div className="w-full flex flex-col gap-4" data-shield-version={SHIELD_VERSION}>
 
       {/* ── Disclaimer ──────────────────────────────────────────────────────── */}
       <div className="rounded-xl border border-amber-600/40 bg-amber-950/30 px-4 py-3">
@@ -442,7 +511,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
         )}
       </div>
 
-      {/* ── Extracting a page ─────────────────────────────────────────────── */}
+      {/* ── "Reading page…" spinner ───────────────────────────────────────── */}
       {extracting && (
         <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 flex items-center gap-3">
           <svg className="h-5 w-5 text-blue-400 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
@@ -453,7 +522,8 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
         </div>
       )}
 
-      {/* ── "Add another page?" prompt (multi-page flow) ─────────────────── */}
+      {/* ── "Add another page?" prompt ────────────────────────────────────── */}
+      {/* Shown when: awaitingMore=true AND extracting=false AND isScanning=false */}
       {awaitingMore && !extracting && !isScanning && (
         <div className="rounded-xl border border-blue-600/40 bg-blue-950/30 p-4 flex flex-col gap-3">
           <div className="flex items-center gap-2">
@@ -469,9 +539,15 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
           </p>
 
           <div className="flex flex-col gap-2">
+            {/* Yes — open camera */}
             <button
               type="button"
-              onClick={() => guardedOpen(() => { setAwaitingMore(false); cameraInputRef.current?.click(); })}
+              onClick={() =>
+                guardedOpen(() => {
+                  setAwaitingMore(false);
+                  cameraInputRef.current?.click();
+                })
+              }
               className="flex items-center justify-center gap-2 w-full rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 px-4 py-3 text-sm font-medium text-slate-200 transition"
             >
               <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -481,9 +557,15 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
               Yes — Take another photo
             </button>
 
+            {/* Yes — upload another image */}
             <button
               type="button"
-              onClick={() => guardedOpen(() => { setAwaitingMore(false); addMoreInputRef.current?.click(); })}
+              onClick={() =>
+                guardedOpen(() => {
+                  setAwaitingMore(false);
+                  addMoreInputRef.current?.click();
+                })
+              }
               className="flex items-center justify-center gap-2 w-full rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 px-4 py-3 text-sm font-medium text-slate-200 transition"
             >
               <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -492,6 +574,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
               Yes — Upload another image
             </button>
 
+            {/* No — scan now */}
             <button
               type="button"
               onClick={scanAllPages}
@@ -512,7 +595,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
         </div>
       )}
 
-      {/* ── Upload area (idle state only) ─────────────────────────────────── */}
+      {/* ── Upload area — shown only in idle state ────────────────────────── */}
       {!awaitingMore && !isScanning && !extracting && !result && (
         <div className="rounded-xl border border-slate-700 bg-slate-900 p-4 flex flex-col gap-3">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -554,9 +637,12 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
 
       {/*
         Hidden file inputs.
-        `capture="environment"` is a valid W3C Media Capture attribute (https://www.w3.org/TR/html-media-capture/)
-        and is fully supported in React's InputHTMLAttributes type as a string.
+
+        `capture="environment"` is a valid W3C Media Capture attribute
+        (https://www.w3.org/TR/html-media-capture/) and is correctly typed in
+        React's InputHTMLAttributes as a string.
       */}
+      {/* Camera capture — opens rear camera directly on mobile */}
       <input
         ref={cameraInputRef}
         type="file"
@@ -566,6 +652,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
         onChange={handleCameraChange}
         className="hidden"
       />
+      {/* File picker — routes images to multi-page flow, docs to direct scan */}
       <input
         ref={fileInputRef}
         type="file"
@@ -574,7 +661,7 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
         onChange={handleFileChange}
         className="hidden"
       />
-      {/* Separate input for "add another image" in multi-page flow — avoids browser picker state conflicts */}
+      {/* "Add another image" — separate ref avoids browser picker state conflicts */}
       <input
         ref={addMoreInputRef}
         type="file"
