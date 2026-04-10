@@ -15,7 +15,7 @@ export default async function DashboardPage({
 }) {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect("/login");
   }
 
@@ -73,13 +73,13 @@ export default async function DashboardPage({
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 sm:py-16">
+    <main className="min-h-screen bg-slate-50 px-4 py-10 dark:bg-slate-950 sm:px-6 sm:py-16">
       <AppHeader />
-      <div className="mx-auto max-w-6xl rounded-2xl bg-white p-5 shadow-sm sm:p-8">
+      <div className="mx-auto max-w-6xl rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900 sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Dashboard</h1>
-            <p className="mt-1 text-lg text-slate-600">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50 sm:text-3xl">Dashboard</h1>
+            <p className="mt-1 text-lg text-slate-600 dark:text-slate-400">
               Welcome, {session?.user?.name || "User"}.
             </p>
           </div>
@@ -88,19 +88,19 @@ export default async function DashboardPage({
 
         {/* Plan + usage status */}
         <div className="mt-4">
-          <p className="text-sm text-slate-500">
-            Plan: <span className="font-medium text-slate-700">{planLabel}</span>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Plan: <span className="font-medium text-slate-700 dark:text-slate-300">{planLabel}</span>
           </p>
 
           {justUpgraded && usageInfo.needsPlan && (
-            <p className="mt-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+            <p className="mt-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-300">
               Your subscription is being activated. This page will update shortly — refresh in a moment.
             </p>
           )}
 
           {/* Paid plan usage */}
           {!usageInfo.inTrial && usageInfo.plan !== "FREE" && !usageInfo.needsPlan && !usageInfo.paymentFailed && (
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               This month: {usageInfo.periodUsed} / {usageInfo.periodLimit} analyses used
               {usageInfo.addonRemaining > 0
                 ? ` + ${usageInfo.addonRemaining} add-on remaining`
@@ -110,14 +110,14 @@ export default async function DashboardPage({
 
           {/* Add-on purchase success */}
           {addedAnalyses && addedAnalyses > 0 && (
-            <p className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            <p className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
               {addedAnalyses} extra {addedAnalyses === 1 ? "analysis" : "analyses"} added to your account.
             </p>
           )}
 
           {/* Payment failed */}
           {usageInfo.paymentFailed && (
-            <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+            <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
               Your payment failed. Update your billing information to continue.{" "}
               <a href="/api/stripe/portal" className="underline">
                 Update billing
@@ -129,7 +129,7 @@ export default async function DashboardPage({
           {user?.plan !== "FREE" &&
             user?.subscriptionStatus === "CANCELED" &&
             user?.currentPeriodEnd && (
-              <p className="mt-2 text-sm text-slate-600">
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                 Your access continues until{" "}
                 {new Date(user.currentPeriodEnd).toLocaleDateString()}.
               </p>
@@ -150,7 +150,7 @@ export default async function DashboardPage({
             {(user?.subscriptionStatus === "ACTIVE" || user?.subscriptionStatus === "CANCELED") ? (
               <a
                 href="/api/stripe/portal"
-                className="inline-block rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"
+                className="inline-block rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
               >
                 Manage Subscription
               </a>
@@ -186,32 +186,32 @@ export default async function DashboardPage({
         />
 
         <section className="mt-8">
-          <h2 className="text-lg font-semibold text-slate-900">Recent Analyses</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Recent Analyses</h2>
 
           {recentAnalyses.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-500">No analyses yet. Upload a document to get started.</p>
+            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">No analyses yet. Upload a document to get started.</p>
           ) : (
             <>
               {/* Mobile card layout */}
               <div className="mt-3 flex flex-col gap-3 sm:hidden">
                 {recentAnalyses.map((analysis) => (
-                  <div key={analysis.id} className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                  <div key={analysis.id} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-800">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="font-medium text-slate-800 text-sm">{analysis.fileName || "Untitled Document"}</p>
+                      <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{analysis.fileName || "Untitled Document"}</p>
                       <span className={`shrink-0 rounded-full px-2 py-1 text-xs font-semibold ${
                         analysis.riskLevel === "high"
-                          ? "bg-red-50 text-red-600"
+                          ? "bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400"
                           : analysis.riskLevel === "medium"
-                          ? "bg-yellow-50 text-yellow-600"
-                          : "bg-green-50 text-green-600"
+                          ? "bg-yellow-50 text-yellow-600 dark:bg-yellow-950/50 dark:text-yellow-400"
+                          : "bg-green-50 text-green-600 dark:bg-green-950/50 dark:text-green-400"
                       }`}>
                         {analysis.riskLevel}
                       </span>
                     </div>
-                    <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                    <div className="mt-2 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                       <span>{new Date(analysis.createdAt).toLocaleDateString()}</span>
                       <span>Score: {analysis.riskScore} / 100</span>
-                      <Link href={`/analysis/${analysis.id}`} className="font-medium text-blue-600 hover:text-blue-700">
+                      <Link href={`/analysis/${analysis.id}`} className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                         View →
                       </Link>
                     </div>
@@ -220,9 +220,9 @@ export default async function DashboardPage({
               </div>
 
               {/* Desktop table layout */}
-              <div className="mt-3 hidden overflow-hidden rounded-2xl border border-slate-200 sm:block">
+              <div className="mt-3 hidden overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 sm:block">
                 <table className="w-full text-sm">
-                  <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                     <tr>
                       <th className="px-4 py-3">File</th>
                       <th className="px-4 py-3">Date</th>
@@ -231,25 +231,25 @@ export default async function DashboardPage({
                       <th className="px-4 py-3"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                     {recentAnalyses.map((analysis) => (
-                      <tr key={analysis.id} className="bg-white">
-                        <td className="px-4 py-3 font-medium text-slate-800">{analysis.fileName || "Untitled Document"}</td>
-                        <td className="px-4 py-3 text-slate-500">{new Date(analysis.createdAt).toLocaleDateString()}</td>
-                        <td className="px-4 py-3 text-slate-700">{analysis.riskScore} / 100</td>
+                      <tr key={analysis.id} className="bg-white dark:bg-slate-900">
+                        <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-100">{analysis.fileName || "Untitled Document"}</td>
+                        <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{new Date(analysis.createdAt).toLocaleDateString()}</td>
+                        <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{analysis.riskScore} / 100</td>
                         <td className="px-4 py-3">
                           <span className={`rounded-full px-2 py-1 text-xs font-semibold ${
                             analysis.riskLevel === "high"
-                              ? "bg-red-50 text-red-600"
+                              ? "bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400"
                               : analysis.riskLevel === "medium"
-                              ? "bg-yellow-50 text-yellow-600"
-                              : "bg-green-50 text-green-600"
+                              ? "bg-yellow-50 text-yellow-600 dark:bg-yellow-950/50 dark:text-yellow-400"
+                              : "bg-green-50 text-green-600 dark:bg-green-950/50 dark:text-green-400"
                           }`}>
                             {analysis.riskLevel}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <Link href={`/analysis/${analysis.id}`} className="font-medium text-blue-600 hover:text-blue-700">
+                          <Link href={`/analysis/${analysis.id}`} className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                             View
                           </Link>
                         </td>

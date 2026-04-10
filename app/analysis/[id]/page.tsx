@@ -9,45 +9,44 @@ function getRiskInfo(score: number) {
   if (score <= 40) {
     return {
       label: "HIGH RISK",
-      badgeClass: "bg-red-100 text-red-700",
+      badgeClass: "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400",
       barClass: "bg-red-500",
-      interpretation:
-        "This contract has serious issues that need attention before signing.",
+      interpretation: "This contract has serious issues that need attention before signing.",
     };
   }
   if (score <= 70) {
     return {
       label: "MODERATE RISK",
-      badgeClass: "bg-amber-100 text-amber-700",
+      badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400",
       barClass: "bg-amber-500",
-      interpretation:
-        "This contract has some areas that need attention before signing.",
+      interpretation: "This contract has some areas that need attention before signing.",
     };
   }
   return {
     label: "LOW RISK",
-    badgeClass: "bg-green-100 text-green-700",
+    badgeClass: "bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-400",
     barClass: "bg-green-500",
-    interpretation:
-      "This contract looks generally sound, but review the flagged items below.",
+    interpretation: "This contract looks generally sound, but review the flagged items below.",
   };
 }
 
 function getSeverityBadge(severity: string) {
-  if (severity === "critical") return "bg-purple-100 text-purple-700";
-  if (severity === "high") return "bg-red-100 text-red-700";
-  if (severity === "medium") return "bg-amber-100 text-amber-700";
-  if (severity === "missing") return "bg-slate-100 text-slate-600";
-  return "bg-green-100 text-green-700";
+  if (severity === "critical") return "bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400";
+  if (severity === "high")     return "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400";
+  if (severity === "medium")   return "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400";
+  if (severity === "missing")  return "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400";
+  return "bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-400";
 }
 
 function getSeverityLabel(severity: string) {
   if (severity === "critical") return "CRITICAL";
-  if (severity === "high") return "HIGH";
-  if (severity === "medium") return "MEDIUM";
-  if (severity === "missing") return "MISSING";
+  if (severity === "high")     return "HIGH";
+  if (severity === "medium")   return "MEDIUM";
+  if (severity === "missing")  return "MISSING";
   return "LOW";
 }
+
+const card = "rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900";
 
 export default async function AnalysisPage({
   params,
@@ -55,22 +54,22 @@ export default async function AnalysisPage({
   params: Promise<{ id: string }>;
 }) {
   const session = await auth();
-  if (!session?.user) redirect("/login");
+  if (!session?.user?.id) redirect("/login");
 
   const { id } = await params;
   const report = await prisma.analysis.findUnique({ where: { id } });
   if (!report) notFound();
 
-  const issues = Array.isArray(report.issues) ? report.issues : [];
+  const issues    = Array.isArray(report.issues)    ? report.issues    : [];
   const deadlines = Array.isArray(report.deadlines) ? report.deadlines : [];
-  const riskInfo = getRiskInfo(report.riskScore);
-  const metadata = report.metadata && typeof report.metadata === "object" ? report.metadata as any : {};
+  const riskInfo  = getRiskInfo(report.riskScore);
+  const metadata  = report.metadata && typeof report.metadata === "object" ? report.metadata as any : {};
   const jurisdictionAnalysis = metadata.jurisdictionAnalysis ?? null;
 
   const issuesTyped = issues as any[];
-  const highCount = issuesTyped.filter((i) => i.severity === "high").length;
+  const highCount   = issuesTyped.filter((i) => i.severity === "high").length;
   const mediumCount = issuesTyped.filter((i) => i.severity === "medium").length;
-  const topIssue: any = issuesTyped.find((i) => i.severity === "high") || issuesTyped[0];
+  const topIssue    = issuesTyped.find((i) => i.severity === "high") || issuesTyped[0];
 
   const summaryIntro =
     issues.length === 0
@@ -82,77 +81,75 @@ export default async function AnalysisPage({
   return (
     <>
       <AppHeader />
-      <main className="min-h-screen bg-slate-50">
+      <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
         <div className="mx-auto max-w-5xl px-6 py-10">
 
           {/* Page header */}
           <div className="mb-8">
             <Link
               href="/dashboard"
-              className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               ← Back to Dashboard
             </Link>
-            <h1 className="mt-4 text-3xl font-bold text-slate-900">
+            <h1 className="mt-4 text-3xl font-bold text-slate-900 dark:text-slate-50">
               Contract Analysis Report
             </h1>
-            <p className="mt-1 text-slate-500">{report.fileName || "Untitled Document"}</p>
+            <p className="mt-1 text-slate-500 dark:text-slate-400">{report.fileName || "Untitled Document"}</p>
           </div>
 
           {/* Health summary card */}
-          <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <section className={`mb-8 ${card}`}>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Contract Health Score
             </p>
 
             <div className="mt-4 flex flex-wrap items-end gap-3">
-              <span className="text-5xl font-bold text-slate-900">
+              <span className="text-5xl font-bold text-slate-900 dark:text-slate-50">
                 {report.riskScore}
               </span>
-              <span className="mb-1 text-xl font-medium text-slate-400">/ 100</span>
-              <span
-                className={`mb-1 rounded-full px-3 py-1 text-sm font-bold ${riskInfo.badgeClass}`}
-              >
+              <span className="mb-1 text-xl font-medium text-slate-400 dark:text-slate-500">/ 100</span>
+              <span className={`mb-1 rounded-full px-3 py-1 text-sm font-bold ${riskInfo.badgeClass}`}>
                 {riskInfo.label}
               </span>
             </div>
 
-            <div className="mt-4 h-3 w-full rounded-full bg-slate-100">
+            <div className="mt-4 h-3 w-full rounded-full bg-slate-100 dark:bg-slate-800">
               <div
                 className={`h-3 rounded-full ${riskInfo.barClass}`}
                 style={{ width: `${report.riskScore}%` }}
               />
             </div>
 
-            <p className="mt-3 text-slate-700">{riskInfo.interpretation}</p>
+            <p className="mt-3 text-slate-700 dark:text-slate-300">{riskInfo.interpretation}</p>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <span className="rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-red-700">
+              <span className="rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-red-700 dark:bg-red-950/50 dark:text-red-400">
                 {highCount} High Risk {highCount === 1 ? "Issue" : "Issues"}
               </span>
-              <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700">
+              <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
                 {mediumCount} Moderate {mediumCount === 1 ? "Issue" : "Issues"}
               </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
                 {deadlines.length} {deadlines.length === 1 ? "Deadline" : "Deadlines"}
               </span>
             </div>
           </section>
 
           {/* Before you sign */}
-          <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">Before You Sign</h2>
-            <p className="mt-3 leading-relaxed text-slate-700">{summaryIntro}</p>
+          <section className={`mb-8 ${card}`}>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">Before You Sign</h2>
+            <p className="mt-3 leading-relaxed text-slate-700 dark:text-slate-300">{summaryIntro}</p>
             {report.summary && (
-              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-600">
+              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 {report.summary}
               </p>
             )}
           </section>
 
           {/* Issues */}
-          <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+          <section className={`mb-8 ${card}`}>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
               {issues.length === 0
                 ? "Issues Found"
                 : `${issues.length} ${issues.length === 1 ? "Issue" : "Issues"} Found`}
@@ -160,43 +157,39 @@ export default async function AnalysisPage({
 
             <div className="mt-4 space-y-4">
               {issues.length === 0 ? (
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-slate-600 dark:text-slate-400">
                   No issues found in this contract.
                 </p>
               ) : (
                 issues.map((issue: any, i: number) => (
                   <div
                     key={i}
-                    className="rounded-2xl border border-slate-200 p-5"
+                    className="rounded-2xl border border-slate-200 p-5 dark:border-slate-700"
                   >
                     <div className="flex flex-wrap items-start gap-3">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-bold ${getSeverityBadge(
-                          issue.severity
-                        )}`}
-                      >
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${getSeverityBadge(issue.severity)}`}>
                         {getSeverityLabel(issue.severity)}
                       </span>
-                      <h3 className="font-semibold text-slate-900">
+                      <h3 className="font-semibold text-slate-900 dark:text-slate-50">
                         {issue.label}
                       </h3>
                     </div>
 
                     <div className="mt-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         What this means for your business
                       </p>
-                      <p className="mt-1 text-sm leading-relaxed text-slate-700">
+                      <p className="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                         {issue.explanation || issue.message}
                       </p>
                     </div>
 
                     {issue.recommendation && (
                       <div className="mt-4">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                           What to do
                         </p>
-                        <p className="mt-1 text-sm leading-relaxed text-slate-700">
+                        <p className="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                           {issue.recommendation}
                         </p>
                       </div>
@@ -204,14 +197,14 @@ export default async function AnalysisPage({
 
                     {Array.isArray(issue.matches) && issue.matches.length > 0 && (
                       <details className="mt-4">
-                        <summary className="cursor-pointer select-none text-xs font-semibold text-slate-400 hover:text-slate-600">
+                        <summary className="cursor-pointer select-none text-xs font-semibold text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300">
                           ▶ See the clause that triggered this flag
                         </summary>
-                        <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
                           {issue.matches.map((match: string, mi: number) => (
                             <p
                               key={mi}
-                              className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-slate-600"
+                              className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-slate-600 dark:text-slate-400"
                             >
                               {match}
                             </p>
@@ -226,35 +219,34 @@ export default async function AnalysisPage({
           </section>
 
           {/* Deadlines */}
-          <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+          <section className={`mb-8 ${card}`}>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
               Time-Sensitive Clauses
             </h2>
 
             <div className="mt-4">
               {deadlines.length === 0 ? (
-                <p className="rounded-xl border border-green-100 bg-green-50 px-4 py-3 text-sm text-green-800">
-                  No auto-renewals or hard deadlines detected — nothing here
-                  requires immediate action on your calendar.
+                <p className="rounded-xl border border-green-100 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-400">
+                  No auto-renewals or hard deadlines detected — nothing here requires immediate action on your calendar.
                 </p>
               ) : (
                 <div className="space-y-3">
                   {deadlines.map((d: any, i: number) => (
                     <div
                       key={i}
-                      className="flex flex-col gap-1 rounded-xl border border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between"
+                      className="flex flex-col gap-1 rounded-xl border border-slate-200 p-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div>
-                        <p className="font-semibold text-slate-900">
+                        <p className="font-semibold text-slate-900 dark:text-slate-50">
                           {d.label || "Deadline"}
                         </p>
                         {d.description && (
-                          <p className="mt-1 text-sm text-slate-600">
+                          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                             {d.description}
                           </p>
                         )}
                       </div>
-                      <span className="whitespace-nowrap rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700">
+                      <span className="whitespace-nowrap rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
                         {d.value || "See contract"}
                       </span>
                     </div>
@@ -264,35 +256,39 @@ export default async function AnalysisPage({
             </div>
           </section>
 
-          {/* Jurisdiction Analysis — only present for Shield Deep scans */}
+          {/* Jurisdiction Analysis */}
           {jurisdictionAnalysis && (
             <section className={`mb-8 rounded-3xl border p-6 shadow-sm ${
               jurisdictionAnalysis.risk === "High"
-                ? "border-red-200 bg-red-50"
+                ? "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20"
                 : jurisdictionAnalysis.risk === "Medium"
-                ? "border-amber-200 bg-amber-50"
-                : "border-green-200 bg-green-50"
+                ? "border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20"
+                : "border-green-200 bg-green-50 dark:border-green-900/50 dark:bg-green-950/20"
             }`}>
-              <div className="flex flex-wrap items-center gap-3 mb-4">
+              <div className="mb-4 flex flex-wrap items-center gap-3">
                 <span aria-hidden="true" className="text-xl">🛡️</span>
-                <h2 className="text-xl font-bold text-slate-900">Jurisdiction Analysis</h2>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">Jurisdiction Analysis</h2>
                 <span className={`rounded-full px-3 py-1 text-sm font-bold ${
                   jurisdictionAnalysis.risk === "High"
-                    ? "bg-red-100 text-red-700"
+                    ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400"
                     : jurisdictionAnalysis.risk === "Medium"
-                    ? "bg-amber-100 text-amber-700"
-                    : "bg-green-100 text-green-700"
+                    ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400"
+                    : "bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-400"
                 }`}>
                   {jurisdictionAnalysis.risk} Risk
                 </span>
               </div>
 
-              <p className="leading-relaxed text-slate-700">{jurisdictionAnalysis.explanation}</p>
+              <p className="leading-relaxed text-slate-700 dark:text-slate-300">{jurisdictionAnalysis.explanation}</p>
 
               {jurisdictionAnalysis.recommendation && (
                 <div className="mt-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Recommended Action</p>
-                  <p className="mt-1 text-sm leading-relaxed text-slate-700">{jurisdictionAnalysis.recommendation}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Recommended Action
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                    {jurisdictionAnalysis.recommendation}
+                  </p>
                 </div>
               )}
 
@@ -300,14 +296,14 @@ export default async function AnalysisPage({
                 <div className="mt-4 flex flex-wrap gap-4">
                   {jurisdictionAnalysis.governingLaw && (
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Governing Law</p>
-                      <p className="mt-1 text-sm font-medium text-slate-700">{jurisdictionAnalysis.governingLaw}</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Governing Law</p>
+                      <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">{jurisdictionAnalysis.governingLaw}</p>
                     </div>
                   )}
                   {jurisdictionAnalysis.forumClause && (
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Forum / Venue</p>
-                      <p className="mt-1 text-sm font-medium text-slate-700">{jurisdictionAnalysis.forumClause}</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Forum / Venue</p>
+                      <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">{jurisdictionAnalysis.forumClause}</p>
                     </div>
                   )}
                 </div>
@@ -315,18 +311,22 @@ export default async function AnalysisPage({
 
               {Array.isArray(jurisdictionAnalysis.floridaChecklist) && jurisdictionAnalysis.floridaChecklist.length > 0 && (
                 <div className="mt-5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Florida F.S. §559.9613 — Required Disclosure Checklist
                   </p>
                   <div className="space-y-2">
                     {jurisdictionAnalysis.floridaChecklist.map((item: { item: string; present: boolean }, i: number) => (
                       <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
                         item.present
-                          ? "border-green-200 bg-white"
-                          : "border-red-200 bg-red-50"
+                          ? "border-green-200 bg-white dark:border-green-900/50 dark:bg-green-950/10"
+                          : "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20"
                       }`}>
-                        <span className="text-base mt-0.5">{item.present ? "✅" : "❌"}</span>
-                        <span className={`text-sm ${item.present ? "text-slate-600" : "font-semibold text-red-700"}`}>
+                        <span className="mt-0.5 text-base">{item.present ? "✅" : "❌"}</span>
+                        <span className={`text-sm ${
+                          item.present
+                            ? "text-slate-600 dark:text-slate-400"
+                            : "font-semibold text-red-700 dark:text-red-400"
+                        }`}>
                           {item.item}
                           {!item.present && " — Missing"}
                         </span>
@@ -339,7 +339,7 @@ export default async function AnalysisPage({
           )}
 
           {/* CTA bar */}
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className={card}>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap gap-3">
                 <DownloadPdfButton
@@ -358,12 +358,12 @@ export default async function AnalysisPage({
                 />
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  className="inline-flex items-center rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   Analyze Another Contract
                 </Link>
               </div>
-              <p className="text-xs text-slate-400 max-w-md">
+              <p className="max-w-md text-xs text-slate-400 dark:text-slate-500">
                 <strong>Disclaimer:</strong> This is informational only and not legal advice. Laws change and vary by jurisdiction; always consult a licensed attorney in your jurisdiction for binding decisions.
               </p>
             </div>

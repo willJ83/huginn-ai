@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { getProModel, parseGeminiJSON } from "@/lib/gemini";
 import { runDeterministicExtraction } from "../../lib/riskEngine";
 import { HUGINN_V2_PROMPT, SHIELD_JURISDICTION_STAGE_PROMPT } from "../../lib/huginnPrompt";
 import type { ProductTemplate } from "../../lib/productConfigs";
@@ -7,15 +7,13 @@ import { auth } from "@/lib/auth";
 import { canUseFeature, consumeAddonAnalysis, recordUsage, getUsageCountSince } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
 interface ClauseEntry {
   status: "found" | "missing";
   text?: string;
   location?: string;
 }
 
-interface ClaudeIssue {
+interface AnalysisIssue {
   id: string;
   label: string;
   severity: string;
@@ -26,119 +24,68 @@ interface ClaudeIssue {
   matches?: string[];
 }
 
-interface ClaudeMissingProtection {
+interface AnalysisMissingProtection {
   label: string;
   severity: string;
   explanation?: string;
   recommendation?: string;
 }
 
-interface ClaudeDeadline {
+interface AnalysisDeadline {
   label: string;
   value?: string;
   description?: string;
 }
 
-interface ClaudeResult {
+interface AnalysisResult {
   riskScore: number;
   summary: string;
-  issues: ClaudeIssue[];
-  missingProtections: ClaudeMissingProtection[];
-  deadlines: ClaudeDeadline[];
+  issues: AnalysisIssue[];
+  missingProtections: AnalysisMissingProtection[];
+  deadlines: AnalysisDeadline[];
 }
 
-async function runClaudePipeline(
+async function runGeminiPipeline(
   contractText: string,
   template: ProductTemplate,
   deterministicResult: any
-): Promise<ClaudeResult | null> {
-  console.log("[Pipeline] Starting 3-stage Claude pipeline...");
+): Promise<AnalysisResult | null> {
+  console.log("[Pipeline] Starting 3-stage Gemini pipeline...");
   try {
     // STAGE 1 — CLASSIFY
     console.log("[Pipeline] Stage 1: Classifying contract type...");
-    const classifyMsg = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 512,
-      messages: [
-        {
-          role: "user",
-          content:
-            `Identify the contract type from this list: Master Service Agreement, Statement of Work, NDA, SLA, Independent Contractor Agreement, Licensing Agreement, SaaS Subscription Agreement, Terms of Service, Data Processing Agreement, Vendor Agreement, Purchase Agreement, Partnership Agreement, Employment Agreement, Consulting Agreement, Marketing Services Agreement, Software Development Agreement, Maintenance & Support Agreement, Reseller Agreement, Franchise Agreement, Amendment/Addendum. Return JSON only: { "type": string, "confidence": string, "rationale": string }\n\nContract text:\n${contractText}`,
-        },
-      ],
-    });
+    const classifyModel = getProModel(undefined, 512);
+    const classifyResult = await classifyModel.generateContent(
+      `Identify the contract type from this list: Master Service Agreement, Statement of Work, NDA, SLA, Independent Contractor Agreement, Licensing Agreement, SaaS Subscription Agreement, Terms of Service, Data Processing Agreement, Vendor Agreement, Purchase Agreement, Partnership Agreement, Employment Agreement, Consulting Agreement, Marketing Services Agreement, Software Development Agreement, Maintenance & Support Agreement, Reseller Agreement, Franchise Agreement, Amendment/Addendum. Return JSON only: { "type": string, "confidence": string, "rationale": string }\n\nContract text:\n${contractText}`
+    );
 
     let contractType: { type: string; confidence: string; rationale: string } =
       { type: "Unknown", confidence: "low", rationale: "" };
-    const classifyText =
-      classifyMsg.content[0]?.type === "text" ? classifyMsg.content[0].text : "";
-    const classifyJson = classifyText.match(/\{[\s\S]*\}/);
-    if (classifyJson) {
-      try {
-        contractType = JSON.parse(classifyJson[0]);
-      } catch {
-        // keep default
-      }
-    }
+    const parsedClassify = parseGeminiJSON<typeof contractType>(classifyResult.response.text());
+    if (parsedClassify) contractType = parsedClassify;
     console.log(`[Pipeline] Stage 1 complete: ${contractType.type} (${contractType.confidence})`);
 
     // STAGE 2 — EXTRACT
     console.log("[Pipeline] Stage 2: Extracting clauses...");
-    const extractMsg = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 4096,
-      messages: [
-        {
-          role: "user",
-          content:
-            `This is a ${contractType.type}. Extract all clauses present and flag any missing. Categories: confidentiality, indemnification, limitation_of_liability, ip_ownership, payment_terms, termination, renewal, governing_law, warranties, data_protection, service_levels, deliverables, non_compete, non_solicit, insurance, dispute_resolution, audit_rights, royalties, support. For each: status (found/missing), exact text, location in document. Return JSON only.\n\nContract text:\n${contractText}`,
-        },
-      ],
-    });
+    const extractModel = getProModel(undefined, 4096);
+    const extractResult = await extractModel.generateContent(
+      `This is a ${contractType.type}. Extract all clauses present and flag any missing. Categories: confidentiality, indemnification, limitation_of_liability, ip_ownership, payment_terms, termination, renewal, governing_law, warranties, data_protection, service_levels, deliverables, non_compete, non_solicit, insurance, dispute_resolution, audit_rights, royalties, support. For each: status (found/missing), exact text, location in document. Return JSON only.\n\nContract text:\n${contractText}`
+    );
 
     let extractedClauses: Record<string, ClauseEntry> = {};
-    const extractText =
-      extractMsg.content[0]?.type === "text" ? extractMsg.content[0].text : "";
-    const extractJson = extractText.match(/\{[\s\S]*\}/);
-    if (extractJson) {
-      try {
-        extractedClauses = JSON.parse(extractJson[0]);
-      } catch {
-        // keep default
-      }
-    }
+    const parsedExtract = parseGeminiJSON<Record<string, ClauseEntry>>(extractResult.response.text());
+    if (parsedExtract) extractedClauses = parsedExtract;
     console.log(`[Pipeline] Stage 2 complete: ${Object.keys(extractedClauses).length} clauses extracted`);
 
     // STAGE 3 — ANALYZE (returns full structured JSON)
     console.log("[Pipeline] Stage 3: Running final analysis...");
-    const analyzeMsg = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 4096,
-      system: HUGINN_V2_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content:
-            `Contract Type: ${contractType.type} (Confidence: ${contractType.confidence})\nRationale: ${contractType.rationale}\n\nExtracted Clauses:\n${JSON.stringify(extractedClauses, null, 2)}\n\nDeterministic Findings:\n${JSON.stringify(deterministicResult, null, 2)}\n\nFull contract text:\n${contractText}`,
-        },
-      ],
-    });
+    const analyzeModel = getProModel(HUGINN_V2_PROMPT, 4096);
+    const analyzeResult = await analyzeModel.generateContent(
+      `Contract Type: ${contractType.type} (Confidence: ${contractType.confidence})\nRationale: ${contractType.rationale}\n\nExtracted Clauses:\n${JSON.stringify(extractedClauses, null, 2)}\n\nDeterministic Findings:\n${JSON.stringify(deterministicResult, null, 2)}\n\nFull contract text:\n${contractText}`
+    );
 
-    const analyzeText =
-      analyzeMsg.content[0]?.type === "text" ? analyzeMsg.content[0].text : "";
-
-    // Strip markdown fences if Claude wrapped the JSON
-    const stripped = analyzeText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-    const jsonMatch = stripped.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error("[Pipeline] Stage 3: no JSON object found in response");
-      return null;
-    }
-
-    const parsed: ClaudeResult = JSON.parse(jsonMatch[0]);
-
-    // Validate required fields
-    if (typeof parsed.riskScore !== "number" || !parsed.summary) {
+    const parsed = parseGeminiJSON<AnalysisResult>(analyzeResult.response.text());
+    if (!parsed || typeof parsed.riskScore !== "number" || !parsed.summary) {
       console.error("[Pipeline] Stage 3: parsed JSON missing required fields");
       return null;
     }
@@ -148,7 +95,7 @@ async function runClaudePipeline(
     );
     return parsed;
   } catch (err) {
-    console.error("[Pipeline] ERROR — pipeline failed, falling back to deterministic:", err);
+    console.error("[Pipeline] ERROR — pipeline failed, falling back to deterministic:", err instanceof Error ? err.message : "unknown");
     return null;
   }
 }
@@ -175,25 +122,14 @@ async function runJurisdictionStage(
       ? "\n\nThe user's jurisdiction IS Florida. You MUST include the floridaChecklist array in your JSON."
       : "\n\nThe user's jurisdiction is NOT Florida. Omit the floridaChecklist field entirely.";
 
-    const msg = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1024,
-      system: SHIELD_JURISDICTION_STAGE_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: `User's selected jurisdiction: ${jurisdiction}${floridaInstruction}\n\nFull contract text:\n${contractText}`,
-        },
-      ],
-    });
+    const model = getProModel(SHIELD_JURISDICTION_STAGE_PROMPT, 1024);
+    const result = await model.generateContent(
+      `User's selected jurisdiction: ${jurisdiction}${floridaInstruction}\n\nFull contract text:\n${contractText}`
+    );
 
-    const raw = msg.content[0]?.type === "text" ? msg.content[0].text : "";
-    const stripped = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-    const match = stripped.match(/\{[\s\S]*\}/);
-    if (!match) return null;
-    return JSON.parse(match[0]) as JurisdictionAnalysis;
+    return parseGeminiJSON<JurisdictionAnalysis>(result.response.text());
   } catch (err) {
-    console.error("[Jurisdiction Stage] ERROR:", err);
+    console.error("[Jurisdiction Stage] ERROR:", err instanceof Error ? err.message : "unknown");
     return null;
   }
 }
@@ -243,7 +179,7 @@ export async function POST(req: Request) {
     }
 
     // ── Shield Deep Scan eligibility gate ────────────────────────────────────
-    // Checked early — before any Claude calls — so no quota is consumed if blocked.
+    // Checked early — before any Gemini calls — so no quota is consumed if blocked.
     // Allowed: Pro plan, active add-on analyses, or < 2 lifetime deep scans (trial).
     if (scanMode === "shield_deep" && jurisdiction && typeof jurisdiction === "string") {
       const isPro = usage.plan === "PRO" || usage.plan === "UNLIMITED";
@@ -284,11 +220,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const claudeResult = await runClaudePipeline(text, activeTemplate, deterministicResult);
+    const geminiResult = await runGeminiPipeline(text, activeTemplate, deterministicResult);
 
     // Merge missingProtections into issues as "missing" severity cards
-    const missingAsIssues = (claudeResult?.missingProtections ?? []).map(
-      (mp, i): ClaudeIssue => ({
+    const missingAsIssues = (geminiResult?.missingProtections ?? []).map(
+      (mp, i): AnalysisIssue => ({
         id: `missing-${i}`,
         label: mp.label,
         severity: "missing",
@@ -298,14 +234,14 @@ export async function POST(req: Request) {
       })
     );
 
-    const finalIssues = claudeResult
-      ? [...(claudeResult.issues ?? []), ...missingAsIssues]
+    const finalIssues = geminiResult
+      ? [...(geminiResult.issues ?? []), ...missingAsIssues]
       : deterministicResult.issues ?? [];
 
-    const finalRiskScore = claudeResult?.riskScore ?? deterministicResult.riskScore ?? 0;
-    const finalSummary = claudeResult?.summary ?? deterministicResult.summary ?? "";
-    const finalDeadlines = claudeResult ? (claudeResult.deadlines ?? []) : (deterministicResult.deadlines ?? []);
-    const finalRiskLevel = claudeResult ? deriveRiskLevel(claudeResult.riskScore) : deterministicResult.riskLevel;
+    const finalRiskScore = geminiResult?.riskScore ?? deterministicResult.riskScore ?? 0;
+    const finalSummary   = geminiResult?.summary ?? deterministicResult.summary ?? "";
+    const finalDeadlines = geminiResult ? (geminiResult.deadlines ?? []) : (deterministicResult.deadlines ?? []);
+    const finalRiskLevel = geminiResult ? deriveRiskLevel(geminiResult.riskScore) : deterministicResult.riskLevel;
 
     await recordUsage(session.user.id, "huginn_analysis");
 
@@ -362,7 +298,7 @@ export async function POST(req: Request) {
       ...(jurisdictionAnalysis ? { jurisdictionAnalysis } : {}),
     });
   } catch (error) {
-    console.error("ANALYZE ROUTE ERROR:", error);
+    console.error("ANALYZE ROUTE ERROR:", error instanceof Error ? error.message : "unknown");
 
     return NextResponse.json(
       { ok: false, error: "An unexpected error occurred. Please try again." },

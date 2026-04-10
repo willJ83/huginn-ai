@@ -1,79 +1,64 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { getFlashModel, getProModel, parseGeminiJSON } from "@/lib/gemini";
 import { runDeterministicExtraction } from "../../../lib/riskEngine";
 import { HUGINN_V2_PROMPT, SHIELD_BASIC_PROMPT, buildJurisdictionAddendum } from "../../../lib/huginnPrompt";
 import { auth } from "@/lib/auth";
 import { canUseFeature, consumeAddonAnalysis, recordUsage } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
+import {
+  checkRateLimit,
+  rateLimitExceeded,
+  RATE_LIMITS,
+} from "@/lib/rate-limit";
+import {
+  sanitizeContractText,
+  sanitizeJurisdiction,
+  sanitizeFileName,
+  wrapContractText,
+  MAX_CONTRACT_CHARS,
+} from "@/lib/sanitize";
 
 // ── Vercel function timeout ────────────────────────────────────────────────────
 // Raise to 300s (Pro plan max) so large deep scans don't hit the 60s default.
 export const maxDuration = 300;
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
 // ─── Basic Scan ───────────────────────────────────────────────────────────────
 // Single-stage, no quota consumed. Returns limited results (top 3 issues only).
-async function runBasicScan(text: string, jurisdictionCode?: string) {
+async function runBasicScan(text: string, jurisdictionCode: string) {
   const jurisdictionNote =
-    jurisdictionCode && jurisdictionCode !== "none"
+    jurisdictionCode !== "none"
       ? `\nJurisdiction: ${jurisdictionCode}. Note any state-specific risks.`
       : "";
 
-  const msg = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 512,
-    system: SHIELD_BASIC_PROMPT,
-    messages: [
-      {
-        role: "user",
-        content: `${jurisdictionNote}\n\nContract:\n${text.slice(0, 8000)}`,
-      },
-    ],
-  });
+  // Wrap contract text in XML delimiters so the model treats it as data,
+  // not as additional instructions. See lib/sanitize.ts for threat model.
+  const wrappedText = wrapContractText(text.slice(0, 8_000));
 
-  const raw = msg.content[0]?.type === "text" ? msg.content[0].text : "";
-  const stripped = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-  const match = stripped.match(/\{[\s\S]*\}/);
-  if (!match) return null;
-  try {
-    return JSON.parse(match[0]) as {
-      riskScore: number;
-      summary: string;
-      topIssues: string[];
-    };
-  } catch {
-    return null;
-  }
+  const model = getFlashModel(SHIELD_BASIC_PROMPT, 512);
+  const result = await model.generateContent(
+    `${jurisdictionNote}\n\nContract to analyse:\n${wrappedText}`
+  );
+  const raw = result.response.text();
+
+  return parseGeminiJSON<{
+    riskScore: number;
+    summary: string;
+    topIssues: string[];
+  }>(raw);
 }
 
 // ─── Deep Scan — Stage 1: Classify ───────────────────────────────────────────
-// Only needs the first ~8 000 chars; contract type is apparent from the header
-// and opening clauses. Limiting input here cuts Stage 1 latency ~5–10×.
 async function classifyContract(text: string) {
-  const msg = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 512,
-    messages: [
-      {
-        role: "user",
-        content: `Identify the contract type from this list: Master Service Agreement, Statement of Work, NDA, SLA, Independent Contractor Agreement, Licensing Agreement, SaaS Subscription Agreement, Terms of Service, Data Processing Agreement, Vendor Agreement, Purchase Agreement, Partnership Agreement, Employment Agreement, Consulting Agreement, Marketing Services Agreement, Software Development Agreement, Maintenance & Support Agreement, Reseller Agreement, Franchise Agreement, Amendment/Addendum, Consumer Finance Agreement, Home Improvement Contract, Other. Return JSON only: { "type": string, "confidence": string, "rationale": string }\n\nContract text (opening excerpt):\n${text.slice(0, 8000)}`,
-      },
-    ],
-  });
-
-  const raw = msg.content[0]?.type === "text" ? msg.content[0].text : "";
-  const jsonMatch = raw.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    try {
-      return JSON.parse(jsonMatch[0]) as {
-        type: string;
-        confidence: string;
-        rationale: string;
-      };
-    } catch { /* fall through */ }
-  }
-  return { type: "Unknown", confidence: "low", rationale: "" };
+  const model = getProModel(undefined, 512);
+  const result = await model.generateContent(
+    `Identify the contract type from this list: Master Service Agreement, Statement of Work, NDA, SLA, Independent Contractor Agreement, Licensing Agreement, SaaS Subscription Agreement, Terms of Service, Data Processing Agreement, Vendor Agreement, Purchase Agreement, Partnership Agreement, Employment Agreement, Consulting Agreement, Marketing Services Agreement, Software Development Agreement, Maintenance & Support Agreement, Reseller Agreement, Franchise Agreement, Amendment/Addendum, Consumer Finance Agreement, Home Improvement Contract, Other. Return JSON only: { "type": string, "confidence": string, "rationale": string }\n\nContract text (opening excerpt):\n${wrapContractText(text.slice(0, 8_000))}`
+  );
+  const parsed = parseGeminiJSON<{
+    type: string;
+    confidence: string;
+    rationale: string;
+  }>(result.response.text());
+  return parsed ?? { type: "Unknown", confidence: "low", rationale: "" };
 }
 
 // ─── Deep Scan — Stage 2: Extract ────────────────────────────────────────────
@@ -81,25 +66,11 @@ async function extractClauses(
   text: string,
   contractType: { type: string }
 ): Promise<Record<string, unknown>> {
-  const msg = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4096,
-    messages: [
-      {
-        role: "user",
-        content: `This is a ${contractType.type}. Extract all clauses present and flag any missing. Categories: confidentiality, indemnification, limitation_of_liability, ip_ownership, payment_terms, termination, renewal, governing_law, warranties, data_protection, service_levels, deliverables, non_compete, non_solicit, insurance, dispute_resolution, audit_rights, royalties, support. For each: status (found/missing), exact text, location in document. Return JSON only.\n\nContract text:\n${text}`,
-      },
-    ],
-  });
-
-  const raw = msg.content[0]?.type === "text" ? msg.content[0].text : "";
-  const jsonMatch = raw.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    try {
-      return JSON.parse(jsonMatch[0]);
-    } catch { /* fall through */ }
-  }
-  return {};
+  const model = getProModel(undefined, 4096);
+  const result = await model.generateContent(
+    `This is a ${contractType.type}. Extract all clauses present and flag any missing. Categories: confidentiality, indemnification, limitation_of_liability, ip_ownership, payment_terms, termination, renewal, governing_law, warranties, data_protection, service_levels, deliverables, non_compete, non_solicit, insurance, dispute_resolution, audit_rights, royalties, support. For each: status (found/missing), exact text, location in document. Return JSON only.\n\nContract text:\n${wrapContractText(text)}`
+  );
+  return parseGeminiJSON<Record<string, unknown>>(result.response.text()) ?? {};
 }
 
 // ─── Deep Scan — Stage 3: Score & Analyze ────────────────────────────────────
@@ -107,7 +78,7 @@ async function scoreAndAnalyze(
   text: string,
   contractType: { type: string; confidence: string; rationale: string },
   extractedClauses: Record<string, unknown>,
-  jurisdictionCode?: string
+  jurisdictionCode: string
 ) {
   const deterministicResult = runDeterministicExtraction({
     text,
@@ -118,30 +89,21 @@ async function scoreAndAnalyze(
   const jurisdictionAddendum = buildJurisdictionAddendum(jurisdictionCode);
   const systemPrompt = HUGINN_V2_PROMPT + jurisdictionAddendum;
 
-  const msg = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4096,
-    system: systemPrompt,
-    messages: [
-      {
-        role: "user",
-        content: `Contract Type: ${contractType.type} (Confidence: ${contractType.confidence})\nRationale: ${contractType.rationale}\n\nExtracted Clauses:\n${JSON.stringify(extractedClauses, null, 2)}\n\nDeterministic Findings:\n${JSON.stringify(deterministicResult, null, 2)}\n\nFull contract text:\n${text}`,
-      },
-    ],
-  });
+  const model = getProModel(systemPrompt, 4096);
+  const result = await model.generateContent(
+    `Contract Type: ${contractType.type} (Confidence: ${contractType.confidence})\nRationale: ${contractType.rationale}\n\nExtracted Clauses:\n${JSON.stringify(extractedClauses, null, 2)}\n\nDeterministic Findings:\n${JSON.stringify(deterministicResult, null, 2)}\n\nFull contract text:\n${wrapContractText(text)}`
+  );
 
-  const raw = msg.content[0]?.type === "text" ? msg.content[0].text : "";
-  const stripped = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-  const jsonMatch = stripped.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) return null;
+  const parsed = parseGeminiJSON<{
+    riskScore: number;
+    summary: string;
+    issues: unknown[];
+    missingProtections: unknown[];
+    deadlines: unknown[];
+  }>(result.response.text());
 
-  try {
-    const parsed = JSON.parse(jsonMatch[0]);
-    if (typeof parsed.riskScore !== "number" || !parsed.summary) return null;
-    return { parsed, deterministicResult };
-  } catch {
-    return null;
-  }
+  if (!parsed || typeof parsed.riskScore !== "number" || !parsed.summary) return null;
+  return { parsed, deterministicResult };
 }
 
 function deriveRiskLevel(score: number): string {
@@ -153,26 +115,52 @@ function deriveRiskLevel(score: number): string {
 // ─── Route Handler ─────────────────────────────────────────────────────────────
 export async function POST(req: Request) {
   try {
+    // ── Auth ──────────────────────────────────────────────────────────────────
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 });
     }
 
-    const body = await req.json();
-    const { text, mode, jurisdiction, fileName } = body as {
-      text: string;
-      mode: "basic" | "deep";
-      jurisdiction?: string;
-      fileName?: string;
-    };
+    const userId = session.user.id;
 
-    if (!text || typeof text !== "string" || !text.trim()) {
+    // ── Parse & validate body ─────────────────────────────────────────────────
+    const body = await req.json();
+    const rawText         = body.text;
+    const rawMode         = body.mode;
+    const rawJurisdiction = body.jurisdiction;
+    const rawFileName     = body.fileName;
+
+    if (!rawText || typeof rawText !== "string" || !rawText.trim()) {
       return NextResponse.json({ ok: false, error: "Missing contract text." }, { status: 400 });
     }
 
-    const scanMode = mode === "deep" ? "deep" : "basic";
+    // Server-side enforcement of the text ceiling (client-side alone is not enough).
+    if (rawText.length > MAX_CONTRACT_CHARS) {
+      return NextResponse.json(
+        { ok: false, error: "Contract text exceeds the maximum allowed length." },
+        { status: 400 }
+      );
+    }
 
-    // ── Basic Scan — no quota consumed, plain JSON response ─────────────────
+    // Sanitise all user-controlled inputs before they touch prompts or DB.
+    const text         = sanitizeContractText(rawText);
+    const jurisdiction = sanitizeJurisdiction(rawJurisdiction);
+    const fileName     = sanitizeFileName(rawFileName);
+    const scanMode     = rawMode === "deep" ? "deep" : "basic";
+
+    // ── Rate limit ────────────────────────────────────────────────────────────
+    // Keyed by userId so quota is per-account, not per-IP (authenticated route).
+    const rateLimitKey = scanMode === "deep"
+      ? `scan_deep:${userId}`
+      : `scan_basic:${userId}`;
+    const rateLimitCfg = scanMode === "deep"
+      ? RATE_LIMITS.deepScan
+      : RATE_LIMITS.basicScan;
+
+    const { allowed, resetAt } = await checkRateLimit(rateLimitKey, rateLimitCfg);
+    if (!allowed) return rateLimitExceeded(resetAt);
+
+    // ── Basic Scan — no quota consumed, plain JSON response ───────────────────
     if (scanMode === "basic") {
       const result = await runBasicScan(text, jurisdiction);
       if (!result) {
@@ -186,35 +174,25 @@ export async function POST(req: Request) {
         riskScore: result.riskScore ?? 0,
         summary: result.summary ?? "",
         topIssues: Array.isArray(result.topIssues) ? result.topIssues.slice(0, 3) : [],
-        jurisdiction: jurisdiction ?? null,
+        jurisdiction: jurisdiction !== "none" ? jurisdiction : null,
       });
     }
 
-    // ── Deep Scan — SSE streaming response ──────────────────────────────────
+    // ── Deep Scan — SSE streaming response ────────────────────────────────────
     // Each stage emits a `data: {...}\n\n` SSE event so the client can show
     // real-time progress. The final event carries the complete result payload.
-    // This keeps the connection alive for large contracts without a hard timeout
-    // on the client side, and eliminates the "no auto-display" bug caused by
-    // the old 2-minute AbortController firing before the scan finished.
-
     const encoder = new TextEncoder();
-    const userId = session.user.id; // capture for async closure
 
     const stream = new ReadableStream({
       async start(controller) {
-        // Helper: serialize and enqueue one SSE event.
         const emit = (event: object) => {
           try {
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
-            );
-          } catch {
-            // Controller may already be closed if the client disconnected.
-          }
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+          } catch { /* client disconnected */ }
         };
 
         try {
-          // ── Quota check (before burning API tokens) ──────────────────────
+          // ── Quota check (before burning API tokens) ────────────────────────
           const usage = await canUseFeature(userId, "huginn_analysis");
 
           if (!usage.allowed) {
@@ -231,40 +209,17 @@ export async function POST(req: Request) {
             return;
           }
 
-          // ── Stage 1 — Classify ───────────────────────────────────────────
-          emit({
-            type: "progress",
-            stage: 1,
-            total: 3,
-            message: "Classifying contract type…",
-          });
-
+          // ── Stage 1 — Classify ─────────────────────────────────────────────
+          emit({ type: "progress", stage: 1, total: 3, message: "Classifying contract type…" });
           const contractType = await classifyContract(text);
 
-          // ── Stage 2 — Extract ────────────────────────────────────────────
-          emit({
-            type: "progress",
-            stage: 2,
-            total: 3,
-            message: "Extracting clauses and obligations…",
-          });
-
+          // ── Stage 2 — Extract ──────────────────────────────────────────────
+          emit({ type: "progress", stage: 2, total: 3, message: "Extracting clauses and obligations…" });
           const extractedClauses = await extractClauses(text, contractType);
 
-          // ── Stage 3 — Score & Analyze ────────────────────────────────────
-          emit({
-            type: "progress",
-            stage: 3,
-            total: 3,
-            message: "Scoring risks and building your report…",
-          });
-
-          const deepResult = await scoreAndAnalyze(
-            text,
-            contractType,
-            extractedClauses,
-            jurisdiction
-          );
+          // ── Stage 3 — Score & Analyze ──────────────────────────────────────
+          emit({ type: "progress", stage: 3, total: 3, message: "Scoring risks and building your report…" });
+          const deepResult = await scoreAndAnalyze(text, contractType, extractedClauses, jurisdiction);
 
           if (!deepResult) {
             emit({ type: "error", message: "Deep scan failed. Please try again." });
@@ -274,17 +229,14 @@ export async function POST(req: Request) {
 
           const { parsed, deterministicResult } = deepResult;
 
-          // Merge missingProtections into issues as "missing" severity cards.
-          const missingAsIssues = (parsed.missingProtections ?? []).map(
-            (
-              mp: {
-                label: string;
-                severity: string;
-                explanation?: string;
-                recommendation?: string;
-              },
-              i: number
-            ) => ({
+          type MissingProtection = {
+            label: string;
+            severity: string;
+            explanation?: string;
+            recommendation?: string;
+          };
+          const missingAsIssues = (parsed.missingProtections as MissingProtection[] ?? []).map(
+            (mp, i) => ({
               id: `missing-${i}`,
               label: mp.label,
               severity: "missing",
@@ -294,13 +246,13 @@ export async function POST(req: Request) {
             })
           );
 
-          const finalIssues = [...(parsed.issues ?? []), ...missingAsIssues];
+          const finalIssues    = [...(parsed.issues ?? []), ...missingAsIssues];
           const finalRiskScore = parsed.riskScore ?? 0;
-          const finalSummary = parsed.summary ?? "";
+          const finalSummary   = parsed.summary ?? "";
           const finalDeadlines = parsed.deadlines ?? [];
           const finalRiskLevel = deriveRiskLevel(finalRiskScore);
 
-          // ── Record usage & save to DB ────────────────────────────────────
+          // ── Record usage & save to DB ──────────────────────────────────────
           await recordUsage(userId, "huginn_analysis");
           if (usage.planRemaining === 0 && usage.addonRemaining > 0) {
             await consumeAddonAnalysis(userId);
@@ -309,69 +261,50 @@ export async function POST(req: Request) {
           const saved = await prisma.analysis.create({
             data: {
               userId,
-              fileName: fileName ?? null,
+              fileName,
               template: "compliance_checker",
               product:
-                "error" in deterministicResult
-                  ? "unknown"
-                  : deterministicResult.product ?? "",
+                "error" in deterministicResult ? "unknown" : deterministicResult.product ?? "",
               label:
-                "error" in deterministicResult
-                  ? "unknown"
-                  : deterministicResult.label ?? "",
+                "error" in deterministicResult ? "unknown" : deterministicResult.label ?? "",
               description:
-                "error" in deterministicResult
-                  ? "unknown"
-                  : deterministicResult.description ?? "",
+                "error" in deterministicResult ? "unknown" : deterministicResult.description ?? "",
               documentType:
-                "error" in deterministicResult
-                  ? "unknown"
-                  : deterministicResult.documentType ?? "",
-              riskScore: finalRiskScore,
-              riskLevel: finalRiskLevel,
-              summary: finalSummary,
+                "error" in deterministicResult ? "unknown" : deterministicResult.documentType ?? "",
+              riskScore:    finalRiskScore,
+              riskLevel:    finalRiskLevel,
+              summary:      finalSummary,
               matchedKeywords:
-                "error" in deterministicResult
-                  ? []
-                  : (deterministicResult.matchedKeywords as any),
+                "error" in deterministicResult ? [] : (deterministicResult.matchedKeywords as any),
               missingRequiredKeywords:
-                "error" in deterministicResult
-                  ? []
-                  : (deterministicResult.missingRequiredKeywords as any),
+                "error" in deterministicResult ? [] : (deterministicResult.missingRequiredKeywords as any),
               forbiddenKeywordHits:
-                "error" in deterministicResult
-                  ? []
-                  : (deterministicResult.forbiddenKeywordHits as any),
-              issues: finalIssues as any,
+                "error" in deterministicResult ? [] : (deterministicResult.forbiddenKeywordHits as any),
+              issues:    finalIssues as any,
               deadlines: finalDeadlines as any,
               metadata:
-                "error" in deterministicResult
-                  ? {}
-                  : (deterministicResult.metadata as any),
+                "error" in deterministicResult ? {} : (deterministicResult.metadata as any),
             },
           });
 
-          // ── Emit final result ────────────────────────────────────────────
           emit({
             type: "result",
             payload: {
               mode: "deep",
               id: saved.id,
-              riskScore: finalRiskScore,
-              summary: finalSummary,
-              issues: finalIssues,
-              deadlines: finalDeadlines,
-              riskLevel: finalRiskLevel,
-              jurisdiction: jurisdiction ?? null,
-              remaining: usage.remaining - 1,
+              riskScore:  finalRiskScore,
+              summary:    finalSummary,
+              issues:     finalIssues,
+              deadlines:  finalDeadlines,
+              riskLevel:  finalRiskLevel,
+              jurisdiction: jurisdiction !== "none" ? jurisdiction : null,
+              remaining:  usage.remaining - 1,
             },
           });
         } catch (error) {
-          console.error("[shield/scan] Stream error:", error);
-          emit({
-            type: "error",
-            message: "An unexpected error occurred. Please try again.",
-          });
+          // Never include error details (stack, query, file path) in SSE output.
+          console.error("[shield/scan] Stream error:", error instanceof Error ? error.message : "unknown");
+          emit({ type: "error", message: "An unexpected error occurred. Please try again." });
         } finally {
           controller.close();
         }
@@ -382,13 +315,11 @@ export async function POST(req: Request) {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
-        // Disable Nginx / CDN response buffering so events reach the client
-        // immediately instead of being held until the response is complete.
         "X-Accel-Buffering": "no",
       },
     });
   } catch (error) {
-    console.error("[shield/scan] ERROR:", error);
+    console.error("[shield/scan] ERROR:", error instanceof Error ? error.message : "unknown");
     return NextResponse.json(
       { ok: false, error: "An unexpected error occurred. Please try again." },
       { status: 500 }

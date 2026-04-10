@@ -29,67 +29,47 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="en">
+    // suppressHydrationWarning is required because next-themes adds class="dark"
+    // on the client after reading localStorage, which would otherwise cause a
+    // React hydration mismatch warning.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="application-name" content="Huginn Shield" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Shield" />
-
-        {/*
-          Two theme-color tags silence the Edge Tools "single theme-color" warning
-          and give browsers the correct chrome colour in both colour schemes.
-          Light: white nav bar · Dark: slate-900 (#0f172a) nav bar.
-        */}
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
-
-        {/*
-          `sizes="180x180"` silences the Edge Tools apple-touch-icon warning.
-          180×180 is the canonical size for modern iOS home-screen icons.
-        */}
         <link rel="apple-touch-icon" sizes="180x180" href="/huginn-logo.png" />
-
         <script
           dangerouslySetInnerHTML={{
             __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}`,
           }}
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers session={session}>
           {children}
-          <footer className="border-t border-slate-200 bg-white">
-            <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-slate-600 sm:px-6 md:flex-row md:items-center md:justify-between">
+          <footer className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+            <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-slate-600 dark:text-slate-400 sm:px-6 md:flex-row md:items-center md:justify-between">
               <p>© 2026 Odens Eye Creative</p>
-              <p className="text-xs text-slate-400">This tool is not a substitute for professional legal advice.</p>
-
+              <p className="text-xs text-slate-400 dark:text-slate-500">
+                This tool is not a substitute for professional legal advice.
+              </p>
               <div className="flex flex-wrap items-center gap-4">
-                <Link
-                  href="/privacy"
-                  className="font-medium text-blue-600 transition hover:text-blue-700"
-                >
+                <Link href="/privacy" className="font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                   Privacy Policy
                 </Link>
-                <Link
-                  href="/terms"
-                  className="font-medium text-blue-600 transition hover:text-blue-700"
-                >
+                <Link href="/terms" className="font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                   Terms of Service
                 </Link>
-                <Link
-                  href="/contact"
-                  className="font-medium text-blue-600 transition hover:text-blue-700"
-                >
+                <Link href="/contact" className="font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                   Contact
                 </Link>
               </div>
-
               <a
                 href="mailto:support@odenseyecreative.com"
-                className="font-medium text-slate-700 transition hover:text-slate-900"
+                className="font-medium text-slate-700 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100"
               >
                 support@odenseyecreative.com
               </a>

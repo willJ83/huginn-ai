@@ -1,14 +1,25 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { auth } from "@/lib/auth";
+import { checkRateLimit, rateLimitExceeded, RATE_LIMITS } from "@/lib/rate-limit";
+import { validateImage, type AllowedImageType } from "@/lib/file-validation";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
-type AllowedMediaType = (typeof ALLOWED_TYPES)[number];
-
-const MAX_BYTES = 4.5 * 1024 * 1024; // 4.5 MB — stays safely under Anthropic's 5 MB limit
-
 export async function POST(req: Request) {
+  // ── Auth gate ───────────────────────────────────────────────────────────────
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  // ── Rate limit: shared extract bucket, 20 / hour per user ──────────────────
+  const { allowed, remaining, resetAt } = await checkRateLimit(
+    `extract:${session.user.id}`,
+    RATE_LIMITS.extract
+  );
+  if (!allowed) return rateLimitExceeded(resetAt);
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
@@ -17,22 +28,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file provided." }, { status: 400 });
     }
 
-    if (!ALLOWED_TYPES.includes(file.type as AllowedMediaType)) {
-      return NextResponse.json(
-        { error: "Please upload a JPG, PNG, or WebP image." },
-        { status: 400 }
-      );
+    // ── Size, MIME allowlist, and magic-byte validation ─────────────────────
+    const validation = await validateImage(file);
+    if (!validation.ok) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-    if (file.size > MAX_BYTES) {
-      return NextResponse.json(
-        { error: "Image is too large. Please use an image under 4.5 MB." },
-        { status: 400 }
-      );
-    }
-
-    const bytes = await file.arrayBuffer();
-    const base64 = Buffer.from(bytes).toString("base64");
+    const base64 = validation.buffer.toString("base64");
 
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
@@ -45,12 +47,16 @@ export async function POST(req: Request) {
               type: "image",
               source: {
                 type: "base64",
-                media_type: file.type as AllowedMediaType,
+                media_type: file.type as AllowedImageType,
                 data: base64,
               },
             },
             {
               type: "text",
+              // Explicit instruction keeps the model focused on extraction only.
+              // Prompt injection via image text is mitigated by the structured
+              // task framing and the fact that this route's output is used only
+              // as intermediate text — it never reaches a user directly.
               text: "Extract all text from this contract or document image. Return ONLY the extracted text exactly as it appears — no commentary, formatting changes, or analysis. Preserve paragraph breaks.",
             },
           ],
@@ -68,9 +74,12 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ text });
+    return NextResponse.json(
+      { text },
+      { headers: { "X-RateLimit-Remaining": String(remaining) } }
+    );
   } catch (err) {
-    console.error("[extract-image] ERROR:", err);
+    console.error("[extract-image] Error:", err instanceof Error ? err.message : "unknown");
     return NextResponse.json(
       { error: "Image extraction failed. Please try again." },
       { status: 500 }
