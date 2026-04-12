@@ -17,16 +17,22 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Huginn Shield — Protect Your Business Before You Sign",
-  description: "AI-powered contract risk scanner for small businesses. Instant scan, 50-state analysis, Florida-focused.",
+  description: "Veteran-owned AI that instantly analyzes contracts for hidden risks. Upload any agreement and get CRITICAL, HIGH, and MEDIUM red flags in seconds. Privacy-first, no legal background needed.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://huginn-ai.vercel.app"),
   openGraph: {
     title: "Huginn Shield — Protect Your Business Before You Sign",
-    description: "AI-powered contract risk scanner for small businesses. Instant scan, 50-state analysis, Florida-focused.",
-    images: '/og/huginnvercel',   // ← uses the exact name you have right now
+    description: "Veteran-owned AI that instantly analyzes contracts for hidden risks. Privacy-first, no legal background needed.",
+    images: '/og/huginn-shield.jpg',
+    url: "https://huginn-ai.vercel.app",
     type: 'website',
     siteName: 'Huginn Shield',
     locale: 'en_US',
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Huginn Shield — Protect Your Business Before You Sign",
+    description: "Veteran-owned AI that instantly analyzes contracts for hidden risks. Privacy-first, no legal background needed.",
   },
 };
 
