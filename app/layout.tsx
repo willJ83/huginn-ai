@@ -16,9 +16,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Huginn AI",
-  description: "AI-powered contract analysis — identify risks, compliance issues, and critical deadlines in seconds",
+  title: "Huginn Shield — Protect Your Business Before You Sign",
+  description: "AI-powered contract risk scanner for small businesses. Instant scan, 50-state analysis, Florida-focused.",
   manifest: "/manifest.json",
+  metadataBase: new URL("https://huginn-ai.vercel.app"),
+  openGraph: {
+    title: "Huginn Shield — Protect Your Business Before You Sign",
+    description: "AI-powered contract risk scanner for small businesses. Instant scan, 50-state analysis, Florida-focused.",
+    images: '/og/huginnvercel',   // ← uses the exact name you have right now
+    type: 'website',
+    siteName: 'Huginn Shield',
+    locale: 'en_US',
+  },
 };
 
 export default async function RootLayout({
