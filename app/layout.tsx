@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Huginn Shield by Odens Eye Creative LLC | AI Contract Risk Scanner",
   description: "Veteran-owned AI that instantly analyzes contracts for hidden risks. Upload any agreement and get CRITICAL, HIGH, and MEDIUM red flags in seconds. Privacy-first, no legal background needed.",
+  metadataBase: new URL("https://huginn-ai.vercel.app"),
   openGraph: {
     title: "Huginn Shield by Odens Eye Creative LLC | AI Contract Risk Scanner",
     description: "Veteran-owned AI that instantly analyzes contracts for hidden risks. Privacy-first, no legal background needed.",
