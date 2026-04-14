@@ -49,7 +49,7 @@ async function runGeminiPipeline(
   contractText: string,
   template: ProductTemplate,
   deterministicResult: any
-): Promise<AnalysisResult | null> {
+): Promise<{ result: AnalysisResult; contractType: string } | null> {
   console.log("[Pipeline] Starting 3-stage Gemini pipeline...");
   try {
     // STAGE 1 — CLASSIFY
@@ -93,7 +93,7 @@ async function runGeminiPipeline(
     console.log(
       `[Pipeline] Stage 3 complete. Score: ${parsed.riskScore}, Issues: ${parsed.issues?.length ?? 0}, Missing: ${parsed.missingProtections?.length ?? 0}, Deadlines: ${parsed.deadlines?.length ?? 0}`
     );
-    return parsed;
+    return { result: parsed, contractType: contractType.type };
   } catch (err) {
     console.error("[Pipeline] ERROR — pipeline failed, falling back to deterministic:", err instanceof Error ? err.message : "unknown");
     return null;
@@ -114,12 +114,16 @@ interface JurisdictionAnalysis {
 
 async function runJurisdictionStage(
   contractText: string,
-  jurisdiction: string
+  jurisdiction: string,
+  contractType: string
 ): Promise<JurisdictionAnalysis | null> {
   try {
     const isFL = /\bfl\b|florida/i.test(jurisdiction);
-    const floridaInstruction = isFL
-      ? "\n\nThe user's jurisdiction IS Florida. You MUST include the floridaChecklist array in your JSON."
+    const isFinancing = /financ|loan|merchant\s*cash|advance|lending|credit\s*agree|borrow|installment/i.test(contractType);
+    const floridaInstruction = isFL && isFinancing
+      ? "\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON."
+      : isFL
+      ? "\n\nThe user's jurisdiction IS Florida but this contract is NOT a financing instrument. Do NOT include a floridaChecklist — §559.9613 does not apply."
       : "\n\nThe user's jurisdiction is NOT Florida. Omit the floridaChecklist field entirely.";
 
     const model = getProModel(SHIELD_JURISDICTION_STAGE_PROMPT, 1024);
@@ -220,7 +224,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const geminiResult = await runGeminiPipeline(text, activeTemplate, deterministicResult);
+    const pipelineResult = await runGeminiPipeline(text, activeTemplate, deterministicResult);
+    const geminiResult = pipelineResult?.result ?? null;
+    const geminiContractType = pipelineResult?.contractType ?? "Unknown";
 
     // Merge missingProtections into issues as "missing" severity cards
     const missingAsIssues = (geminiResult?.missingProtections ?? []).map(
@@ -254,7 +260,7 @@ export async function POST(req: Request) {
     // Eligibility already verified above; record shield_deep usage for trial tracking.
     let jurisdictionAnalysis: JurisdictionAnalysis | null = null;
     if (scanMode === "shield_deep" && jurisdiction && typeof jurisdiction === "string") {
-      jurisdictionAnalysis = await runJurisdictionStage(text, jurisdiction);
+      jurisdictionAnalysis = await runJurisdictionStage(text, jurisdiction, geminiContractType);
       await recordUsage(session.user.id, "shield_deep");
     }
 

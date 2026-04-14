@@ -66,12 +66,14 @@ FLORIDA JURISDICTION ANALYSIS — F.S. §559.9613 & Consumer Protection
 You MUST perform these additional Florida-specific checks and include any violations as issues:
 
 1. CONSUMER FINANCE DISCLOSURES (F.S. §559.9613):
-   If this contract involves a consumer finance arrangement, loan, or installment payment to a Florida consumer, check for:
+   This section applies ONLY to consumer finance contracts, loans, merchant cash advances, installment financing agreements, or credit arrangements. It does NOT apply to leases, service agreements, employment contracts, NDAs, or other non-financing instruments.
+   If this contract IS a consumer finance arrangement: check for:
    - Written disclosure of the annual percentage rate (APR) and total finance charge before signing
    - Clear statement of the total amount financed and total repayment amount
    - Disclosure of all fees, penalties, and default terms in plain language
    - Identification of any collateral or security interest being granted
    Flag as HIGH severity if any required finance disclosure is absent from a consumer finance contract.
+   If this contract is NOT a financing instrument, omit this section entirely — do not include a floridaChecklist.
 
 2. FLORIDA CONSUMER COLLECTION PRACTICES ACT (F.S. §559.72):
    - Flag any clause that purports to allow collection methods prohibited under Florida law

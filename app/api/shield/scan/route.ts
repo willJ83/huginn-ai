@@ -126,12 +126,16 @@ interface JurisdictionAnalysis {
 
 async function runJurisdictionStage(
   contractText: string,
-  jurisdiction: string
+  jurisdiction: string,
+  contractType: string
 ): Promise<JurisdictionAnalysis | null> {
   try {
     const isFL = /\bfl\b|florida/i.test(jurisdiction);
-    const floridaInstruction = isFL
-      ? "\n\nThe user's jurisdiction IS Florida. You MUST include the floridaChecklist array in your JSON."
+    const isFinancing = /financ|loan|merchant\s*cash|advance|lending|credit\s*agree|borrow|installment/i.test(contractType);
+    const floridaInstruction = isFL && isFinancing
+      ? "\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON."
+      : isFL
+      ? "\n\nThe user's jurisdiction IS Florida but this contract is NOT a financing instrument. Do NOT include a floridaChecklist — §559.9613 does not apply."
       : "\n\nThe user's jurisdiction is NOT Florida. Omit the floridaChecklist field entirely.";
 
     const model = getProModel(SHIELD_JURISDICTION_STAGE_PROMPT, 1024);
@@ -270,7 +274,7 @@ export async function POST(req: Request) {
           let jurisdictionAnalysis: JurisdictionAnalysis | null = null;
           if (jurisdiction !== "none") {
             emit({ type: "progress", stage: 4, total: totalStages, message: "Analysing jurisdiction and state-specific compliance…" });
-            jurisdictionAnalysis = await runJurisdictionStage(text, jurisdiction);
+            jurisdictionAnalysis = await runJurisdictionStage(text, jurisdiction, contractType.type);
           }
 
           type MissingProtection = {
