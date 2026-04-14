@@ -21,7 +21,8 @@ JSON structure:
   "floridaChecklist": [...],
   "californiaChecklist": [...],
   "texasChecklist": [...],
-  "scChecklist": [...]
+  "scChecklist": [...],
+  "ncChecklist": [...]
 }
 
 FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
@@ -60,11 +61,21 @@ SOUTH CAROLINA (SC) — always include scChecklist:
   - "Electronic signatures valid under SC UETA (§ 26-6-10)"
   - "Data breach notification obligations addressed (§ 39-1-90 — 45-day requirement)"
 
+NORTH CAROLINA (NC) — always include ncChecklist:
+  ncChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under NC common law + Chapter 75 (§ 75-4) — reasonable in time, geography, and scope"
+  - "UDTPA compliance — no unfair or deceptive acts in commerce (Chapter 75, §§ 75-1.1 et seq.)"
+  - "Interest rate within NC usury limits (Chapter 24, § 24-1 — 8% general cap)"
+  - "Construction indemnity clause compliant with NC anti-indemnity rules (Chapter 22B)"
+  - "Electronic signatures valid under NC UETA (Chapter 66, Article 40, §§ 66-311 et seq.)"
+  - "Data breach notification obligations addressed (Chapter 75, § 75-65 — prompt notification required)"
+
 Rules:
 - Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
 - Include californiaChecklist ONLY if the user's jurisdiction is California.
 - Include texasChecklist ONLY if the user's jurisdiction is Texas.
 - Include scChecklist ONLY if the user's jurisdiction is South Carolina.
+- Include ncChecklist ONLY if the user's jurisdiction is North Carolina.
 - Omit all checklist fields for all other jurisdictions.
 - For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
 - risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.

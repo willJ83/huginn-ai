@@ -179,6 +179,34 @@ You MUST perform these additional South Carolina-specific checks and include any
 Include all South Carolina-specific findings in your issues array with a clauseReference of "South Carolina Law" where applicable.
 `.trim();
 
+// North Carolina-specific addendum
+const NORTH_CAROLINA_ADDENDUM = `
+
+NORTH CAROLINA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional North Carolina-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (NC Common Law + Chapter 75, § 75-4):
+   North Carolina enforces non-compete and non-solicitation agreements only if they are: (a) in writing; (b) part of an employment or business sale contract; (c) supported by adequate consideration; (d) reasonable in time (typically ≤2 years), geographic scope, and activity restrictions. Courts will blue-pencil but not rewrite overbroad covenants. Flag any non-compete lacking consideration, with duration exceeding 2 years, unreasonably broad geography, or unlimited activity scope. Flag as HIGH if facially unenforceable.
+
+2. UNFAIR AND DECEPTIVE TRADE PRACTICES ACT (UDTPA — Chapter 75, §§ 75-1.1 et seq.):
+   Flag any clause that waives UDTPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars access to UDTPA remedies or treble damages. Flag as HIGH if UDTPA rights are expressly waived.
+
+3. USURY (Chapter 24, § 24-1):
+   The general North Carolina usury cap is 8% per annum absent a written agreement specifying a higher rate; written contracts may agree to rates up to 16% for most commercial purposes. Flag any interest rate, default rate, or fee structure that exceeds 16% without a statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (Chapter 22B):
+   North Carolina's anti-indemnity statute voids indemnification clauses in construction contracts that require one party to indemnify another for the indemnitee's own negligence or intentional acts. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (NC UETA — Chapter 66, Article 40, §§ 66-311 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or that mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Chapter 75, § 75-65):
+   North Carolina requires prompt notification to affected residents following discovery of a security breach involving personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response procedures, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all North Carolina-specific findings in your issues array with a clauseReference of "North Carolina Law" where applicable.
+`.trim();
+
 // Generic state addendum for all other states
 function genericStateAddendum(stateName: string): string {
   return `
@@ -198,6 +226,7 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "CA") return "\n\n" + CALIFORNIA_ADDENDUM;
   if (stateCode === "TX") return "\n\n" + TEXAS_ADDENDUM;
   if (stateCode === "SC") return "\n\n" + SOUTH_CAROLINA_ADDENDUM;
+  if (stateCode === "NC") return "\n\n" + NORTH_CAROLINA_ADDENDUM;
   const name = getStateName(stateCode);
   return "\n\n" + genericStateAddendum(name);
 }
