@@ -207,6 +207,34 @@ You MUST perform these additional North Carolina-specific checks and include any
 Include all North Carolina-specific findings in your issues array with a clauseReference of "North Carolina Law" where applicable.
 `.trim();
 
+// Idaho-specific addendum
+const IDAHO_ADDENDUM = `
+
+IDAHO JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Idaho-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Idaho Title 29, § 29-110):
+   Idaho enforces non-compete and non-solicitation agreements only if they are: (a) in writing; (b) supported by adequate consideration; (c) reasonably limited in time, geographic area, and scope of activity. Idaho courts will not blue-pencil overbroad covenants — they are void in their entirety if unreasonable. Flag any non-compete lacking consideration, with duration exceeding 18 months without strong justification, overbroad geography, or unlimited activity scope. Flag as HIGH if facially unenforceable.
+
+2. IDAHO CONSUMER PROTECTION ACT (Title 48, Chapter 6, §§ 48-601 et seq.):
+   Flag any clause that waives consumer protection rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability under the ICPA. Note any mandatory arbitration clause that bars access to ICPA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY / COMMERCIAL LENDING LIMITS (Title 28, Chapter 46, § 28-46-101 et seq.):
+   Idaho does not impose a general usury cap for commercial loans agreed to in writing, but consumer credit transactions are governed by the Idaho Credit Code. Flag any interest rate, default rate, or fee structure that appears to violate applicable limits for the contract type. Flag as HIGH if the rate is clearly excessive relative to the transaction type or if no rate disclosure is present in a consumer credit agreement.
+
+4. CONSTRUCTION ANTI-INDEMNITY (Title 29 + Title 44):
+   Idaho's anti-indemnity provisions limit the enforceability of indemnification clauses in construction contracts that purport to indemnify a party for its own negligence or intentional wrongdoing. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Idaho UETA — Title 28, Chapter 50, §§ 28-50-101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or that mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Title 28, Chapter 51, § 28-51-104):
+   Idaho requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response procedures, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Idaho-specific findings in your issues array with a clauseReference of "Idaho Law" where applicable.
+`.trim();
+
 // Generic state addendum for all other states
 function genericStateAddendum(stateName: string): string {
   return `
@@ -227,6 +255,7 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "TX") return "\n\n" + TEXAS_ADDENDUM;
   if (stateCode === "SC") return "\n\n" + SOUTH_CAROLINA_ADDENDUM;
   if (stateCode === "NC") return "\n\n" + NORTH_CAROLINA_ADDENDUM;
+  if (stateCode === "ID") return "\n\n" + IDAHO_ADDENDUM;
   const name = getStateName(stateCode);
   return "\n\n" + genericStateAddendum(name);
 }
