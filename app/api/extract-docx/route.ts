@@ -33,6 +33,20 @@ export async function POST(req: Request) {
     }
 
     const result = await mammoth.extractRawText({ buffer: validation.buffer });
+    const normalized = result.value.replace(/\s+/g, ' ').trim();
+
+    console.log(
+      "[extract-docx] raw chars:", result.value.length,
+      "normalized:", normalized.length,
+      "warnings:", result.messages.length
+    );
+
+    if (normalized.length < 100 && result.messages.length > 0) {
+      return NextResponse.json(
+        { error: "Could not extract text from this document. It may contain text in unsupported elements (text boxes, charts). Try copying the text and uploading as .txt." },
+        { status: 422 }
+      );
+    }
 
     return NextResponse.json(
       { text: result.value },

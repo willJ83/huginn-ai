@@ -507,7 +507,8 @@ export default function ShieldScanner({ usageInfo }: { usageInfo: UsageInfo }) {
     try {
       const text = await extractText(file);
       if (!text.trim()) throw new Error("Could not extract text from this file.");
-      if (text.length < 200)
+      const contentLength = text.replace(/\s+/g, ' ').trim().length;
+      if (contentLength < 200)
         throw new Error("File is too short to analyze. Make sure the full contract is included.");
 
       let finalText = text;
