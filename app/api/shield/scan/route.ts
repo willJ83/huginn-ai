@@ -89,7 +89,7 @@ async function scoreAndAnalyze(
   const jurisdictionAddendum = buildJurisdictionAddendum(jurisdictionCode);
   const systemPrompt = HUGINN_V2_PROMPT + jurisdictionAddendum;
 
-  const model = getProModel(systemPrompt, 4096);
+  const model = getProModel(systemPrompt, 8192);
   const result = await model.generateContent(
     `Contract Type: ${contractType.type} (Confidence: ${contractType.confidence})\nRationale: ${contractType.rationale}\n\nExtracted Clauses:\n${JSON.stringify(extractedClauses, null, 2)}\n\nDeterministic Findings:\n${JSON.stringify(deterministicResult, null, 2)}\n\nFull contract text:\n${wrapContractText(text)}`
   );

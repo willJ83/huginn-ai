@@ -32,6 +32,10 @@ export function getFlashModel(systemInstruction?: string, maxOutputTokens = 512)
       temperature: 0.0,
       maxOutputTokens,
       responseMimeType: "application/json",
+      // Disable thinking mode — gemini-2.5 prepends reasoning tokens to the
+      // response which breaks JSON parsing. thinkingBudget: 0 disables it.
+      // Not yet typed in @google/generative-ai@0.24.x so cast required.
+      ...({ thinkingConfig: { thinkingBudget: 0 } } as any),
     },
     safetySettings: SAFETY_SETTINGS,
   });
@@ -48,6 +52,10 @@ export function getProModel(systemInstruction?: string, maxOutputTokens = 4096):
       temperature: 0.0,
       maxOutputTokens,
       responseMimeType: "application/json",
+      // Disable thinking mode — gemini-2.5 prepends reasoning tokens to the
+      // response which breaks JSON parsing. thinkingBudget: 0 disables it.
+      // Not yet typed in @google/generative-ai@0.24.x so cast required.
+      ...({ thinkingConfig: { thinkingBudget: 0 } } as any),
     },
     safetySettings: SAFETY_SETTINGS,
   });

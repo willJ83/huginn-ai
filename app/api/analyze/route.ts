@@ -79,7 +79,7 @@ async function runGeminiPipeline(
 
     // STAGE 3 — ANALYZE (returns full structured JSON)
     console.log("[Pipeline] Stage 3: Running final analysis...");
-    const analyzeModel = getProModel(HUGINN_V2_PROMPT, 4096);
+    const analyzeModel = getProModel(HUGINN_V2_PROMPT, 8192);
     const analyzeResult = await analyzeModel.generateContent(
       `Contract Type: ${contractType.type} (Confidence: ${contractType.confidence})\nRationale: ${contractType.rationale}\n\nExtracted Clauses:\n${JSON.stringify(extractedClauses, null, 2)}\n\nDeterministic Findings:\n${JSON.stringify(deterministicResult, null, 2)}\n\nFull contract text:\n${contractText}`
     );
