@@ -18,7 +18,7 @@ export const SAFETY_SETTINGS = [
 
 export const MODELS = {
   FLASH: "gemini-2.0-flash",
-  PRO:   "gemini-2.0-flash",
+  PRO:   "gemini-2.5-pro",
 } as const;
 
 /**
