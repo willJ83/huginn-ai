@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getFlashModel, getProModel, parseGeminiJSON } from "@/lib/gemini";
 import { runDeterministicExtraction } from "../../../lib/riskEngine";
-import { HUGINN_V2_PROMPT, SHIELD_BASIC_PROMPT, buildJurisdictionAddendum } from "../../../lib/huginnPrompt";
+import { HUGINN_V2_PROMPT, SHIELD_BASIC_PROMPT, buildJurisdictionAddendum, SHIELD_JURISDICTION_STAGE_PROMPT } from "../../../lib/huginnPrompt";
 import { auth } from "@/lib/auth";
 import { canUseFeature, consumeAddonAnalysis, recordUsage } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
@@ -112,6 +112,40 @@ function deriveRiskLevel(score: number): string {
   return "high";
 }
 
+// ─── Stage 4: Jurisdiction Analysis ──────────────────────────────────────────
+
+interface JurisdictionAnalysis {
+  risk: "Low" | "Medium" | "High";
+  explanation: string;
+  recommendation: string;
+  governingLaw: string | null;
+  forumClause: string | null;
+  jurisdictionMatch: boolean | null;
+  floridaChecklist?: { item: string; present: boolean }[];
+}
+
+async function runJurisdictionStage(
+  contractText: string,
+  jurisdiction: string
+): Promise<JurisdictionAnalysis | null> {
+  try {
+    const isFL = /\bfl\b|florida/i.test(jurisdiction);
+    const floridaInstruction = isFL
+      ? "\n\nThe user's jurisdiction IS Florida. You MUST include the floridaChecklist array in your JSON."
+      : "\n\nThe user's jurisdiction is NOT Florida. Omit the floridaChecklist field entirely.";
+
+    const model = getProModel(SHIELD_JURISDICTION_STAGE_PROMPT, 1024);
+    const result = await model.generateContent(
+      `User's selected jurisdiction: ${jurisdiction}${floridaInstruction}\n\nFull contract text:\n${contractText}`
+    );
+
+    return parseGeminiJSON<JurisdictionAnalysis>(result.response.text());
+  } catch (err) {
+    console.error("[shield/scan] Jurisdiction Stage ERROR:", err instanceof Error ? err.message : "unknown");
+    return null;
+  }
+}
+
 // ─── Route Handler ─────────────────────────────────────────────────────────────
 export async function POST(req: Request) {
   try {
@@ -209,16 +243,18 @@ export async function POST(req: Request) {
             return;
           }
 
+          const totalStages = jurisdiction !== "none" ? 4 : 3;
+
           // ── Stage 1 — Classify ─────────────────────────────────────────────
-          emit({ type: "progress", stage: 1, total: 3, message: "Classifying contract type…" });
+          emit({ type: "progress", stage: 1, total: totalStages, message: "Classifying contract type…" });
           const contractType = await classifyContract(text);
 
           // ── Stage 2 — Extract ──────────────────────────────────────────────
-          emit({ type: "progress", stage: 2, total: 3, message: "Extracting clauses and obligations…" });
+          emit({ type: "progress", stage: 2, total: totalStages, message: "Extracting clauses and obligations…" });
           const extractedClauses = await extractClauses(text, contractType);
 
           // ── Stage 3 — Score & Analyze ──────────────────────────────────────
-          emit({ type: "progress", stage: 3, total: 3, message: "Scoring risks and building your report…" });
+          emit({ type: "progress", stage: 3, total: totalStages, message: "Scoring risks and building your report…" });
           const deepResult = await scoreAndAnalyze(text, contractType, extractedClauses, jurisdiction);
 
           if (!deepResult) {
@@ -228,6 +264,14 @@ export async function POST(req: Request) {
           }
 
           const { parsed, deterministicResult } = deepResult;
+
+          // ── Stage 4 — Jurisdiction Analysis (non-blocking) ────────────────
+          // Failure here does not abort the scan — the main result still saves.
+          let jurisdictionAnalysis: JurisdictionAnalysis | null = null;
+          if (jurisdiction !== "none") {
+            emit({ type: "progress", stage: 4, total: totalStages, message: "Analysing jurisdiction and state-specific compliance…" });
+            jurisdictionAnalysis = await runJurisdictionStage(text, jurisdiction);
+          }
 
           type MissingProtection = {
             label: string;
@@ -258,6 +302,13 @@ export async function POST(req: Request) {
             await consumeAddonAnalysis(userId);
           }
 
+          const baseMetadata = ("error" in deterministicResult || !deterministicResult.metadata)
+            ? {}
+            : (deterministicResult.metadata as object);
+          const finalMetadata = jurisdictionAnalysis
+            ? { ...baseMetadata, jurisdictionAnalysis, jurisdiction }
+            : baseMetadata;
+
           const saved = await prisma.analysis.create({
             data: {
               userId,
@@ -282,8 +333,7 @@ export async function POST(req: Request) {
                 "error" in deterministicResult ? [] : (deterministicResult.forbiddenKeywordHits as any),
               issues:    finalIssues as any,
               deadlines: finalDeadlines as any,
-              metadata:
-                "error" in deterministicResult ? {} : (deterministicResult.metadata as any),
+              metadata:  finalMetadata as any,
             },
           });
 
