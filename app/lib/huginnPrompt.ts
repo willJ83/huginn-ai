@@ -2,17 +2,11 @@ export { buildJurisdictionAddendum } from "./jurisdictions";
 
 // Stage 4 — Jurisdiction Analysis (Shield Deep only)
 // Extracts governing law / forum clauses, compares to user's jurisdiction,
-// and runs Florida F.S. §559.9613 checklist when applicable.
+// and runs state-specific checklists for FL (§559.9613), CA, and TX.
 export const SHIELD_JURISDICTION_STAGE_PROMPT = `
 You are a contract jurisdiction analyst. Your job is to identify governing law, choice of law, forum selection, and venue clauses in a contract, then assess whether they create risk for a party in a specific jurisdiction.
 
-If the user's jurisdiction is Florida, you MUST also check for the six disclosure requirements mandated by Florida Statutes §559.9613 (Florida Consumer Finance Act). These are required in consumer finance and lending contracts:
-1. Total amount of funds provided to the consumer
-2. Disbursement amount (itemized, if different from the total)
-3. Total amount to be paid back
-4. Total dollar cost of the arrangement
-5. Manner, frequency, and amount of each payment (or methodology if variable)
-6. Prepayment terms (any penalties or conditions for early payoff)
+Depending on the user's jurisdiction, you will also run a state-specific compliance checklist (see below).
 
 Return ONLY a single valid JSON object — no markdown, no prose, no code fences.
 
@@ -24,22 +18,47 @@ JSON structure:
   "governingLaw": "<State or jurisdiction named in the governing law clause, or null if absent>",
   "forumClause": "<Location for dispute resolution or venue, or null if absent>",
   "jurisdictionMatch": <true if contract jurisdiction matches user's jurisdiction, false if not, null if contract has no jurisdiction clause>,
-  "floridaChecklist": [
-    { "item": "Total amount of funds provided", "present": <boolean> },
-    { "item": "Disbursement amount (itemized if different)", "present": <boolean> },
-    { "item": "Total amount to be paid back", "present": <boolean> },
-    { "item": "Total dollar cost", "present": <boolean> },
-    { "item": "Payment manner, frequency, and amount", "present": <boolean> },
-    { "item": "Prepayment terms", "present": <boolean> }
-  ]
+  "floridaChecklist": [...],
+  "californiaChecklist": [...],
+  "texasChecklist": [...]
 }
 
+FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
+  floridaChecklist items (each { "item": string, "present": boolean }):
+  - "Total amount of funds provided"
+  - "Disbursement amount (itemized if different)"
+  - "Total amount to be paid back"
+  - "Total dollar cost"
+  - "Payment manner, frequency, and amount"
+  - "Prepayment terms"
+
+CALIFORNIA (CA) — always include californiaChecklist:
+  californiaChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete clause present (void under § 16600)"
+  - "Stay-or-pay / training repayment clause (void under AB 692 / § 16608)"
+  - "Interest rate within California usury limits (Art. XV § 1 — 10% cap)"
+  - "CCPA/CPRA data processing terms (if personal data involved)"
+  - "CLRA rights preserved (if consumer contract)"
+  - "Electronic signature clause compliant (UETA — Civil Code § 1633.1)"
+
+TEXAS (TX) — always include texasChecklist:
+  texasChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete meets § 15.50 requirements (ancillary agreement, reasonable scope)"
+  - "Healthcare non-compete meets SB 1318 / § 15.501 (if healthcare professional)"
+  - "Interest rate within Texas usury limits (Finance Code § 302 — 10% default)"
+  - "DTPA rights preserved (if consumer contract)"
+  - "TDPSA data processing terms (if personal data involved)"
+  - "Electronic signature clause compliant (UETA — Bus. & Com. Code Ch. 322)"
+
 Rules:
-- Include floridaChecklist ONLY if the user's jurisdiction is Florida (FL).
-- Omit floridaChecklist entirely for all other jurisdictions.
-- risk = "High" if contract designates a significantly different jurisdiction, or if Florida and multiple §559.9613 items are missing.
-- risk = "Medium" if there is a jurisdiction mismatch but it is minor, or if only 1-2 Florida items are missing.
-- risk = "Low" if jurisdictions match and (if Florida) all items are present.
+- Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
+- Include californiaChecklist ONLY if the user's jurisdiction is California.
+- Include texasChecklist ONLY if the user's jurisdiction is Texas.
+- Omit all checklist fields for all other jurisdictions.
+- For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
+- risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.
+- risk = "Medium" if there is a minor jurisdiction mismatch or only 1-2 moderate checklist issues.
+- risk = "Low" if jurisdictions match and no significant state-law issues found.
 - Never invent clauses not found in the contract.
 `.trim();
 

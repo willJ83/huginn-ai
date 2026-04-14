@@ -102,6 +102,12 @@ async function runGeminiPipeline(
 
 // ─── Stage 4: Jurisdiction Analysis (Shield Deep only) ────────────────────────
 
+interface JurisdictionChecklistItem {
+  item: string;
+  present: boolean;
+  risk?: "Low" | "Medium" | "High";
+}
+
 interface JurisdictionAnalysis {
   risk: "Low" | "Medium" | "High";
   explanation: string;
@@ -109,7 +115,9 @@ interface JurisdictionAnalysis {
   governingLaw: string | null;
   forumClause: string | null;
   jurisdictionMatch: boolean | null;
-  floridaChecklist?: { item: string; present: boolean }[];
+  floridaChecklist?: JurisdictionChecklistItem[];
+  californiaChecklist?: JurisdictionChecklistItem[];
+  texasChecklist?: JurisdictionChecklistItem[];
 }
 
 async function runJurisdictionStage(
@@ -119,16 +127,23 @@ async function runJurisdictionStage(
 ): Promise<JurisdictionAnalysis | null> {
   try {
     const isFL = /\bfl\b|florida/i.test(jurisdiction);
+    const isCA = /\bca\b|california/i.test(jurisdiction);
+    const isTX = /\btx\b|texas/i.test(jurisdiction);
     const isFinancing = /financ|loan|merchant\s*cash|advance|lending|credit\s*agree|borrow|installment/i.test(contractType);
-    const floridaInstruction = isFL && isFinancing
-      ? "\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON."
+
+    const stateInstruction = isFL && isFinancing
+      ? "\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON. Omit californiaChecklist and texasChecklist."
       : isFL
-      ? "\n\nThe user's jurisdiction IS Florida but this contract is NOT a financing instrument. Do NOT include a floridaChecklist — §559.9613 does not apply."
-      : "\n\nThe user's jurisdiction is NOT Florida. Omit the floridaChecklist field entirely.";
+      ? "\n\nThe user's jurisdiction IS Florida but this contract is NOT a financing instrument. Do NOT include a floridaChecklist — §559.9613 does not apply. Omit californiaChecklist and texasChecklist."
+      : isCA
+      ? "\n\nThe user's jurisdiction IS California. You MUST include the californiaChecklist array in your JSON. Omit floridaChecklist and texasChecklist."
+      : isTX
+      ? "\n\nThe user's jurisdiction IS Texas. You MUST include the texasChecklist array in your JSON. Omit floridaChecklist and californiaChecklist."
+      : "\n\nThe user's jurisdiction does not require a state-specific checklist. Omit floridaChecklist, californiaChecklist, and texasChecklist entirely.";
 
     const model = getProModel(SHIELD_JURISDICTION_STAGE_PROMPT, 1024);
     const result = await model.generateContent(
-      `User's selected jurisdiction: ${jurisdiction}${floridaInstruction}\n\nFull contract text:\n${contractText}`
+      `User's selected jurisdiction: ${jurisdiction}${stateInstruction}\n\nFull contract text:\n${contractText}`
     );
 
     return parseGeminiJSON<JurisdictionAnalysis>(result.response.text());
@@ -268,7 +283,7 @@ export async function POST(req: Request) {
       ? deterministicResult.metadata
       : {};
     const finalMetadata = jurisdictionAnalysis
-      ? { ...baseMetadata, jurisdictionAnalysis, jurisdiction }
+      ? { ...baseMetadata, jurisdictionAnalysis, jurisdiction, contractType: geminiContractType }
       : baseMetadata;
 
     const saved = await prisma.analysis.create({

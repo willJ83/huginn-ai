@@ -95,6 +95,62 @@ You MUST perform these additional Florida-specific checks and include any violat
 Include all Florida-specific findings in your issues array with a clauseReference of "Florida Law" where applicable.
 `.trim();
 
+// California-specific addendum
+const CALIFORNIA_ADDENDUM = `
+
+CALIFORNIA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional California-specific checks and include any violations as issues:
+
+1. NON-COMPETE & NON-SOLICIT (Bus. & Prof. Code § 16600):
+   California has a near-total ban on non-compete agreements. Flag ANY non-compete clause as HIGH severity — it is void and unenforceable against California employees or independent contractors. Non-solicitation of employees is similarly void under § 16600. Non-solicitation of customers is enforceable only if narrowly tied to trade secret protection.
+
+2. STAY-OR-PAY / TRAINING REPAYMENT (AB 692 / Bus. & Prof. Code § 16608):
+   Flag any clause requiring an employee to repay training costs, signing bonuses, or other amounts if they resign — these "stay-or-pay" provisions are void in California unless compliant with § 16608 (limited to bona fide training programs, reasonable cost caps, and prorated forgiveness). Flag as HIGH if present.
+
+3. USURY (California Constitution Art. XV § 1):
+   The general usury limit for personal/consumer loans is 10% per annum. For commercial loans, the limit is the higher of 10% or the Federal Reserve discount rate plus 5%. Flag any interest rate, default rate, or fee structure that may exceed these limits. Flag as HIGH if a rate clearly exceeds 10% without an exempt lender.
+
+4. CCPA / CPRA DATA PRIVACY (Civil Code § 1798.100 et seq.):
+   If this contract involves collection, processing, or sharing of California residents' personal information: flag any absence of data processing terms, data subject rights provisions, or third-party sharing disclosures. Flag as HIGH if personal data is involved with no data protection clause.
+
+5. CONSUMERS LEGAL REMEDIES ACT (CLRA — Civil Code § 1750):
+   If this is a consumer-facing contract for goods or services: flag any clause that waives CLRA rights, attempts to shorten the statute of limitations, or requires arbitration of public injunction claims. Flag as HIGH.
+
+6. ELECTRONIC SIGNATURES (UETA — Civil Code § 1633.1 et seq.):
+   Flag any clause that purports to deny the validity of electronic signatures or that requires wet-ink signatures for a contract that could be executed electronically. Note if no e-signature clause is present where one would be expected.
+
+Include all California-specific findings in your issues array with a clauseReference of "California Law" where applicable.
+`.trim();
+
+// Texas-specific addendum
+const TEXAS_ADDENDUM = `
+
+TEXAS JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Texas-specific checks and include any violations as issues:
+
+1. NON-COMPETE (Bus. & Com. Code § 15.50):
+   Texas enforces non-competes only if: (a) ancillary to or part of an otherwise enforceable agreement (e.g., confidentiality, trade secrets, or specialized training); (b) the limitations as to time, geographic area, and scope of activity are reasonable and no greater than necessary. Flag any non-compete that lacks a legitimate ancillary agreement, or that has an unreasonably broad time period (>2 years), geography (statewide or national), or activity scope. Flag as HIGH if unenforceable on its face.
+
+2. HEALTHCARE NON-COMPETE (SB 1318 / Bus. & Com. Code § 15.501):
+   For contracts involving physicians or other licensed healthcare professionals: additional restrictions apply. Any buyout provision must be at a reasonable price; the physician must retain the right to access patient records; the covenant must not prevent the physician from treating patients in acute need. Flag any healthcare non-compete lacking these protections as HIGH.
+
+3. USURY (Finance Code § 302.001):
+   The Texas constitutional and statutory usury limit is 10% per annum unless a higher rate is agreed in writing under § 306.001 (for commercial transactions, parties may agree to any rate; for consumer credit, separate Chapter 342 limits apply). Flag any interest or fee structure that appears to exceed 10% without a valid written agreement or exemption. Flag default rates above 18% as HIGH.
+
+4. DECEPTIVE TRADE PRACTICES (DTPA — Bus. & Com. Code Ch. 17):
+   If this is a consumer-facing contract: flag any clause that waives DTPA rights, attempts to disclaim DTPA liability, or requires consumers to waive the right to seek treble damages. Flag any "tie-in" statutes waiver. Waivers are void unless the consumer is represented by legal counsel and the contract explicitly states the waiver. Flag as HIGH if present.
+
+5. TEXAS DATA PRIVACY (TDPSA — Bus. & Com. Code Ch. 541):
+   If this contract involves processing personal data of Texas residents: flag any absence of data processing terms, opt-out rights, or third-party sharing disclosures required under TDPSA. Effective July 1, 2024. Flag as HIGH if personal data is involved with no data protection clause.
+
+6. ELECTRONIC SIGNATURES (UETA — Bus. & Com. Code Ch. 322):
+   Flag any clause that denies the legal effect of electronic records or signatures, or that imposes wet-ink signature requirements without legal basis. Note if no e-signature provision is present where one would be expected.
+
+Include all Texas-specific findings in your issues array with a clauseReference of "Texas Law" where applicable.
+`.trim();
+
 // Generic state addendum for all other states
 function genericStateAddendum(stateName: string): string {
   return `
@@ -111,6 +167,8 @@ This contract is governed by, or involves parties in, ${stateName}. In addition 
 export function buildJurisdictionAddendum(stateCode?: string): string {
   if (!stateCode || stateCode === "none") return "";
   if (stateCode === "FL") return "\n\n" + FLORIDA_ADDENDUM;
+  if (stateCode === "CA") return "\n\n" + CALIFORNIA_ADDENDUM;
+  if (stateCode === "TX") return "\n\n" + TEXAS_ADDENDUM;
   const name = getStateName(stateCode);
   return "\n\n" + genericStateAddendum(name);
 }

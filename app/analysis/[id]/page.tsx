@@ -65,6 +65,8 @@ export default async function AnalysisPage({
   const riskInfo  = getRiskInfo(report.riskScore);
   const metadata  = report.metadata && typeof report.metadata === "object" ? report.metadata as any : {};
   const jurisdictionAnalysis = metadata.jurisdictionAnalysis ?? null;
+  const storedContractType: string = metadata.contractType ?? "";
+  const isFinancingContract = /financ|loan|merchant\s*cash|advance|lending|credit\s*agree|borrow|installment/i.test(storedContractType);
 
   const issuesTyped = issues as any[];
   const highCount   = issuesTyped.filter((i) => i.severity === "high").length;
@@ -309,7 +311,7 @@ export default async function AnalysisPage({
                 </div>
               )}
 
-              {Array.isArray(jurisdictionAnalysis.floridaChecklist) && jurisdictionAnalysis.floridaChecklist.length > 0 && (
+              {Array.isArray(jurisdictionAnalysis.floridaChecklist) && jurisdictionAnalysis.floridaChecklist.length > 0 && isFinancingContract && (
                 <div className="mt-5">
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Florida F.S. §559.9613 — Required Disclosure Checklist
@@ -329,6 +331,60 @@ export default async function AnalysisPage({
                         }`}>
                           {item.item}
                           {!item.present && " — Missing"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(jurisdictionAnalysis.californiaChecklist) && jurisdictionAnalysis.californiaChecklist.length > 0 && (
+                <div className="mt-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    California Compliance Checklist
+                  </p>
+                  <div className="space-y-2">
+                    {jurisdictionAnalysis.californiaChecklist.map((item: { item: string; present: boolean; risk?: string }, i: number) => (
+                      <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
+                        item.present
+                          ? "border-green-200 bg-white dark:border-green-900/50 dark:bg-green-950/10"
+                          : "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20"
+                      }`}>
+                        <span className="mt-0.5 text-base">{item.present ? "✅" : "❌"}</span>
+                        <span className={`text-sm ${
+                          item.present
+                            ? "text-slate-600 dark:text-slate-400"
+                            : "font-semibold text-red-700 dark:text-red-400"
+                        }`}>
+                          {item.item}
+                          {!item.present && item.risk && ` — ${item.risk} Risk`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(jurisdictionAnalysis.texasChecklist) && jurisdictionAnalysis.texasChecklist.length > 0 && (
+                <div className="mt-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Texas Compliance Checklist
+                  </p>
+                  <div className="space-y-2">
+                    {jurisdictionAnalysis.texasChecklist.map((item: { item: string; present: boolean; risk?: string }, i: number) => (
+                      <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
+                        item.present
+                          ? "border-green-200 bg-white dark:border-green-900/50 dark:bg-green-950/10"
+                          : "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20"
+                      }`}>
+                        <span className="mt-0.5 text-base">{item.present ? "✅" : "❌"}</span>
+                        <span className={`text-sm ${
+                          item.present
+                            ? "text-slate-600 dark:text-slate-400"
+                            : "font-semibold text-red-700 dark:text-red-400"
+                        }`}>
+                          {item.item}
+                          {!item.present && item.risk && ` — ${item.risk} Risk`}
                         </span>
                       </div>
                     ))}
