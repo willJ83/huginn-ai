@@ -94,18 +94,13 @@ async function scoreAndAnalyze(
     `Contract Type: ${contractType.type} (Confidence: ${contractType.confidence})\nRationale: ${contractType.rationale}\n\nExtracted Clauses:\n${JSON.stringify(extractedClauses, null, 2)}\n\nDeterministic Findings:\n${JSON.stringify(deterministicResult, null, 2)}\n\nFull contract text:\n${wrapContractText(text)}`
   );
 
-  const rawText = result.response.text();
   const parsed = parseGeminiJSON<{
     riskScore: number;
     summary: string;
     issues: unknown[];
     missingProtections: unknown[];
     deadlines: unknown[];
-  }>(rawText);
-
-  // DIAGNOSTIC — remove after confirming Stage 3 output
-  console.log("[shield/scan] Stage 3 raw length:", rawText.length);
-  console.log("[shield/scan] Stage 3 parsed:", JSON.stringify(parsed));
+  }>(result.response.text());
 
   if (!parsed || typeof parsed.riskScore !== "number" || !parsed.summary) return null;
   return { parsed, deterministicResult };
