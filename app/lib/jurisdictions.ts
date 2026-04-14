@@ -151,6 +151,34 @@ You MUST perform these additional Texas-specific checks and include any violatio
 Include all Texas-specific findings in your issues array with a clauseReference of "Texas Law" where applicable.
 `.trim();
 
+// South Carolina-specific addendum
+const SOUTH_CAROLINA_ADDENDUM = `
+
+SOUTH CAROLINA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional South Carolina-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (SC Restrictive Covenants Act — § 41-8-10):
+   South Carolina enforces non-compete and non-solicitation agreements only if they are: (a) in writing and signed by the employee; (b) supported by valuable consideration; (c) reasonably limited in time, geographic area, and scope of activity. Flag any non-compete lacking these elements, or with an unreasonable duration (>2–3 years), overbroad geography (statewide without justification), or unlimited activity scope. Flag as HIGH if facially unenforceable.
+
+2. SOUTH CAROLINA UNFAIR TRADE PRACTICES ACT (SCUTPA — § 39-5-10):
+   Flag any clause that attempts to waive SCUTPA rights, limit remedies for unfair or deceptive acts in commerce, or disclaim statutory liability. Note any mandatory arbitration clause that bars access to SCUTPA remedies. Flag as HIGH if SCUTPA rights are expressly waived.
+
+3. USURY (§ 34-31-30):
+   The general South Carolina usury cap is 8.75% per annum for written contracts (or 16% where no written agreement specifies a rate). Commercial loans and certain lender-borrower agreements may have different rates under specific statutory exemptions. Flag any interest rate, default rate, or fee structure that appears to exceed 16% without an applicable exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (§ 32-2-10):
+   South Carolina's anti-indemnity statute voids indemnification clauses in construction contracts that purport to indemnify a party for its own negligence. Flag any broad indemnification clause in a construction, renovation, or contractor agreement that lacks a negligence carve-out or that requires one party to indemnify the other for the indemnitee's own fault. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (SC UETA — § 26-6-10):
+   Flag any clause that denies the legal effect of electronic records or signatures, or that requires wet-ink signatures without legal basis. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (§ 39-1-90):
+   South Carolina requires notification to affected residents within 45 days of discovering a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all South Carolina-specific findings in your issues array with a clauseReference of "South Carolina Law" where applicable.
+`.trim();
+
 // Generic state addendum for all other states
 function genericStateAddendum(stateName: string): string {
   return `
@@ -169,6 +197,7 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "FL") return "\n\n" + FLORIDA_ADDENDUM;
   if (stateCode === "CA") return "\n\n" + CALIFORNIA_ADDENDUM;
   if (stateCode === "TX") return "\n\n" + TEXAS_ADDENDUM;
+  if (stateCode === "SC") return "\n\n" + SOUTH_CAROLINA_ADDENDUM;
   const name = getStateName(stateCode);
   return "\n\n" + genericStateAddendum(name);
 }

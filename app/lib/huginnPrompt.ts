@@ -20,7 +20,8 @@ JSON structure:
   "jurisdictionMatch": <true if contract jurisdiction matches user's jurisdiction, false if not, null if contract has no jurisdiction clause>,
   "floridaChecklist": [...],
   "californiaChecklist": [...],
-  "texasChecklist": [...]
+  "texasChecklist": [...],
+  "scChecklist": [...]
 }
 
 FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
@@ -50,10 +51,20 @@ TEXAS (TX) — always include texasChecklist:
   - "TDPSA data processing terms (if personal data involved)"
   - "Electronic signature clause compliant (UETA — Bus. & Com. Code Ch. 322)"
 
+SOUTH CAROLINA (SC) — always include scChecklist:
+  scChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant meets SC Restrictive Covenants Act (§ 41-8-10) — reasonable in time, geography, and scope"
+  - "SCUTPA compliance — no unfair or deceptive acts in commerce (§ 39-5-10)"
+  - "Interest rate within SC usury limits (§ 34-31-30 — 16% general cap)"
+  - "Construction indemnity clause compliant with SC anti-indemnity statute (§ 32-2-10)"
+  - "Electronic signatures valid under SC UETA (§ 26-6-10)"
+  - "Data breach notification obligations addressed (§ 39-1-90 — 45-day requirement)"
+
 Rules:
 - Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
 - Include californiaChecklist ONLY if the user's jurisdiction is California.
 - Include texasChecklist ONLY if the user's jurisdiction is Texas.
+- Include scChecklist ONLY if the user's jurisdiction is South Carolina.
 - Omit all checklist fields for all other jurisdictions.
 - For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
 - risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.

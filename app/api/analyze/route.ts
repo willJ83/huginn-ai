@@ -118,6 +118,7 @@ interface JurisdictionAnalysis {
   floridaChecklist?: JurisdictionChecklistItem[];
   californiaChecklist?: JurisdictionChecklistItem[];
   texasChecklist?: JurisdictionChecklistItem[];
+  scChecklist?: JurisdictionChecklistItem[];
 }
 
 async function runJurisdictionStage(
@@ -129,17 +130,20 @@ async function runJurisdictionStage(
     const isFL = /\bfl\b|florida/i.test(jurisdiction);
     const isCA = /\bca\b|california/i.test(jurisdiction);
     const isTX = /\btx\b|texas/i.test(jurisdiction);
+    const isSC = /\bsc\b|south\s*carolina/i.test(jurisdiction);
     const isFinancing = /financ|loan|merchant\s*cash|advance|lending|credit\s*agree|borrow|installment/i.test(contractType);
 
     const stateInstruction = isFL && isFinancing
-      ? "\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON. Omit californiaChecklist and texasChecklist."
+      ? "\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON. Omit californiaChecklist, texasChecklist, and scChecklist."
       : isFL
-      ? "\n\nThe user's jurisdiction IS Florida but this contract is NOT a financing instrument. Do NOT include a floridaChecklist — §559.9613 does not apply. Omit californiaChecklist and texasChecklist."
+      ? "\n\nThe user's jurisdiction IS Florida but this contract is NOT a financing instrument. Do NOT include a floridaChecklist — §559.9613 does not apply. Omit californiaChecklist, texasChecklist, and scChecklist."
       : isCA
-      ? "\n\nThe user's jurisdiction IS California. You MUST include the californiaChecklist array in your JSON. Omit floridaChecklist and texasChecklist."
+      ? "\n\nThe user's jurisdiction IS California. You MUST include the californiaChecklist array in your JSON. Omit floridaChecklist, texasChecklist, and scChecklist."
       : isTX
-      ? "\n\nThe user's jurisdiction IS Texas. You MUST include the texasChecklist array in your JSON. Omit floridaChecklist and californiaChecklist."
-      : "\n\nThe user's jurisdiction does not require a state-specific checklist. Omit floridaChecklist, californiaChecklist, and texasChecklist entirely.";
+      ? "\n\nThe user's jurisdiction IS Texas. You MUST include the texasChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, and scChecklist."
+      : isSC
+      ? "\n\nThe user's jurisdiction IS South Carolina. You MUST include the scChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, and texasChecklist."
+      : "\n\nThe user's jurisdiction does not require a state-specific checklist. Omit floridaChecklist, californiaChecklist, texasChecklist, and scChecklist entirely.";
 
     const model = getProModel(SHIELD_JURISDICTION_STAGE_PROMPT, 1024);
     const result = await model.generateContent(
