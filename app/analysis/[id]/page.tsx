@@ -68,6 +68,17 @@ export default async function AnalysisPage({
   const storedContractType: string = metadata.contractType ?? "";
   const isFinancingContract = /financ|loan|merchant\s*cash|advance|lending|credit\s*agree|borrow|installment/i.test(storedContractType);
 
+  const STATUTE_LINKS: Record<string, { label: string; url: string }> = {
+    FL: { label: "Official Florida Statutes",        url: "https://www.leg.state.fl.us/statutes/" },
+    CA: { label: "Official California Statutes",     url: "https://leginfo.legislature.ca.gov/faces/codes.xhtml" },
+    TX: { label: "Official Texas Statutes",          url: "https://statutes.capitol.texas.gov/" },
+    SC: { label: "Official South Carolina Code",     url: "https://www.scstatehouse.gov/code/statmast.php" },
+    NC: { label: "Official North Carolina Statutes", url: "https://www.ncleg.gov/Laws/GeneralStatutes" },
+    ID: { label: "Official Idaho Statutes",          url: "https://legislature.idaho.gov/statutesrules/idstat/" },
+  };
+  const storedJurisdiction: string = metadata.jurisdiction ?? "";
+  const statuteLink = STATUTE_LINKS[storedJurisdiction.toUpperCase()] ?? null;
+
   const issuesTyped = issues as any[];
   const highCount   = issuesTyped.filter((i) => i.severity === "high").length;
   const mediumCount = issuesTyped.filter((i) => i.severity === "medium").length;
@@ -294,7 +305,7 @@ export default async function AnalysisPage({
                 </div>
               )}
 
-              {(jurisdictionAnalysis.governingLaw || jurisdictionAnalysis.forumClause) && (
+              {(jurisdictionAnalysis.governingLaw || jurisdictionAnalysis.forumClause || statuteLink) && (
                 <div className="mt-4 flex flex-wrap gap-4">
                   {jurisdictionAnalysis.governingLaw && (
                     <div>
@@ -306,6 +317,19 @@ export default async function AnalysisPage({
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Forum / Venue</p>
                       <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">{jurisdictionAnalysis.forumClause}</p>
+                    </div>
+                  )}
+                  {statuteLink && (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Official Source</p>
+                      <a
+                        href={statuteLink.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 inline-block text-sm font-medium text-blue-600 underline underline-offset-2 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        {statuteLink.label} ↗
+                      </a>
                     </div>
                   )}
                 </div>
