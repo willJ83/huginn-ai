@@ -40,7 +40,13 @@ JSON structure:
   "nyChecklist": [...],
   "mnChecklist": [...],
   "moChecklist": [...],
-  "wiChecklist": [...]
+  "wiChecklist": [...],
+  "laChecklist": [...],
+  "inChecklist": [...],
+  "kyChecklist": [...],
+  "mdChecklist": [...],
+  "maChecklist": [...],
+  "ctChecklist": [...]
 }
 
 FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
@@ -250,6 +256,60 @@ WISCONSIN (WI) — always include wiChecklist:
   - "Electronic signatures valid under Wisconsin UETA (Wis. Stat. § 711.01 et seq.)"
   - "Data breach notification obligations addressed (Wis. Stat. § 134.98 — without unreasonable delay)"
 
+LOUISIANA (LA) — always include laChecklist:
+  laChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Louisiana law (La. R.S. 23:921) — max 2 years, specific named parishes, limited activity scope"
+  - "LUTPA compliance — no unfair or deceptive acts in commerce (La. R.S. 51:1401 et seq.)"
+  - "Interest rate within Louisiana usury limits (La. R.S. 9:3500 et seq. — 12% general cap)"
+  - "Construction indemnity clause compliant with Louisiana anti-indemnity statute (La. R.S. 9:2780)"
+  - "Electronic signatures valid under Louisiana UETA (La. R.S. 9:2601 et seq.)"
+  - "Data breach notification obligations addressed (La. R.S. 51:3071 et seq. — 60-day requirement)"
+
+INDIANA (IN) — always include inChecklist:
+  inChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Indiana common law — reasonable in time, geography, and scope; protects legitimate business interest"
+  - "DCSA compliance — no deceptive acts in consumer transactions (Ind. Code § 24-5-0.5 et seq.)"
+  - "Interest rate within Indiana limits (Ind. Code § 24-4.5 et seq. — IUCCC governs consumer credit)"
+  - "Construction indemnity clause compliant with Indiana anti-indemnity statute (Ind. Code § 26-2-5)"
+  - "Electronic signatures valid under Indiana UETA (Ind. Code § 26-2-8 et seq.)"
+  - "Data breach notification obligations addressed (Ind. Code § 24-4.9 et seq. — 72-hour requirement)"
+
+KENTUCKY (KY) — always include kyChecklist:
+  kyChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Kentucky common law — reasonable in time, geography, and scope; supported by adequate consideration"
+  - "KCPA compliance — no unfair or deceptive acts in commerce (KRS § 367.110 et seq.)"
+  - "Interest rate within Kentucky usury limits (KRS § 360.010 et seq. — 8% general cap)"
+  - "Construction indemnity clause compliant with Kentucky anti-indemnity statute (KRS § 371.135)"
+  - "Electronic signatures valid under Kentucky UETA (KRS § 369.101 et seq.)"
+  - "Data breach notification obligations addressed (KRS § 365.732 — without unreasonable delay)"
+
+MARYLAND (MD) — always include mdChecklist:
+  mdChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Maryland law (MD Code, Lab. & Empl. § 3-716 et seq.) — not applied to lower-wage workers; reasonable scope"
+  - "MCPA compliance — no unfair or deceptive trade practices (MD Code, Com. Law § 13-101 et seq.)"
+  - "Interest rate within Maryland usury limits (MD Code, Com. Law § 12-103 et seq. — 6% general cap)"
+  - "Construction indemnity clause compliant with Maryland anti-indemnity statute (MD Code, Real Prop. § 14-505)"
+  - "Electronic signatures valid under Maryland UETA (MD Code, Com. Law § 21-101 et seq.)"
+  - "Data breach notification obligations addressed (MD Code, Com. Law § 14-3501 et seq. — 45-day requirement)"
+
+MASSACHUSETTS (MA) — always include maChecklist:
+  maChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete meets Massachusetts Noncompetition Agreement Act requirements (M.G.L. c. 149, § 24L) — max 12 months, garden leave pay, advance notice, above earnings threshold"
+  - "c. 93A compliance — no unfair or deceptive acts in commerce (M.G.L. c. 93A)"
+  - "Interest rate within Massachusetts usury limits (M.G.L. c. 107, § 3 — 20% cap for consumer obligations)"
+  - "Construction indemnity clause compliant with Massachusetts anti-indemnity statute (M.G.L. c. 149, § 29C)"
+  - "Electronic signatures valid under Massachusetts UETA (M.G.L. c. 110G)"
+  - "Data breach notification obligations addressed (M.G.L. c. 93H — 30-day requirement)"
+
+CONNECTICUT (CT) — always include ctChecklist:
+  ctChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Connecticut law (common law + CGS § 20-14p for physicians) — reasonable in time, geography, and scope"
+  - "CUTPA compliance — no unfair or deceptive acts in commerce (CGS § 42-110a et seq.)"
+  - "Interest rate within Connecticut usury limits (CGS § 37-4 et seq. — 12% general cap)"
+  - "Construction indemnity clause compliant with Connecticut anti-indemnity statute (CGS § 52-572k)"
+  - "Electronic signatures valid under Connecticut UETA (CGS § 1-266 et seq.)"
+  - "Data breach notification obligations addressed (CGS § 36a-701b — 90-day requirement)"
+
 Rules:
 - Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
 - Include californiaChecklist ONLY if the user's jurisdiction is California.
@@ -274,6 +334,12 @@ Rules:
 - Include mnChecklist ONLY if the user's jurisdiction is Minnesota.
 - Include moChecklist ONLY if the user's jurisdiction is Missouri.
 - Include wiChecklist ONLY if the user's jurisdiction is Wisconsin.
+- Include laChecklist ONLY if the user's jurisdiction is Louisiana.
+- Include inChecklist ONLY if the user's jurisdiction is Indiana.
+- Include kyChecklist ONLY if the user's jurisdiction is Kentucky.
+- Include mdChecklist ONLY if the user's jurisdiction is Maryland.
+- Include maChecklist ONLY if the user's jurisdiction is Massachusetts.
+- Include ctChecklist ONLY if the user's jurisdiction is Connecticut.
 - Omit all checklist fields for all other jurisdictions.
 - For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
 - risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.

@@ -138,6 +138,12 @@ interface JurisdictionAnalysis {
   mnChecklist?: JurisdictionChecklistItem[];
   moChecklist?: JurisdictionChecklistItem[];
   wiChecklist?: JurisdictionChecklistItem[];
+  laChecklist?: JurisdictionChecklistItem[];
+  inChecklist?: JurisdictionChecklistItem[];
+  kyChecklist?: JurisdictionChecklistItem[];
+  mdChecklist?: JurisdictionChecklistItem[];
+  maChecklist?: JurisdictionChecklistItem[];
+  ctChecklist?: JurisdictionChecklistItem[];
 }
 
 async function runJurisdictionStage(
@@ -169,9 +175,15 @@ async function runJurisdictionStage(
     const isMN = /\bmn\b|minnesota/i.test(jurisdiction);
     const isMO = /\bmo\b|missouri/i.test(jurisdiction);
     const isWI = /\bwi\b|wisconsin/i.test(jurisdiction);
+    const isLA = /\bla\b|louisiana/i.test(jurisdiction);
+    const isIN = /\bin\b|indiana/i.test(jurisdiction);
+    const isKY = /\bky\b|kentucky/i.test(jurisdiction);
+    const isMD = /\bmd\b|maryland/i.test(jurisdiction);
+    const isMA = /\bma\b|massachusetts/i.test(jurisdiction);
+    const isCT = /\bct\b|connecticut/i.test(jurisdiction);
     const isFinancing = /financ|loan|merchant\s*cash|advance|lending|credit\s*agree|borrow|installment/i.test(contractType);
 
-    const ALL_CHECKLISTS = "floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, gaChecklist, waChecklist, utChecklist, azChecklist, tnChecklist, ilChecklist, coChecklist, nvChecklist, vaChecklist, paChecklist, orChecklist, miChecklist, ohChecklist, nyChecklist, mnChecklist, moChecklist, wiChecklist";
+    const ALL_CHECKLISTS = "floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, gaChecklist, waChecklist, utChecklist, azChecklist, tnChecklist, ilChecklist, coChecklist, nvChecklist, vaChecklist, paChecklist, orChecklist, miChecklist, ohChecklist, nyChecklist, mnChecklist, moChecklist, wiChecklist, laChecklist, inChecklist, kyChecklist, mdChecklist, maChecklist, ctChecklist";
     const stateInstruction = isFL && isFinancing
       ? `\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("floridaChecklist, ", "")}).`
       : isFL
@@ -220,6 +232,18 @@ async function runJurisdictionStage(
       ? `\n\nThe user's jurisdiction IS Missouri. You MUST include the moChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("moChecklist, ", "")}).`
       : isWI
       ? `\n\nThe user's jurisdiction IS Wisconsin. You MUST include the wiChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("wiChecklist, ", "")}).`
+      : isLA
+      ? `\n\nThe user's jurisdiction IS Louisiana. You MUST include the laChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("laChecklist, ", "")}).`
+      : isIN
+      ? `\n\nThe user's jurisdiction IS Indiana. You MUST include the inChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("inChecklist, ", "")}).`
+      : isKY
+      ? `\n\nThe user's jurisdiction IS Kentucky. You MUST include the kyChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("kyChecklist, ", "")}).`
+      : isMD
+      ? `\n\nThe user's jurisdiction IS Maryland. You MUST include the mdChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("mdChecklist, ", "")}).`
+      : isMA
+      ? `\n\nThe user's jurisdiction IS Massachusetts. You MUST include the maChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("maChecklist, ", "")}).`
+      : isCT
+      ? `\n\nThe user's jurisdiction IS Connecticut. You MUST include the ctChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("ctChecklist", "")}).`
       : `\n\nThe user's jurisdiction does not require a state-specific checklist. Omit all state checklist arrays (${ALL_CHECKLISTS}) entirely.`;
 
     const model = getProModel(SHIELD_JURISDICTION_STAGE_PROMPT, 1024);

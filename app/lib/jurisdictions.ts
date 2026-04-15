@@ -711,6 +711,174 @@ You MUST perform these additional Wisconsin-specific checks and include any viol
 Include all Wisconsin-specific findings in your issues array with a clauseReference of "Wisconsin Law" where applicable.
 `.trim();
 
+// Louisiana-specific addendum
+const LOUISIANA_ADDENDUM = `
+
+LOUISIANA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Louisiana-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (La. R.S. 23:921):
+   Louisiana strictly restricts non-compete agreements. They are enforceable only if: (a) in writing; (b) limited to a maximum duration of 2 years from termination; (c) restricted to specific parishes (counties) listed by name in the agreement — a statewide or regional geography is not sufficient; (d) limited to the specific types of businesses or services for which the employee worked. Courts will not blue-pencil — overbroad covenants are void entirely. Flag any non-compete lacking a specific list of parishes, exceeding 2 years, or with unlimited activity scope. Flag as HIGH if facially unenforceable.
+
+2. LOUISIANA UNFAIR TRADE PRACTICES ACT (LUTPA — La. R.S. 51:1401 et seq.):
+   Flag any clause that waives LUTPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars LUTPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (La. R.S. 9:3500 et seq.):
+   Louisiana's general usury cap is 12% per annum unless otherwise agreed in writing or exempted by statute. Consumer credit transactions are separately governed by the Louisiana Consumer Credit Law. Flag any interest rate, default rate, or fee structure that exceeds 12% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (La. R.S. 9:2780):
+   Louisiana voids indemnification clauses in construction contracts that purport to indemnify a party for its own negligence or intentional acts. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Louisiana UETA — La. R.S. 9:2601 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (La. R.S. 51:3071 et seq.):
+   Louisiana requires notification to affected residents within 60 days of discovering a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Louisiana-specific findings in your issues array with a clauseReference of "Louisiana Law" where applicable.
+`.trim();
+
+// Indiana-specific addendum
+const INDIANA_ADDENDUM = `
+
+INDIANA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Indiana-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Indiana common law):
+   Indiana enforces non-compete agreements under a common law reasonableness standard: the restriction must be reasonably necessary to protect a legitimate business interest (trade secrets, customer relationships, specialized training), must be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking a legitimate interest, with unreasonable duration or geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. DECEPTIVE CONSUMER SALES ACT (DCSA — Ind. Code § 24-5-0.5 et seq.):
+   Flag any clause that waives DCSA rights, limits remedies for deceptive acts in consumer transactions, or disclaims statutory liability. Note any mandatory arbitration clause that bars DCSA remedies or class actions. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Ind. Code § 24-4.5 et seq. — Indiana Uniform Consumer Credit Code):
+   Indiana's general statutory interest rate limit is 8% per annum for personal loans absent a specific agreement; commercial lending rates are generally governed by agreement. Consumer credit is regulated under the IUCCC. Flag any consumer credit agreement where the rate is not clearly disclosed, or where the stated rate appears to exceed applicable limits for the transaction type. Flag as HIGH if clearly usurious or no rate disclosure is present in a consumer credit agreement.
+
+4. CONSTRUCTION ANTI-INDEMNITY (Ind. Code § 26-2-5):
+   Indiana voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or willful misconduct. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Indiana UETA — Ind. Code § 26-2-8 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Ind. Code § 24-4.9 et seq.):
+   Indiana requires notification to affected residents within 72 hours of discovering a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Indiana-specific findings in your issues array with a clauseReference of "Indiana Law" where applicable.
+`.trim();
+
+// Kentucky-specific addendum
+const KENTUCKY_ADDENDUM = `
+
+KENTUCKY JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Kentucky-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Kentucky common law):
+   Kentucky enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest, must be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Adequate consideration is required — continued employment alone may be insufficient for existing employees absent other consideration. Courts may blue-pencil or refuse to enforce overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. KENTUCKY CONSUMER PROTECTION ACT (KCPA — KRS § 367.110 et seq.):
+   Flag any clause that waives KCPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars KCPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (KRS § 360.010 et seq.):
+   Kentucky's general legal interest rate is 8% per annum in the absence of a written agreement; parties may agree to a higher rate in writing. Consumer credit is separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 8% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (KRS § 371.135):
+   Kentucky voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional misconduct. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Kentucky UETA — KRS § 369.101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (KRS § 365.732):
+   Kentucky requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Kentucky-specific findings in your issues array with a clauseReference of "Kentucky Law" where applicable.
+`.trim();
+
+// Maryland-specific addendum
+const MARYLAND_ADDENDUM = `
+
+MARYLAND JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Maryland-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (MD Code, Lab. & Empl. § 3-716 et seq. + common law):
+   Maryland restricts non-compete agreements against lower-wage employees (those earning at or below 150% of the state minimum wage). For higher earners, non-competes must be reasonably necessary to protect a legitimate business interest and reasonable in time (typically ≤2 years), geographic scope, and activity. Courts may not blue-pencil — an overbroad covenant is void. Flag any non-compete applied to a lower-wage worker, lacking adequate consideration, with unreasonable scope, or without a clear legitimate business interest. Flag as HIGH if applied to a worker at or below the wage threshold.
+
+2. MARYLAND CONSUMER PROTECTION ACT (MCPA — MD Code, Com. Law § 13-101 et seq.):
+   Flag any clause that waives MCPA rights, limits remedies for unfair or deceptive trade practices, or disclaims statutory liability. Note any mandatory arbitration clause that bars MCPA remedies or class actions. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (MD Code, Com. Law § 12-103 et seq.):
+   Maryland's general legal interest rate is 6% per annum in the absence of a written agreement; written agreements may specify higher rates within statutory limits. Consumer loans are separately regulated. Flag any interest rate, default rate, or fee structure that exceeds applicable limits without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (MD Code, Real Prop. § 14-505):
+   Maryland voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional wrongdoing. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Maryland UETA — MD Code, Com. Law § 21-101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (MD Code, Com. Law § 14-3501 et seq.):
+   Maryland requires notification to affected residents within 45 days of discovering a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Maryland-specific findings in your issues array with a clauseReference of "Maryland Law" where applicable.
+`.trim();
+
+// Massachusetts-specific addendum
+const MASSACHUSETTS_ADDENDUM = `
+
+MASSACHUSETTS JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Massachusetts-specific checks and include any violations as issues:
+
+1. NON-COMPETE (Massachusetts Noncompetition Agreement Act — M.G.L. c. 149, § 24L):
+   Massachusetts strictly regulates non-compete agreements with employees. They are enforceable only if: (a) the employee earns above $75,000/year (indexed); (b) the employer provides written notice at least 10 business days before the start date or signing; (c) the agreement is supported by garden leave pay (at least 50% of base salary for the restricted period) or other mutually agreed consideration; (d) the duration does not exceed 12 months; (e) the geographic scope and activity restrictions are reasonable. Flag any non-compete lacking garden leave or equivalent consideration, exceeding 12 months, without proper advance notice, or applied to a non-exempt or low-wage worker. Flag as HIGH if any mandatory requirement is absent.
+
+2. MASSACHUSETTS CONSUMER PROTECTION ACT (M.G.L. c. 93A):
+   Flag any clause that waives c. 93A rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars c. 93A remedies or multiple damages. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (M.G.L. c. 107, § 3 et seq.):
+   Massachusetts caps interest at 20% per annum for written consumer obligations; the default (no written rate) is 6%. Commercial parties may generally agree to higher rates. Flag any consumer credit agreement with a rate exceeding 20%, or any agreement with an interest rate or fee structure that appears to violate applicable limits. Flag as HIGH if clearly usurious for the contract type.
+
+4. CONSTRUCTION ANTI-INDEMNITY (M.G.L. c. 149, § 29C):
+   Massachusetts voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional wrongdoing. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Massachusetts UETA — M.G.L. c. 110G):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (M.G.L. c. 93H):
+   Massachusetts requires notification to affected residents within 30 days of discovering a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Massachusetts-specific findings in your issues array with a clauseReference of "Massachusetts Law" where applicable.
+`.trim();
+
+// Connecticut-specific addendum
+const CONNECTICUT_ADDENDUM = `
+
+CONNECTICUT JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Connecticut-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Connecticut common law + CGS § 20-14p for physicians):
+   Connecticut enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest, must be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. For physicians, CGS § 20-14p imposes specific restrictions — physician non-competes may not exceed 1 year and must be limited to a 15-mile radius. Courts may blue-pencil overbroad covenants in general commercial contexts but will void physician non-competes that violate the statute. Flag any non-compete with unreasonable duration, overbroad geography, or lacking a legitimate business interest. For physicians: flag any duration exceeding 1 year or radius exceeding 15 miles as HIGH.
+
+2. CONNECTICUT UNFAIR TRADE PRACTICES ACT (CUTPA — CGS § 42-110a et seq.):
+   Flag any clause that waives CUTPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CUTPA remedies or punitive damages. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (CGS § 37-4 et seq.):
+   Connecticut's general usury cap is 12% per annum unless a different rate is agreed in writing or falls within a statutory exemption. Consumer credit is separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 12% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (CGS § 52-572k):
+   Connecticut voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional wrongdoing. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Connecticut UETA — CGS § 1-266 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (CGS § 36a-701b):
+   Connecticut requires notification to affected residents within 90 days of discovering a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Connecticut-specific findings in your issues array with a clauseReference of "Connecticut Law" where applicable.
+`.trim();
+
 // Generic state addendum for all other states
 function genericStateAddendum(stateName: string): string {
   return `
@@ -749,6 +917,12 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "MN") return "\n\n" + MINNESOTA_ADDENDUM;
   if (stateCode === "MO") return "\n\n" + MISSOURI_ADDENDUM;
   if (stateCode === "WI") return "\n\n" + WISCONSIN_ADDENDUM;
+  if (stateCode === "LA") return "\n\n" + LOUISIANA_ADDENDUM;
+  if (stateCode === "IN") return "\n\n" + INDIANA_ADDENDUM;
+  if (stateCode === "KY") return "\n\n" + KENTUCKY_ADDENDUM;
+  if (stateCode === "MD") return "\n\n" + MARYLAND_ADDENDUM;
+  if (stateCode === "MA") return "\n\n" + MASSACHUSETTS_ADDENDUM;
+  if (stateCode === "CT") return "\n\n" + CONNECTICUT_ADDENDUM;
   const name = getStateName(stateCode);
   return "\n\n" + genericStateAddendum(name);
 }

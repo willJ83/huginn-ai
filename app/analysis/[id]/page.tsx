@@ -92,6 +92,12 @@ export default async function AnalysisPage({
     MN: { label: "Official Minnesota Statutes",            url: "https://www.revisor.mn.gov/statutes/" },
     MO: { label: "Official Missouri Revised Statutes",     url: "https://revisor.mo.gov/main/PageSelect.aspx?category=statutes" },
     WI: { label: "Official Wisconsin Statutes",            url: "https://docs.legis.wisconsin.gov/statutes/statutes" },
+    LA: { label: "Official Louisiana Revised Statutes",    url: "https://www.legis.la.gov/legis/Law.aspx?d=98456" },
+    IN: { label: "Official Indiana Code",                  url: "https://iga.in.gov/laws/2024/ic/titles/1" },
+    KY: { label: "Official Kentucky Revised Statutes",     url: "https://legislature.ky.gov/Law/Statutes/Pages/default.aspx" },
+    MD: { label: "Official Maryland Code",                 url: "https://mgaleg.maryland.gov/mgawebsite/Laws/Statutes" },
+    MA: { label: "Official Massachusetts General Laws",    url: "https://malegislature.gov/Laws/GeneralLaws" },
+    CT: { label: "Official Connecticut General Statutes",  url: "https://www.cga.ct.gov/current/pub/titles.htm" },
   };
   const storedJurisdiction: string = metadata.jurisdiction ?? "";
   const statuteLink = STATUTE_LINKS[storedJurisdiction.toUpperCase()] ?? null;
@@ -786,7 +792,7 @@ export default async function AnalysisPage({
                 </div>
               )}
 
-              {(["miChecklist", "ohChecklist", "nyChecklist", "mnChecklist", "moChecklist", "wiChecklist"] as const).map((key) => {
+              {(["miChecklist", "ohChecklist", "nyChecklist", "mnChecklist", "moChecklist", "wiChecklist", "laChecklist", "inChecklist", "kyChecklist", "mdChecklist", "maChecklist", "ctChecklist"] as const).map((key) => {
                 const labels: Record<string, string> = {
                   miChecklist: "Michigan Compliance Checklist",
                   ohChecklist: "Ohio Compliance Checklist",
@@ -794,6 +800,12 @@ export default async function AnalysisPage({
                   mnChecklist: "Minnesota Compliance Checklist",
                   moChecklist: "Missouri Compliance Checklist",
                   wiChecklist: "Wisconsin Compliance Checklist",
+                  laChecklist: "Louisiana Compliance Checklist",
+                  inChecklist: "Indiana Compliance Checklist",
+                  kyChecklist: "Kentucky Compliance Checklist",
+                  mdChecklist: "Maryland Compliance Checklist",
+                  maChecklist: "Massachusetts Compliance Checklist",
+                  ctChecklist: "Connecticut Compliance Checklist",
                 };
                 const items = jurisdictionAnalysis[key];
                 if (!Array.isArray(items) || items.length === 0) return null;
