@@ -235,6 +235,34 @@ You MUST perform these additional Idaho-specific checks and include any violatio
 Include all Idaho-specific findings in your issues array with a clauseReference of "Idaho Law" where applicable.
 `.trim();
 
+// Georgia-specific addendum
+const GEORGIA_ADDENDUM = `
+
+GEORGIA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Georgia-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Georgia Restrictive Covenants Act — O.C.G.A. § 13-8-50 et seq.):
+   Georgia enforces non-compete and non-solicitation agreements only if they are: (a) in writing; (b) supported by adequate consideration; (c) reasonably limited in time (typically ≤2 years), geographic area, and scope of restricted activity. Unlike many states, Georgia courts may modify (blue-pencil) overbroad covenants rather than voiding them entirely. Flag any non-compete lacking consideration, with duration exceeding 2 years, unreasonably broad geography (national or global without justification), or undefined activity restrictions. Flag as HIGH if facially unenforceable.
+
+2. FAIR BUSINESS PRACTICES ACT (O.C.G.A. § 10-1-390 et seq.):
+   Flag any clause that waives FBPA rights, limits remedies for unfair or deceptive acts in consumer commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars access to FBPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (O.C.G.A. § 7-4-2 et seq.):
+   The general Georgia usury cap for written contracts is 16% per annum; for loans above $3,000, parties may contract for any rate agreed in writing. Consumer loans are subject to separate Industrial Loan Act limits. Flag any interest rate, default rate, or fee structure that appears to exceed 16% without a statutory exemption or written agreement. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (O.C.G.A. § 13-8-2):
+   Georgia's anti-indemnity provision renders void any clause in a construction contract that requires one party to indemnify another for the indemnitee's own negligence or wrongful acts. Flag any broad indemnification clause in a construction or contractor agreement that lacks a negligence carve-out or purports to cover the indemnitee's own fault. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Georgia UETA — O.C.G.A. § 10-12-1 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or that mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (O.C.G.A. § 10-1-912):
+   Georgia requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response procedures, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Georgia-specific findings in your issues array with a clauseReference of "Georgia Law" where applicable.
+`.trim();
+
 // Generic state addendum for all other states
 function genericStateAddendum(stateName: string): string {
   return `
@@ -256,6 +284,7 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "SC") return "\n\n" + SOUTH_CAROLINA_ADDENDUM;
   if (stateCode === "NC") return "\n\n" + NORTH_CAROLINA_ADDENDUM;
   if (stateCode === "ID") return "\n\n" + IDAHO_ADDENDUM;
+  if (stateCode === "GA") return "\n\n" + GEORGIA_ADDENDUM;
   const name = getStateName(stateCode);
   return "\n\n" + genericStateAddendum(name);
 }

@@ -121,6 +121,7 @@ interface JurisdictionAnalysis {
   scChecklist?: JurisdictionChecklistItem[];
   ncChecklist?: JurisdictionChecklistItem[];
   idChecklist?: JurisdictionChecklistItem[];
+  gaChecklist?: JurisdictionChecklistItem[];
 }
 
 async function runJurisdictionStage(
@@ -135,23 +136,26 @@ async function runJurisdictionStage(
     const isSC = /\bsc\b|south\s*carolina/i.test(jurisdiction);
     const isNC = /\bnc\b|north\s*carolina/i.test(jurisdiction);
     const isID = /\bid\b|idaho/i.test(jurisdiction);
+    const isGA = /\bga\b|georgia/i.test(jurisdiction);
     const isFinancing = /financ|loan|merchant\s*cash|advance|lending|credit\s*agree|borrow|installment/i.test(contractType);
 
     const stateInstruction = isFL && isFinancing
-      ? "\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON. Omit californiaChecklist, texasChecklist, scChecklist, ncChecklist, and idChecklist."
+      ? "\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON. Omit californiaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, and gaChecklist."
       : isFL
-      ? "\n\nThe user's jurisdiction IS Florida but this contract is NOT a financing instrument. Do NOT include a floridaChecklist — §559.9613 does not apply. Omit californiaChecklist, texasChecklist, scChecklist, ncChecklist, and idChecklist."
+      ? "\n\nThe user's jurisdiction IS Florida but this contract is NOT a financing instrument. Do NOT include a floridaChecklist — §559.9613 does not apply. Omit californiaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, and gaChecklist."
       : isCA
-      ? "\n\nThe user's jurisdiction IS California. You MUST include the californiaChecklist array in your JSON. Omit floridaChecklist, texasChecklist, scChecklist, ncChecklist, and idChecklist."
+      ? "\n\nThe user's jurisdiction IS California. You MUST include the californiaChecklist array in your JSON. Omit floridaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, and gaChecklist."
       : isTX
-      ? "\n\nThe user's jurisdiction IS Texas. You MUST include the texasChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, scChecklist, ncChecklist, and idChecklist."
+      ? "\n\nThe user's jurisdiction IS Texas. You MUST include the texasChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, scChecklist, ncChecklist, idChecklist, and gaChecklist."
       : isSC
-      ? "\n\nThe user's jurisdiction IS South Carolina. You MUST include the scChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, texasChecklist, ncChecklist, and idChecklist."
+      ? "\n\nThe user's jurisdiction IS South Carolina. You MUST include the scChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, texasChecklist, ncChecklist, idChecklist, and gaChecklist."
       : isNC
-      ? "\n\nThe user's jurisdiction IS North Carolina. You MUST include the ncChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, texasChecklist, scChecklist, and idChecklist."
+      ? "\n\nThe user's jurisdiction IS North Carolina. You MUST include the ncChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, texasChecklist, scChecklist, idChecklist, and gaChecklist."
       : isID
-      ? "\n\nThe user's jurisdiction IS Idaho. You MUST include the idChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, texasChecklist, scChecklist, and ncChecklist."
-      : "\n\nThe user's jurisdiction does not require a state-specific checklist. Omit floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, and idChecklist entirely.";
+      ? "\n\nThe user's jurisdiction IS Idaho. You MUST include the idChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, and gaChecklist."
+      : isGA
+      ? "\n\nThe user's jurisdiction IS Georgia. You MUST include the gaChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, and idChecklist."
+      : "\n\nThe user's jurisdiction does not require a state-specific checklist. Omit floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, and gaChecklist entirely.";
 
     const model = getProModel(SHIELD_JURISDICTION_STAGE_PROMPT, 1024);
     const result = await model.generateContent(

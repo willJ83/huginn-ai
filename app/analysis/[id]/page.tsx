@@ -75,6 +75,7 @@ export default async function AnalysisPage({
     SC: { label: "Official South Carolina Code",     url: "https://www.scstatehouse.gov/code/statmast.php" },
     NC: { label: "Official North Carolina Statutes", url: "https://www.ncleg.gov/Laws/GeneralStatutes" },
     ID: { label: "Official Idaho Statutes",          url: "https://legislature.idaho.gov/statutesrules/idstat/" },
+    GA: { label: "Official Georgia Code (O.C.G.A.)", url: "https://www.legis.ga.gov/laws/find" },
   };
   const storedJurisdiction: string = metadata.jurisdiction ?? "";
   const statuteLink = STATUTE_LINKS[storedJurisdiction.toUpperCase()] ?? null;
@@ -477,6 +478,33 @@ export default async function AnalysisPage({
                   </p>
                   <div className="space-y-2">
                     {jurisdictionAnalysis.idChecklist.map((item: { item: string; present: boolean; risk?: string }, i: number) => (
+                      <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
+                        item.present
+                          ? "border-green-200 bg-white dark:border-green-900/50 dark:bg-green-950/10"
+                          : "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20"
+                      }`}>
+                        <span className="mt-0.5 text-base">{item.present ? "✅" : "❌"}</span>
+                        <span className={`text-sm ${
+                          item.present
+                            ? "text-slate-600 dark:text-slate-400"
+                            : "font-semibold text-red-700 dark:text-red-400"
+                        }`}>
+                          {item.item}
+                          {!item.present && item.risk && ` — ${item.risk} Risk`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(jurisdictionAnalysis.gaChecklist) && jurisdictionAnalysis.gaChecklist.length > 0 && (
+                <div className="mt-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Georgia Compliance Checklist
+                  </p>
+                  <div className="space-y-2">
+                    {jurisdictionAnalysis.gaChecklist.map((item: { item: string; present: boolean; risk?: string }, i: number) => (
                       <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
                         item.present
                           ? "border-green-200 bg-white dark:border-green-900/50 dark:bg-green-950/10"

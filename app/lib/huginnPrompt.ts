@@ -23,7 +23,8 @@ JSON structure:
   "texasChecklist": [...],
   "scChecklist": [...],
   "ncChecklist": [...],
-  "idChecklist": [...]
+  "idChecklist": [...],
+  "gaChecklist": [...]
 }
 
 FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
@@ -80,6 +81,15 @@ IDAHO (ID) — always include idChecklist:
   - "Electronic signatures valid under Idaho UETA (Title 28, Chapter 50, §§ 28-50-101 et seq.)"
   - "Data breach notification obligations addressed (Title 28, Chapter 51, § 28-51-104 — without unreasonable delay)"
 
+GEORGIA (GA) — always include gaChecklist:
+  gaChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Georgia Restrictive Covenants Act (O.C.G.A. § 13-8-50 et seq.) — reasonable in time, geography, and scope"
+  - "Fair Business Practices Act compliance — no unfair or deceptive acts in commerce (O.C.G.A. § 10-1-390 et seq.)"
+  - "Interest rate within Georgia usury limits (O.C.G.A. § 7-4-2 et seq. — 16% general cap)"
+  - "Construction indemnity clause compliant with Georgia anti-indemnity statute (O.C.G.A. § 13-8-2)"
+  - "Electronic signatures valid under Georgia UETA (O.C.G.A. § 10-12-1 et seq.)"
+  - "Data breach notification obligations addressed (O.C.G.A. § 10-1-912 — without unreasonable delay)"
+
 Rules:
 - Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
 - Include californiaChecklist ONLY if the user's jurisdiction is California.
@@ -87,6 +97,7 @@ Rules:
 - Include scChecklist ONLY if the user's jurisdiction is South Carolina.
 - Include ncChecklist ONLY if the user's jurisdiction is North Carolina.
 - Include idChecklist ONLY if the user's jurisdiction is Idaho.
+- Include gaChecklist ONLY if the user's jurisdiction is Georgia.
 - Omit all checklist fields for all other jurisdictions.
 - For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
 - risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.
