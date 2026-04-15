@@ -98,6 +98,12 @@ export default async function AnalysisPage({
     MD: { label: "Official Maryland Code",                 url: "https://mgaleg.maryland.gov/mgawebsite/Laws/Statutes" },
     MA: { label: "Official Massachusetts General Laws",    url: "https://malegislature.gov/Laws/GeneralLaws" },
     CT: { label: "Official Connecticut General Statutes",  url: "https://www.cga.ct.gov/current/pub/titles.htm" },
+    NJ: { label: "Official New Jersey Statutes",           url: "https://www.njleg.state.nj.us/Laws/Statutes" },
+    AL: { label: "Official Alabama Code",                  url: "https://alison.legislature.state.al.us/codes" },
+    OK: { label: "Official Oklahoma Statutes",             url: "https://www.oscn.net/applications/oscn/index.asp?level=1" },
+    AR: { label: "Official Arkansas Code",                 url: "https://www.arkleg.state.ar.us/Laws/ArCode" },
+    MS: { label: "Official Mississippi Code",              url: "https://law.justia.com/codes/mississippi/" },
+    IA: { label: "Official Iowa Code",                     url: "https://www.legis.iowa.gov/law/iowaCode/sections" },
   };
   const storedJurisdiction: string = metadata.jurisdiction ?? "";
   const statuteLink = STATUTE_LINKS[storedJurisdiction.toUpperCase()] ?? null;
@@ -792,7 +798,7 @@ export default async function AnalysisPage({
                 </div>
               )}
 
-              {(["miChecklist", "ohChecklist", "nyChecklist", "mnChecklist", "moChecklist", "wiChecklist", "laChecklist", "inChecklist", "kyChecklist", "mdChecklist", "maChecklist", "ctChecklist"] as const).map((key) => {
+              {(["miChecklist", "ohChecklist", "nyChecklist", "mnChecklist", "moChecklist", "wiChecklist", "laChecklist", "inChecklist", "kyChecklist", "mdChecklist", "maChecklist", "ctChecklist", "njChecklist", "alChecklist", "okChecklist", "arChecklist", "msChecklist", "iaChecklist"] as const).map((key) => {
                 const labels: Record<string, string> = {
                   miChecklist: "Michigan Compliance Checklist",
                   ohChecklist: "Ohio Compliance Checklist",
@@ -806,6 +812,12 @@ export default async function AnalysisPage({
                   mdChecklist: "Maryland Compliance Checklist",
                   maChecklist: "Massachusetts Compliance Checklist",
                   ctChecklist: "Connecticut Compliance Checklist",
+                  njChecklist: "New Jersey Compliance Checklist",
+                  alChecklist: "Alabama Compliance Checklist",
+                  okChecklist: "Oklahoma Compliance Checklist",
+                  arChecklist: "Arkansas Compliance Checklist",
+                  msChecklist: "Mississippi Compliance Checklist",
+                  iaChecklist: "Iowa Compliance Checklist",
                 };
                 const items = jurisdictionAnalysis[key];
                 if (!Array.isArray(items) || items.length === 0) return null;

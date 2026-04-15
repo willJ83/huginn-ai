@@ -46,7 +46,13 @@ JSON structure:
   "kyChecklist": [...],
   "mdChecklist": [...],
   "maChecklist": [...],
-  "ctChecklist": [...]
+  "ctChecklist": [...],
+  "njChecklist": [...],
+  "alChecklist": [...],
+  "okChecklist": [...],
+  "arChecklist": [...],
+  "msChecklist": [...],
+  "iaChecklist": [...]
 }
 
 FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
@@ -310,6 +316,60 @@ CONNECTICUT (CT) — always include ctChecklist:
   - "Electronic signatures valid under Connecticut UETA (CGS § 1-266 et seq.)"
   - "Data breach notification obligations addressed (CGS § 36a-701b — 90-day requirement)"
 
+NEW JERSEY (NJ) — always include njChecklist:
+  njChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under New Jersey law (N.J.S.A. 56:10-1 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Fraud Act compliance — no unfair or deceptive acts (N.J.S.A. 56:8-1 et seq.)"
+  - "Interest rate within New Jersey usury limits (N.J.S.A. 31:1-1 et seq. — 16% general cap)"
+  - "Construction indemnity clause compliant with New Jersey anti-indemnity rules (N.J.S.A. 2A:40-1 et seq.)"
+  - "Electronic signatures valid under New Jersey UETA (N.J.S.A. 12A:12-1 et seq.)"
+  - "Data breach notification obligations addressed (N.J.S.A. 56:8-163 — without unreasonable delay)"
+
+ALABAMA (AL) — always include alChecklist:
+  alChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Alabama law (Ala. Code § 8-1-190 et seq.) — reasonable in time, geography, and scope"
+  - "Deceptive Trade Practices Act compliance — no deceptive or unfair practices (Ala. Code § 8-19-1 et seq.)"
+  - "Interest rate within Alabama usury limits (Ala. Code § 8-8-1 et seq. — 8% general cap)"
+  - "Construction indemnity clause compliant with Alabama anti-indemnity rules (common law + Ala. Code)"
+  - "Electronic signatures valid under Alabama UETA (Ala. Code § 8-1A-1 et seq.)"
+  - "Data breach notification obligations addressed (Ala. Code § 8-19F-1 et seq. — without unreasonable delay)"
+
+OKLAHOMA (OK) — always include okChecklist:
+  okChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Oklahoma law (15 O.S. § 217 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Protection Act compliance — no unfair or deceptive acts (15 O.S. § 751 et seq.)"
+  - "Interest rate within Oklahoma usury limits (14A O.S. § 3-508 et seq. — 10% general cap)"
+  - "Construction indemnity clause compliant with Oklahoma anti-indemnity rules (common law + 15 O.S.)"
+  - "Electronic signatures valid under Oklahoma UETA (12A O.S. § 15-101 et seq.)"
+  - "Data breach notification obligations addressed (24 O.S. § 161 et seq. — without unreasonable delay)"
+
+ARKANSAS (AR) — always include arChecklist:
+  arChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Arkansas law (Ark. Code § 4-75-101 et seq.) — reasonable in time, geography, and scope"
+  - "Deceptive Trade Practices Act compliance — no deceptive or unconscionable acts (Ark. Code § 4-88-101 et seq.)"
+  - "Interest rate within Arkansas usury limits (Ark. Code § 4-57-101 et seq. — 17% general cap)"
+  - "Construction indemnity clause compliant with Arkansas anti-indemnity rules (common law)"
+  - "Electronic signatures valid under Arkansas UETA (Ark. Code § 4-8-101 et seq.)"
+  - "Data breach notification obligations addressed (Ark. Code § 4-110-101 et seq. — without unreasonable delay)"
+
+MISSISSIPPI (MS) — always include msChecklist:
+  msChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Mississippi law (Miss. Code § 15-3-1 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Protection Act compliance — no unfair or deceptive acts (Miss. Code § 75-24-1 et seq.)"
+  - "Interest rate within Mississippi usury limits (Miss. Code § 75-17-1 et seq. — 8% general cap)"
+  - "Construction indemnity clause compliant with Mississippi anti-indemnity statute (Miss. Code § 31-5-41)"
+  - "Electronic signatures valid under Mississippi UETA (Miss. Code § 75-12-1 et seq.)"
+  - "Data breach notification obligations addressed (Miss. Code § 75-24-29 — without unreasonable delay)"
+
+IOWA (IA) — always include iaChecklist:
+  iaChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Iowa law (Iowa Code § 537A.1 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Fraud Act compliance — no deceptive practices (Iowa Code § 714.16 et seq.)"
+  - "Interest rate within Iowa usury limits (Iowa Code § 535.1 et seq. — 5% general cap)"
+  - "Construction indemnity clause compliant with Iowa anti-indemnity rules (common law)"
+  - "Electronic signatures valid under Iowa UETA (Iowa Code § 554D.101 et seq.)"
+  - "Data breach notification obligations addressed (Iowa Code § 715C.1 et seq. — without unreasonable delay)"
+
 Rules:
 - Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
 - Include californiaChecklist ONLY if the user's jurisdiction is California.
@@ -340,6 +400,12 @@ Rules:
 - Include mdChecklist ONLY if the user's jurisdiction is Maryland.
 - Include maChecklist ONLY if the user's jurisdiction is Massachusetts.
 - Include ctChecklist ONLY if the user's jurisdiction is Connecticut.
+- Include njChecklist ONLY if the user's jurisdiction is New Jersey.
+- Include alChecklist ONLY if the user's jurisdiction is Alabama.
+- Include okChecklist ONLY if the user's jurisdiction is Oklahoma.
+- Include arChecklist ONLY if the user's jurisdiction is Arkansas.
+- Include msChecklist ONLY if the user's jurisdiction is Mississippi.
+- Include iaChecklist ONLY if the user's jurisdiction is Iowa.
 - Omit all checklist fields for all other jurisdictions.
 - For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
 - risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.

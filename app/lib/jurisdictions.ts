@@ -879,6 +879,174 @@ You MUST perform these additional Connecticut-specific checks and include any vi
 Include all Connecticut-specific findings in your issues array with a clauseReference of "Connecticut Law" where applicable.
 `.trim();
 
+// New Jersey-specific addendum
+const NEW_JERSEY_ADDENDUM = `
+
+NEW JERSEY JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional New Jersey-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (N.J.S.A. 56:10-1 et seq.):
+   New Jersey enforces non-compete and non-solicitation agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest, must be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Pending legislation may further restrict non-competes. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER FRAUD ACT (N.J.S.A. 56:8-1 et seq.):
+   Flag any clause that waives CFA rights, limits remedies for unfair or deceptive acts in consumer transactions, or disclaims statutory liability. Note any mandatory arbitration clause that bars CFA remedies or treble damages. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (N.J.S.A. 31:1-1 et seq.):
+   New Jersey's general usury cap is 16% per annum for consumer loans (6% default absent a written rate). Commercial transactions may have higher rates by written agreement. Flag any interest rate, default rate, or fee structure that exceeds 16% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (N.J.S.A. 2A:40-1 et seq.):
+   New Jersey limits indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (New Jersey UETA — N.J.S.A. 12A:12-1 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (N.J.S.A. 56:8-163):
+   New Jersey requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all New Jersey-specific findings in your issues array with a clauseReference of "New Jersey Law" where applicable.
+`.trim();
+
+// Alabama-specific addendum
+const ALABAMA_ADDENDUM = `
+
+ALABAMA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Alabama-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Ala. Code § 8-1-190 et seq.):
+   Alabama enforces non-compete agreements only if: (a) in writing; (b) part of a contract for the protection of trade secrets or in connection with the sale of a business, employment, or a professional practice purchase; (c) reasonable in time (≤2 years for employment contexts), geographic scope, and type of restricted activity. Courts may reform overbroad covenants. Flag any non-compete lacking adequate consideration, exceeding 2 years, or with unreasonably broad geography or activity scope. Flag as HIGH if facially unenforceable.
+
+2. DECEPTIVE TRADE PRACTICES ACT (Ala. Code § 8-19-1 et seq.):
+   Flag any clause that waives Alabama DTPA rights, limits remedies for deceptive or unfair practices, or disclaims statutory liability. Note any mandatory arbitration clause that bars DTPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Ala. Code § 8-8-1 et seq.):
+   Alabama's general legal interest rate is 8% per annum; written contracts may specify a higher rate. Commercial lending is largely governed by agreement. Flag any interest rate, default rate, or fee structure that exceeds applicable limits without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law + Ala. Code):
+   Alabama common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Alabama UETA — Ala. Code § 8-1A-1 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Ala. Code § 8-19F-1 et seq.):
+   Alabama requires notification to affected residents without unreasonable delay following discovery of a breach of sensitive personally identifying information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Alabama-specific findings in your issues array with a clauseReference of "Alabama Law" where applicable.
+`.trim();
+
+// Oklahoma-specific addendum
+const OKLAHOMA_ADDENDUM = `
+
+OKLAHOMA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Oklahoma-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (15 O.S. § 217 et seq.):
+   Oklahoma has one of the strictest non-compete laws in the country — non-compete agreements are generally void and unenforceable unless they fall within narrow statutory exceptions (such as agreements incident to the sale of a business or dissolution of a partnership). Employment non-competes are generally void. Flag any employee non-compete as HIGH — it is likely void under Oklahoma law. Non-competes in connection with a business sale may be enforceable if reasonable in time and scope.
+
+2. CONSUMER PROTECTION ACT (15 O.S. § 751 et seq.):
+   Flag any clause that waives Oklahoma CPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CPA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (14A O.S. § 3-508 et seq.):
+   Oklahoma's general usury cap is 10% per annum absent a written agreement or statutory exemption. Consumer credit is separately regulated under the Oklahoma Uniform Consumer Credit Code. Flag any interest rate, default rate, or fee structure that exceeds 10% without a written agreement or applicable exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law + 15 O.S.):
+   Oklahoma common law and applicable statutes limit the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Oklahoma UETA — 12A O.S. § 15-101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (24 O.S. § 161 et seq.):
+   Oklahoma requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Oklahoma-specific findings in your issues array with a clauseReference of "Oklahoma Law" where applicable.
+`.trim();
+
+// Arkansas-specific addendum
+const ARKANSAS_ADDENDUM = `
+
+ARKANSAS JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Arkansas-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Ark. Code § 4-75-101 et seq.):
+   Arkansas enforces non-compete agreements if they are: (a) in writing; (b) supported by adequate consideration; (c) reasonably necessary to protect a legitimate business interest; (d) reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. DECEPTIVE TRADE PRACTICES ACT (Ark. Code § 4-88-101 et seq.):
+   Flag any clause that waives Arkansas DTPA rights, limits remedies for deceptive or unconscionable acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars DTPA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Ark. Code § 4-57-101 et seq.):
+   Arkansas's general usury cap is 17% per annum (set by the Arkansas Constitution, Amendment 89); parties may agree to a higher rate by written contract up to the constitutional maximum. Flag any interest rate, default rate, or fee structure that exceeds 17% without a valid written agreement or exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   Arkansas common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Arkansas UETA — Ark. Code § 4-8-101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Ark. Code § 4-110-101 et seq.):
+   Arkansas requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Arkansas-specific findings in your issues array with a clauseReference of "Arkansas Law" where applicable.
+`.trim();
+
+// Mississippi-specific addendum
+const MISSISSIPPI_ADDENDUM = `
+
+MISSISSIPPI JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Mississippi-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Miss. Code § 15-3-1 et seq.):
+   Mississippi enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER PROTECTION ACT (Miss. Code § 75-24-1 et seq.):
+   Flag any clause that waives Mississippi CPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Miss. Code § 75-17-1 et seq.):
+   Mississippi's general legal interest rate is 8% per annum in the absence of a written agreement; parties may agree to a higher rate in writing within statutory limits. Flag any interest rate, default rate, or fee structure that exceeds applicable limits without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (Miss. Code § 31-5-41):
+   Mississippi voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional wrongdoing. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Mississippi UETA — Miss. Code § 75-12-1 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Miss. Code § 75-24-29):
+   Mississippi requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Mississippi-specific findings in your issues array with a clauseReference of "Mississippi Law" where applicable.
+`.trim();
+
+// Iowa-specific addendum
+const IOWA_ADDENDUM = `
+
+IOWA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Iowa-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Iowa Code § 537A.1 et seq.):
+   Iowa enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER FRAUD ACT (Iowa Code § 714.16 et seq.):
+   Flag any clause that waives Iowa Consumer Fraud Act rights, limits remedies for deceptive practices in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CFA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Iowa Code § 535.1 et seq.):
+   Iowa's general legal interest rate is 5% per annum in the absence of a written agreement; parties may agree to a higher rate in writing within statutory limits. Commercial lending rates are largely governed by agreement. Flag any interest rate, default rate, or fee structure that exceeds applicable limits without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   Iowa common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Iowa UETA — Iowa Code § 554D.101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Iowa Code § 715C.1 et seq.):
+   Iowa requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Iowa-specific findings in your issues array with a clauseReference of "Iowa Law" where applicable.
+`.trim();
+
 // Generic state addendum for all other states
 function genericStateAddendum(stateName: string): string {
   return `
@@ -923,6 +1091,12 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "MD") return "\n\n" + MARYLAND_ADDENDUM;
   if (stateCode === "MA") return "\n\n" + MASSACHUSETTS_ADDENDUM;
   if (stateCode === "CT") return "\n\n" + CONNECTICUT_ADDENDUM;
+  if (stateCode === "NJ") return "\n\n" + NEW_JERSEY_ADDENDUM;
+  if (stateCode === "AL") return "\n\n" + ALABAMA_ADDENDUM;
+  if (stateCode === "OK") return "\n\n" + OKLAHOMA_ADDENDUM;
+  if (stateCode === "AR") return "\n\n" + ARKANSAS_ADDENDUM;
+  if (stateCode === "MS") return "\n\n" + MISSISSIPPI_ADDENDUM;
+  if (stateCode === "IA") return "\n\n" + IOWA_ADDENDUM;
   const name = getStateName(stateCode);
   return "\n\n" + genericStateAddendum(name);
 }
