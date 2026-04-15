@@ -41,7 +41,7 @@ export default async function ShieldPage() {
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 font-bold mt-0.5">📋</span>
                 {/* Florida §559.9613 checklist only runs when FL is selected */}
-                <span><span className="text-white font-medium">50-State Jurisdiction Coverage</span> — analyzes governing law clauses across all 50 states; checks F.S. §559.9613 disclosures when Florida is selected. More states added over time.</span>
+                <span><span className="text-white font-medium">50-State Jurisdiction Coverage</span> — analyzes governing law clauses across all 50 states; checks F.S. §559.9613 disclosures when Florida is selected.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 font-bold mt-0.5">💬</span>

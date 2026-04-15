@@ -161,7 +161,7 @@ function PricingContent() {
             <h2 className="text-lg font-semibold">Huginn Shield Deep Scan</h2>
           </div>
           <p className="text-slate-300 text-sm mb-4">
-            Deep Scan analyzes jurisdiction and governing law clauses across all 50 states. When Florida is selected, it also checks required disclosures under F.S. §559.9613. More states will be added over time.
+            Deep Scan analyzes jurisdiction and governing law clauses across all 50 states. When Florida is selected, it also checks required disclosures under F.S. §559.9613.
           </p>
           <ul className="space-y-2 text-sm text-slate-300 mb-4">
             <li className="flex items-start gap-2">

@@ -14,9 +14,9 @@ The platform is purpose-built for teams that review contracts regularly but don'
 
 ---
 
-## Core Architecture: 3-Stage Claude Pipeline
+## Core Architecture: 3-Stage Gemini Pipeline
 
-Huginn uses a sophisticated three-stage analysis pipeline powered by Claude (Sonnet-4-6) with deterministic extraction as a fallback:
+Huginn uses a sophisticated three-stage analysis pipeline powered by Gemini 2.5 Flash with deterministic extraction as a fallback:
 
 ### **Stage 1: Classify**
 - Analyzes the document to identify contract type (MSA, SLA, NDA, SOW, etc.)
@@ -38,7 +38,7 @@ Huginn uses a sophisticated three-stage analysis pipeline powered by Claude (Son
 - Produces a composite risk score and risk level assessment
 - Identifies contradictions or problematic language
 
-**Fallback**: If the Claude pipeline encounters limitations, deterministic extraction using keyword matching and regex patterns provides conservative (but reliable) analysis.
+**Fallback**: If the Gemini pipeline encounters limitations, deterministic extraction using keyword matching and regex patterns provides conservative (but reliable) analysis.
 
 ---
 
@@ -105,19 +105,19 @@ These limitations represent honest constraints and natural evolution roadmap for
 - **Single-document analysis** — cannot compare across contract portfolio or identify patterns
 - **English-only** — no multilingual support currently
 - **No real-time collaboration** — no commenting, approval workflows, or team editing
-- **Basic jurisdiction awareness** — applies general legal patterns, not jurisdiction-specific law
+- **Jurisdiction analysis is state-specific, not locality-specific** — covers governing law and key statutes at the state level; does not cover county, municipal, or agency-specific regulations
 
 ### Missing Enterprise Capabilities
 - **No API** — cannot embed into business systems or contract management platforms
 - **No team workflow** — individual licenses only, no consolidated reporting
 - **No historical trend analysis** — doesn't track changes in terms across vendor agreements over time
 - **No contract repository integration** — works on individual documents, not across contract libraries
-- **No jurisdiction comparator** — cannot compare how terms differ across geographies or regulatory regimes
+- **No multi-contract jurisdiction comparison** — cannot compare how terms differ across a portfolio of contracts or across regulatory regimes simultaneously
 
 ### Planned Evolution
 The product roadmap includes:
 - **RAG-based cross-contract intelligence** — identify how vendor terms are trending, what's market standard
-- **Jurisdiction-specific analysis** — rules-based and AI enhanced by jurisdiction
+- **Locality-level jurisdiction analysis** — extend coverage below state level to county, municipal, and agency-specific regulations
 - **Team collaboration and approval workflows** — enterprise contract review process support
 - **API and integration layer** — connect to Salesforce, ServiceNow, contract management platforms
 - **Historical analytics** — portfolio-level risk trending and term benchmarking
@@ -128,7 +128,7 @@ The product roadmap includes:
 
 - **Frontend**: React 19, TypeScript, Tailwind CSS
 - **Backend**: Next.js 16, Node.js ≥20.11
-- **AI Models**: Anthropic Claude (Sonnet-4-6), OpenAI (optional fallback)
+- **AI Models**: Google Gemini 2.5 Flash
 - **Database**: PostgreSQL with Prisma ORM
 - **File Processing**: pdf-parse, mammoth (DOCX), html2canvas (PDF export)
 - **Authentication**: NextAuth.js v4
@@ -180,8 +180,8 @@ The product roadmap includes:
 
 ## Known Limitations Users Should Understand
 
-1. **AI hallucination risk**: Claude may occasionally flag issues that don't exist or miss subtle ones. Deterministic fallback prevents catastrophic misses but may be overly conservative.
-2. **Jurisdiction blindness**: Analysis applies general legal principles; jurisdiction-specific requirements need human verification.
+1. **AI hallucination risk**: Gemini 2.5 Flash may occasionally flag issues that don't exist or miss subtle ones. Deterministic fallback prevents catastrophic misses but may be overly conservative.
+2. **Jurisdiction coverage is state-level**: Analysis applies state-specific legal rules for all 50 states. County, municipal, and agency-level requirements still need human verification.
 3. **Novel contract structures**: Works best on standard contract templates and formats. Highly customized or non-English documents may have degraded accuracy.
 4. **Not legal opinions**: Analysis is informational and statistical. Legal team sign-off required for material decisions.
 
