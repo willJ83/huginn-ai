@@ -58,7 +58,13 @@ JSON structure:
   "neChecklist": [...],
   "wvChecklist": [...],
   "deChecklist": [...],
-  "riChecklist": [...]
+  "riChecklist": [...],
+  "hiChecklist": [...],
+  "meChecklist": [...],
+  "vtChecklist": [...],
+  "nhChecklist": [...],
+  "mtChecklist": [...],
+  "wyChecklist": [...]
 }
 
 FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
@@ -430,6 +436,60 @@ RHODE ISLAND (RI) — always include riChecklist:
   - "Electronic signatures valid under Rhode Island UETA (R.I. Gen. Laws § 11-18-1 et seq.)"
   - "Data breach notification obligations addressed (R.I. Gen. Laws § 11-49.3-1 et seq. — without unreasonable delay)"
 
+HAWAII (HI) — always include hiChecklist:
+  hiChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Hawaii law (HRS § 480-4 et seq.) — reasonable in time, geography, and scope"
+  - "Unfair and Deceptive Trade Practices compliance (HRS § 480-1 et seq.)"
+  - "Interest rate within Hawaii usury limits (HRS § 478-1 et seq. — 12% general cap)"
+  - "Construction indemnity clause compliant with Hawaii anti-indemnity rules (common law)"
+  - "Electronic signatures valid under Hawaii UETA (HRS § 489E-1 et seq.)"
+  - "Data breach notification obligations addressed (HRS § 487N-1 et seq. — without unreasonable delay)"
+
+MAINE (ME) — always include meChecklist:
+  meChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Maine law (26 M.R.S. § 599 et seq.) — reasonable in time, geography, and scope"
+  - "Unfair Trade Practices Act compliance — no unfair or deceptive acts (5 M.R.S. § 207 et seq.)"
+  - "Interest rate within Maine usury limits (9-B M.R.S. § 432 et seq. — 6% general cap)"
+  - "Construction indemnity clause compliant with Maine anti-indemnity rules (common law)"
+  - "Electronic signatures valid under Maine UETA (10 M.R.S. § 9401 et seq.)"
+  - "Data breach notification obligations addressed (10 M.R.S. § 1348 — without unreasonable delay)"
+
+VERMONT (VT) — always include vtChecklist:
+  vtChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Vermont law (26 V.S.A. § 1 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Protection Act compliance — no unfair or deceptive acts (9 V.S.A. § 2451 et seq.)"
+  - "Interest rate within Vermont usury limits (9 V.S.A. § 41 et seq. — 12% general cap)"
+  - "Construction indemnity clause compliant with Vermont anti-indemnity rules (common law)"
+  - "Electronic signatures valid under Vermont UETA (9 V.S.A. § 270 et seq.)"
+  - "Data breach notification obligations addressed (9 V.S.A. § 2435 — without unreasonable delay)"
+
+NEW HAMPSHIRE (NH) — always include nhChecklist:
+  nhChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under New Hampshire law (RSA 329:29) — reasonable in time, geography, and scope"
+  - "Consumer Protection Act compliance — no unfair or deceptive acts (RSA 358-A)"
+  - "Interest rate within New Hampshire usury limits (RSA 399-A et seq. — 10% general cap)"
+  - "Construction indemnity clause compliant with New Hampshire anti-indemnity rules (common law)"
+  - "Electronic signatures valid under New Hampshire UETA (RSA 294-E)"
+  - "Data breach notification obligations addressed (RSA 359-C:20 — without unreasonable delay)"
+
+MONTANA (MT) — always include mtChecklist:
+  mtChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Montana law (MCA § 28-2-703 et seq.) — reasonable in time, geography, and scope"
+  - "Unfair Trade Practices Act compliance — no unfair or deceptive acts (MCA § 30-14-101 et seq.)"
+  - "Interest rate within Montana usury limits (MCA § 31-1-107 et seq. — 15% general cap)"
+  - "Construction indemnity clause compliant with Montana anti-indemnity rules (common law)"
+  - "Electronic signatures valid under Montana UETA (MCA § 30-18-101 et seq.)"
+  - "Data breach notification obligations addressed (MCA § 30-14-1701 et seq. — without unreasonable delay)"
+
+WYOMING (WY) — always include wyChecklist:
+  wyChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Wyoming law (W.S. § 1-23-101 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Protection Act compliance — no unfair or deceptive acts (W.S. § 40-12-101 et seq.)"
+  - "Interest rate within Wyoming usury limits (W.S. § 40-1-101 et seq. — 10% general cap)"
+  - "Construction indemnity clause compliant with Wyoming anti-indemnity rules (common law)"
+  - "Electronic signatures valid under Wyoming UETA (W.S. § 40-21-101 et seq.)"
+  - "Data breach notification obligations addressed (W.S. § 40-12-501 et seq. — without unreasonable delay)"
+
 Rules:
 - Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
 - Include californiaChecklist ONLY if the user's jurisdiction is California.
@@ -472,6 +532,12 @@ Rules:
 - Include wvChecklist ONLY if the user's jurisdiction is West Virginia.
 - Include deChecklist ONLY if the user's jurisdiction is Delaware.
 - Include riChecklist ONLY if the user's jurisdiction is Rhode Island.
+- Include hiChecklist ONLY if the user's jurisdiction is Hawaii.
+- Include meChecklist ONLY if the user's jurisdiction is Maine.
+- Include vtChecklist ONLY if the user's jurisdiction is Vermont.
+- Include nhChecklist ONLY if the user's jurisdiction is New Hampshire.
+- Include mtChecklist ONLY if the user's jurisdiction is Montana.
+- Include wyChecklist ONLY if the user's jurisdiction is Wyoming.
 - Omit all checklist fields for all other jurisdictions.
 - For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
 - risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.

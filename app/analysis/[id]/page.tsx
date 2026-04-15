@@ -110,6 +110,12 @@ export default async function AnalysisPage({
     WV: { label: "Official West Virginia Code",            url: "https://www.wvlegislature.gov/WVCODE/Code.cfm" },
     DE: { label: "Official Delaware Code",                 url: "https://delcode.delaware.gov/" },
     RI: { label: "Official Rhode Island General Laws",     url: "https://www.rilegislature.gov/laws/ristatelaw.aspx" },
+    HI: { label: "Official Hawaii Revised Statutes",       url: "https://www.capitol.hawaii.gov/laws/hrs.aspx" },
+    ME: { label: "Official Maine Revised Statutes",        url: "https://legislature.maine.gov/statutes/" },
+    VT: { label: "Official Vermont Statutes",              url: "https://legislature.vermont.gov/statutes/" },
+    NH: { label: "Official New Hampshire Revised Statutes", url: "https://www.gencourt.state.nh.us/rsa/html/indexes/" },
+    MT: { label: "Official Montana Code Annotated",        url: "https://leg.mt.gov/bills/mca/" },
+    WY: { label: "Official Wyoming Statutes",              url: "https://wyoleg.gov/statutes/compress/title40.pdf" },
   };
   const storedJurisdiction: string = metadata.jurisdiction ?? "";
   const statuteLink = STATUTE_LINKS[storedJurisdiction.toUpperCase()] ?? null;
@@ -804,7 +810,7 @@ export default async function AnalysisPage({
                 </div>
               )}
 
-              {(["miChecklist", "ohChecklist", "nyChecklist", "mnChecklist", "moChecklist", "wiChecklist", "laChecklist", "inChecklist", "kyChecklist", "mdChecklist", "maChecklist", "ctChecklist", "njChecklist", "alChecklist", "okChecklist", "arChecklist", "msChecklist", "iaChecklist", "nmChecklist", "ksChecklist", "neChecklist", "wvChecklist", "deChecklist", "riChecklist"] as const).map((key) => {
+              {(["miChecklist", "ohChecklist", "nyChecklist", "mnChecklist", "moChecklist", "wiChecklist", "laChecklist", "inChecklist", "kyChecklist", "mdChecklist", "maChecklist", "ctChecklist", "njChecklist", "alChecklist", "okChecklist", "arChecklist", "msChecklist", "iaChecklist", "nmChecklist", "ksChecklist", "neChecklist", "wvChecklist", "deChecklist", "riChecklist", "hiChecklist", "meChecklist", "vtChecklist", "nhChecklist", "mtChecklist", "wyChecklist"] as const).map((key) => {
                 const labels: Record<string, string> = {
                   miChecklist: "Michigan Compliance Checklist",
                   ohChecklist: "Ohio Compliance Checklist",
@@ -830,6 +836,12 @@ export default async function AnalysisPage({
                   wvChecklist: "West Virginia Compliance Checklist",
                   deChecklist: "Delaware Compliance Checklist",
                   riChecklist: "Rhode Island Compliance Checklist",
+                  hiChecklist: "Hawaii Compliance Checklist",
+                  meChecklist: "Maine Compliance Checklist",
+                  vtChecklist: "Vermont Compliance Checklist",
+                  nhChecklist: "New Hampshire Compliance Checklist",
+                  mtChecklist: "Montana Compliance Checklist",
+                  wyChecklist: "Wyoming Compliance Checklist",
                 };
                 const items = jurisdictionAnalysis[key];
                 if (!Array.isArray(items) || items.length === 0) return null;

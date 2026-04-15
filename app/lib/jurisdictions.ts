@@ -879,6 +879,174 @@ You MUST perform these additional Connecticut-specific checks and include any vi
 Include all Connecticut-specific findings in your issues array with a clauseReference of "Connecticut Law" where applicable.
 `.trim();
 
+// Hawaii-specific addendum
+const HAWAII_ADDENDUM = `
+
+HAWAII JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Hawaii-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (HRS § 480-4 et seq.):
+   Hawaii has significant restrictions on non-compete agreements. Non-competes in employment agreements are presumed void under HRS § 480-4(c) for technology business employees. For other employees, courts apply a reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time, geographic scope, and activity. Flag any employee non-compete in the technology sector as HIGH — likely void. For other contexts, flag any non-compete with unreasonable duration, overbroad geography, or undefined activity scope.
+
+2. UNFAIR AND DECEPTIVE TRADE PRACTICES (HRS § 480-1 et seq.):
+   Flag any clause that waives rights under HRS Chapter 480, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars Chapter 480 remedies or treble damages. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (HRS § 478-1 et seq.):
+   Hawaii's general usury cap is 12% per annum; parties to a written contract may agree to a higher rate within statutory limits. Consumer credit transactions are separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 12% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   Hawaii common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Hawaii UETA — HRS § 489E-1 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (HRS § 487N-1 et seq.):
+   Hawaii requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Hawaii-specific findings in your issues array with a clauseReference of "Hawaii Law" where applicable.
+`.trim();
+
+// Maine-specific addendum
+const MAINE_ADDENDUM = `
+
+MAINE JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Maine-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (26 M.R.S. § 599 et seq.):
+   Maine restricts non-compete agreements. They are enforceable only if: (a) the employee earns above 400% of the federal poverty level; (b) the employer provides a written copy at least 3 business days before the start date; (c) the duration does not exceed 1 year; (d) the geographic scope and activity restrictions are reasonable and necessary to protect a legitimate business interest. Flag any non-compete below the earnings threshold, without advance notice, exceeding 1 year, or with unreasonably broad scope. Flag as HIGH if any mandatory requirement is absent.
+
+2. UNFAIR TRADE PRACTICES ACT (5 M.R.S. § 207 et seq.):
+   Flag any clause that waives Maine UTPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars UTPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (9-B M.R.S. § 432 et seq.):
+   Maine's general legal interest rate is 6% per annum in the absence of a written agreement; licensed lenders and parties to written commercial contracts may agree to higher rates within statutory limits. Flag any consumer credit agreement where the rate is not clearly disclosed or appears to exceed applicable limits. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   Maine common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Maine UETA — 10 M.R.S. § 9401 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (10 M.R.S. § 1348):
+   Maine requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Maine-specific findings in your issues array with a clauseReference of "Maine Law" where applicable.
+`.trim();
+
+// Vermont-specific addendum
+const VERMONT_ADDENDUM = `
+
+VERMONT JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Vermont-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (26 V.S.A. § 1 et seq.):
+   Vermont enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER PROTECTION ACT (9 V.S.A. § 2451 et seq.):
+   Flag any clause that waives Vermont CPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (9 V.S.A. § 41 et seq.):
+   Vermont's general usury cap is 12% per annum; parties may agree to a higher rate in writing within statutory limits. Consumer credit is separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 12% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   Vermont common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Vermont UETA — 9 V.S.A. § 270 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (9 V.S.A. § 2435):
+   Vermont requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Vermont-specific findings in your issues array with a clauseReference of "Vermont Law" where applicable.
+`.trim();
+
+// New Hampshire-specific addendum
+const NEW_HAMPSHIRE_ADDENDUM = `
+
+NEW HAMPSHIRE JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional New Hampshire-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (RSA 329:29):
+   New Hampshire enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER PROTECTION ACT (RSA 358-A):
+   Flag any clause that waives New Hampshire CPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (RSA 399-A et seq.):
+   New Hampshire's general usury cap is 10% per annum in the absence of a written agreement; licensed lenders and parties to written contracts may agree to higher rates within statutory limits. Consumer credit transactions are separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 10% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   New Hampshire common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (New Hampshire UETA — RSA 294-E):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (RSA 359-C:20):
+   New Hampshire requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all New Hampshire-specific findings in your issues array with a clauseReference of "New Hampshire Law" where applicable.
+`.trim();
+
+// Montana-specific addendum
+const MONTANA_ADDENDUM = `
+
+MONTANA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Montana-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (MCA § 28-2-703 et seq.):
+   Montana enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. UNFAIR TRADE PRACTICES ACT (MCA § 30-14-101 et seq.):
+   Flag any clause that waives Montana UTPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars UTPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (MCA § 31-1-107 et seq.):
+   Montana's general usury cap is 15% per annum; parties may agree to a higher rate in writing within statutory limits. Consumer credit is separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 15% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   Montana common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Montana UETA — MCA § 30-18-101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (MCA § 30-14-1701 et seq.):
+   Montana requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Montana-specific findings in your issues array with a clauseReference of "Montana Law" where applicable.
+`.trim();
+
+// Wyoming-specific addendum
+const WYOMING_ADDENDUM = `
+
+WYOMING JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Wyoming-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (W.S. § 1-23-101 et seq.):
+   Wyoming enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER PROTECTION ACT (W.S. § 40-12-101 et seq.):
+   Flag any clause that waives Wyoming CPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (W.S. § 40-1-101 et seq.):
+   Wyoming's general usury cap is 10% per annum; parties may agree to a higher rate in writing within statutory limits. Consumer credit transactions are separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 10% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   Wyoming common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Wyoming UETA — W.S. § 40-21-101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (W.S. § 40-12-501 et seq.):
+   Wyoming requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Wyoming-specific findings in your issues array with a clauseReference of "Wyoming Law" where applicable.
+`.trim();
+
 // New Mexico-specific addendum
 const NEW_MEXICO_ADDENDUM = `
 
@@ -1259,6 +1427,12 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "MD") return "\n\n" + MARYLAND_ADDENDUM;
   if (stateCode === "MA") return "\n\n" + MASSACHUSETTS_ADDENDUM;
   if (stateCode === "CT") return "\n\n" + CONNECTICUT_ADDENDUM;
+  if (stateCode === "HI") return "\n\n" + HAWAII_ADDENDUM;
+  if (stateCode === "ME") return "\n\n" + MAINE_ADDENDUM;
+  if (stateCode === "VT") return "\n\n" + VERMONT_ADDENDUM;
+  if (stateCode === "NH") return "\n\n" + NEW_HAMPSHIRE_ADDENDUM;
+  if (stateCode === "MT") return "\n\n" + MONTANA_ADDENDUM;
+  if (stateCode === "WY") return "\n\n" + WYOMING_ADDENDUM;
   if (stateCode === "NM") return "\n\n" + NEW_MEXICO_ADDENDUM;
   if (stateCode === "KS") return "\n\n" + KANSAS_ADDENDUM;
   if (stateCode === "NE") return "\n\n" + NEBRASKA_ADDENDUM;
