@@ -879,6 +879,118 @@ You MUST perform these additional Connecticut-specific checks and include any vi
 Include all Connecticut-specific findings in your issues array with a clauseReference of "Connecticut Law" where applicable.
 `.trim();
 
+// Alaska-specific addendum
+const ALASKA_ADDENDUM = `
+
+ALASKA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Alaska-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (AS 45.50.562 et seq.):
+   Alaska enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. UNFAIR TRADE PRACTICES AND CONSUMER PROTECTION ACT (AS 45.50.471 et seq.):
+   Flag any clause that waives Alaska UTPCPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars UTPCPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (AS 45.45.010 et seq.):
+   Alaska's general usury cap is 10.5% per annum; parties may agree to a higher rate in writing within statutory limits. Consumer credit is separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 10.5% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (AS 45.45.900):
+   Alaska voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional wrongdoing. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Alaska UETA — AS 09.80.010 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (AS 45.48.010 et seq.):
+   Alaska requires notification to affected residents in the most expedient time possible following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Alaska-specific findings in your issues array with a clauseReference of "Alaska Law" where applicable.
+`.trim();
+
+// North Dakota-specific addendum
+const NORTH_DAKOTA_ADDENDUM = `
+
+NORTH DAKOTA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional North Dakota-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (N.D.C.C. § 9-08-06):
+   North Dakota has one of the strongest bans on non-compete agreements in the country. Non-compete covenants are void and unenforceable as a matter of public policy, with only narrow exceptions: (a) agreements incident to the sale of a business; (b) agreements upon dissolution of a partnership. Employment non-competes are void. Flag any employee non-compete as HIGH — it is void under North Dakota law. Non-competes in connection with a business sale may be enforceable if reasonable in scope.
+
+2. CONSUMER FRAUD ACT (N.D.C.C. § 51-15-01 et seq.):
+   Flag any clause that waives North Dakota CFA rights, limits remedies for deceptive acts or practices in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CFA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (N.D.C.C. § 47-14-05 et seq.):
+   North Dakota's general legal interest rate is 5.5% per annum in the absence of a written agreement; parties may agree to a higher rate in writing within statutory limits. Commercial lending rates are largely governed by agreement. Flag any consumer credit agreement where the rate appears to exceed applicable limits without a written agreement or exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   North Dakota common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (North Dakota UETA — N.D.C.C. § 9-16-01 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (N.D.C.C. § 51-30-01 et seq.):
+   North Dakota requires notification to affected residents in the most expedient time possible following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all North Dakota-specific findings in your issues array with a clauseReference of "North Dakota Law" where applicable.
+`.trim();
+
+// South Dakota-specific addendum
+const SOUTH_DAKOTA_ADDENDUM = `
+
+SOUTH DAKOTA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional South Dakota-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (SDCL § 53-9-8):
+   South Dakota generally voids employee non-compete agreements as contrary to public policy. Non-competes are enforceable only in narrow circumstances: (a) agreements incident to the sale of a business; (b) agreements upon dissolution of a partnership. Employment non-competes are void. Flag any employee non-compete as HIGH — it is void under South Dakota law. Non-competes in connection with a business sale may be enforceable if reasonable in scope.
+
+2. CONSUMER PROTECTION ACT (SDCL § 37-24-1 et seq.):
+   Flag any clause that waives South Dakota consumer protection rights, limits remedies for deceptive acts or practices, or disclaims statutory liability. Note any mandatory arbitration clause that bars consumer protection remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. INTEREST RATES (SDCL § 54-3-1 et seq.):
+   South Dakota imposes no general usury cap for written commercial agreements; parties may agree to any rate in writing. Consumer credit is separately regulated. Flag any consumer credit agreement where the rate is not clearly disclosed or appears unconscionable for the transaction type. Flag as HIGH if a consumer rate is undisclosed or clearly excessive.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   South Dakota common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (South Dakota UETA — SDCL § 53-12-1 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (SDCL § 22-40-19 et seq.):
+   South Dakota requires notification to affected residents in the most expedient time possible following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all South Dakota-specific findings in your issues array with a clauseReference of "South Dakota Law" where applicable.
+`.trim();
+
+// Washington DC-specific addendum
+const WASHINGTON_DC_ADDENDUM = `
+
+WASHINGTON DC JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Washington DC-specific checks and include any violations as issues:
+
+1. NON-COMPETE — BAN ON NON-COMPETE AGREEMENTS ACT (D.C. Code § 32-581.01 et seq.):
+   Washington DC has enacted a near-total ban on non-compete agreements. Non-competes are void and unenforceable for employees earning at or below $150,000/year (or $250,000 for medical specialists). For employees above the threshold, non-competes are permitted only if: (a) provided in writing at least 14 days before start; (b) duration does not exceed 2 years; (c) the employer provides a written copy. Flag any non-compete applied to an employee below the earnings threshold as HIGH — it is void under DC law. For above-threshold employees, flag any non-compete lacking advance written notice or exceeding 2 years.
+
+2. CONSUMER PROTECTION PROCEDURES ACT (D.C. Code § 28-3901 et seq.):
+   Flag any clause that waives DC CPPA rights, limits remedies for unfair or deceptive trade practices, or disclaims statutory liability. Note any mandatory arbitration clause that bars CPPA remedies or class actions. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (D.C. Code § 28-3301 et seq.):
+   Washington DC's general usury cap is 24% per annum; parties may agree to a higher rate in writing within statutory limits. Consumer credit is separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 24% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   DC common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (DC UETA — D.C. Code § 28-4901 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (D.C. Code § 28-3851 et seq.):
+   Washington DC requires notification to affected residents in the most expedient time possible following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Washington DC-specific findings in your issues array with a clauseReference of "DC Law" where applicable.
+`.trim();
+
 // Hawaii-specific addendum
 const HAWAII_ADDENDUM = `
 
@@ -1427,6 +1539,10 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "MD") return "\n\n" + MARYLAND_ADDENDUM;
   if (stateCode === "MA") return "\n\n" + MASSACHUSETTS_ADDENDUM;
   if (stateCode === "CT") return "\n\n" + CONNECTICUT_ADDENDUM;
+  if (stateCode === "AK") return "\n\n" + ALASKA_ADDENDUM;
+  if (stateCode === "ND") return "\n\n" + NORTH_DAKOTA_ADDENDUM;
+  if (stateCode === "SD") return "\n\n" + SOUTH_DAKOTA_ADDENDUM;
+  if (stateCode === "DC") return "\n\n" + WASHINGTON_DC_ADDENDUM;
   if (stateCode === "HI") return "\n\n" + HAWAII_ADDENDUM;
   if (stateCode === "ME") return "\n\n" + MAINE_ADDENDUM;
   if (stateCode === "VT") return "\n\n" + VERMONT_ADDENDUM;

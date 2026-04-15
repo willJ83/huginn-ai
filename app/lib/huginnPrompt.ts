@@ -64,7 +64,11 @@ JSON structure:
   "vtChecklist": [...],
   "nhChecklist": [...],
   "mtChecklist": [...],
-  "wyChecklist": [...]
+  "wyChecklist": [...],
+  "akChecklist": [...],
+  "ndChecklist": [...],
+  "sdChecklist": [...],
+  "dcChecklist": [...]
 }
 
 FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
@@ -490,6 +494,42 @@ WYOMING (WY) — always include wyChecklist:
   - "Electronic signatures valid under Wyoming UETA (W.S. § 40-21-101 et seq.)"
   - "Data breach notification obligations addressed (W.S. § 40-12-501 et seq. — without unreasonable delay)"
 
+ALASKA (AK) — always include akChecklist:
+  akChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Alaska law (AS 45.50.562 et seq.) — reasonable in time, geography, and scope"
+  - "Unfair Trade Practices and Consumer Protection Act compliance (AS 45.50.471 et seq.)"
+  - "Interest rate within Alaska usury limits (AS 45.45.010 et seq. — 10.5% general cap)"
+  - "Construction indemnity clause compliant with Alaska anti-indemnity statute (AS 45.45.900)"
+  - "Electronic signatures valid under Alaska UETA (AS 09.80.010 et seq.)"
+  - "Data breach notification obligations addressed (AS 45.48.010 et seq. — most expedient time)"
+
+NORTH DAKOTA (ND) — always include ndChecklist:
+  ndChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under North Dakota law (N.D.C.C. § 9-08-06) — very limited exceptions only (sale of business, dissolution of partnership)"
+  - "Consumer Fraud Act compliance — no deceptive acts or practices (N.D.C.C. § 51-15-01 et seq.)"
+  - "Interest rate within North Dakota usury limits (N.D.C.C. § 47-14-05 et seq. — 5.5% general cap)"
+  - "Construction indemnity clause compliant with North Dakota anti-indemnity rules (common law)"
+  - "Electronic signatures valid under North Dakota UETA (N.D.C.C. § 9-16-01 et seq.)"
+  - "Data breach notification obligations addressed (N.D.C.C. § 51-30-01 et seq. — most expedient time)"
+
+SOUTH DAKOTA (SD) — always include sdChecklist:
+  sdChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant: South Dakota generally voids employee non-competes (SDCL § 53-9-8) — narrow exceptions for sale of business only"
+  - "Consumer Protection Act compliance — no deceptive acts or practices (SDCL § 37-24-1 et seq.)"
+  - "Interest rate within South Dakota limits (SDCL § 54-3-1 et seq. — no general cap for written commercial agreements)"
+  - "Construction indemnity clause compliant with South Dakota anti-indemnity rules (common law)"
+  - "Electronic signatures valid under South Dakota UETA (SDCL § 53-12-1 et seq.)"
+  - "Data breach notification obligations addressed (SDCL § 22-40-19 et seq. — most expedient time)"
+
+WASHINGTON DC (DC) — always include dcChecklist:
+  dcChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant: DC Ban on Non-Compete Agreements Act (D.C. Code § 32-581.01 et seq.) — near-total ban for employees earning under $150k"
+  - "Consumer Protection Procedures Act compliance (D.C. Code § 28-3901 et seq.)"
+  - "Interest rate within DC usury limits (D.C. Code § 28-3301 et seq. — 24% general cap)"
+  - "Construction indemnity clause compliant with DC anti-indemnity rules (common law)"
+  - "Electronic signatures valid under DC UETA (D.C. Code § 28-4901 et seq.)"
+  - "Data breach notification obligations addressed (D.C. Code § 28-3851 et seq. — most expedient time)"
+
 Rules:
 - Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
 - Include californiaChecklist ONLY if the user's jurisdiction is California.
@@ -538,6 +578,10 @@ Rules:
 - Include nhChecklist ONLY if the user's jurisdiction is New Hampshire.
 - Include mtChecklist ONLY if the user's jurisdiction is Montana.
 - Include wyChecklist ONLY if the user's jurisdiction is Wyoming.
+- Include akChecklist ONLY if the user's jurisdiction is Alaska.
+- Include ndChecklist ONLY if the user's jurisdiction is North Dakota.
+- Include sdChecklist ONLY if the user's jurisdiction is South Dakota.
+- Include dcChecklist ONLY if the user's jurisdiction is Washington DC or DC.
 - Omit all checklist fields for all other jurisdictions.
 - For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
 - risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.
