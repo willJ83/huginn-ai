@@ -29,7 +29,12 @@ JSON structure:
   "utChecklist": [...],
   "azChecklist": [...],
   "tnChecklist": [...],
-  "ilChecklist": [...]
+  "ilChecklist": [...],
+  "coChecklist": [...],
+  "nvChecklist": [...],
+  "vaChecklist": [...],
+  "paChecklist": [...],
+  "orChecklist": [...]
 }
 
 FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
@@ -140,6 +145,51 @@ ILLINOIS (IL) — always include ilChecklist:
   - "Electronic signatures valid under Illinois UETA (5 ILCS 175)"
   - "Data breach notification obligations addressed (815 ILCS 530 — most expedient time, no later than 45 days)"
 
+COLORADO (CO) — always include coChecklist:
+  coChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Colorado law (C.R.S. § 8-2-113) — reasonable in time, geography, and scope"
+  - "Consumer Protection Act compliance — no unfair or deceptive trade practices (C.R.S. § 6-1-101 et seq.)"
+  - "Interest rate within Colorado usury limits (C.R.S. § 5-12-101 et seq. — 8% general cap)"
+  - "Construction indemnity clause compliant with Colorado anti-indemnity rules (C.R.S. § 13-21-111.5)"
+  - "Electronic signatures valid under Colorado UETA (C.R.S. § 24-71.5-101 et seq.)"
+  - "Data breach notification obligations addressed (C.R.S. § 6-1-716 — without unreasonable delay)"
+
+NEVADA (NV) — always include nvChecklist:
+  nvChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Nevada law (NRS § 613.195 et seq.) — reasonable in time, geography, and scope"
+  - "Deceptive Trade Practices Act compliance — no deceptive or unfair practices (NRS § 598.0903 et seq.)"
+  - "Interest rate within Nevada usury limits (NRS § 99.010 et seq. — 12% general cap)"
+  - "Construction indemnity clause compliant with Nevada anti-indemnity rules (NRS § 616B.609)"
+  - "Electronic signatures valid under Nevada UETA (NRS § 719.010 et seq.)"
+  - "Data breach notification obligations addressed (NRS § 603A.220 — without unreasonable delay)"
+
+VIRGINIA (VA) — always include vaChecklist:
+  vaChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Virginia law (Va. Code § 40.1-28.7:7 et seq.) — reasonable scope"
+  - "Consumer Protection Act compliance — no unfair or deceptive acts (Va. Code § 59.1-196 et seq.)"
+  - "Interest rate within Virginia usury limits (Va. Code § 6.2-301 et seq. — 12% general cap)"
+  - "Construction indemnity clause compliant with Virginia anti-indemnity statute (Va. Code § 11-4.1)"
+  - "Electronic signatures valid under Virginia UETA (Va. Code § 59.1-479 et seq.)"
+  - "Data breach notification obligations addressed (Va. Code § 18.2-186.6 — without unreasonable delay)"
+
+PENNSYLVANIA (PA) — always include paChecklist:
+  paChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Pennsylvania common law (43 P.S. § 206 et seq.) — reasonable in time, geography, and scope"
+  - "Unfair Trade Practices and Consumer Protection Law compliance (73 P.S. § 201-1 et seq.)"
+  - "Interest rate within Pennsylvania usury limits (41 P.S. § 301 et seq. — 6% general cap)"
+  - "Construction indemnity clause compliant with Pennsylvania anti-indemnity rules (68 P.S. § 491)"
+  - "Electronic signatures valid under Pennsylvania UETA (73 P.S. § 2260.101 et seq.)"
+  - "Data breach notification obligations addressed (73 P.S. § 2301 et seq. — without unreasonable delay)"
+
+OREGON (OR) — always include orChecklist:
+  orChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Oregon law (ORS § 653.295 et seq.) — reasonable scope"
+  - "Unlawful Trade Practices Act compliance — no unfair or deceptive practices (ORS § 646.605 et seq.)"
+  - "Interest rate within Oregon usury limits (ORS § 82.010 et seq. — 9% general cap)"
+  - "Construction indemnity clause compliant with Oregon anti-indemnity statute (ORS § 30.140)"
+  - "Electronic signatures valid under Oregon UETA (ORS § 84.001 et seq.)"
+  - "Data breach notification obligations addressed (ORS § 646A.600 et seq. — without unreasonable delay)"
+
 Rules:
 - Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
 - Include californiaChecklist ONLY if the user's jurisdiction is California.
@@ -153,6 +203,11 @@ Rules:
 - Include azChecklist ONLY if the user's jurisdiction is Arizona.
 - Include tnChecklist ONLY if the user's jurisdiction is Tennessee.
 - Include ilChecklist ONLY if the user's jurisdiction is Illinois.
+- Include coChecklist ONLY if the user's jurisdiction is Colorado.
+- Include nvChecklist ONLY if the user's jurisdiction is Nevada.
+- Include vaChecklist ONLY if the user's jurisdiction is Virginia.
+- Include paChecklist ONLY if the user's jurisdiction is Pennsylvania.
+- Include orChecklist ONLY if the user's jurisdiction is Oregon.
 - Omit all checklist fields for all other jurisdictions.
 - For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
 - risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.

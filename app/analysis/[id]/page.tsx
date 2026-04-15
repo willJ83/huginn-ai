@@ -80,7 +80,12 @@ export default async function AnalysisPage({
     UT: { label: "Official Utah Code",                url: "https://le.utah.gov/xcode/code.html" },
     AZ: { label: "Official Arizona Revised Statutes", url: "https://www.azleg.gov/arstitle/" },
     TN: { label: "Official Tennessee Code",           url: "https://www.tncourts.gov/courts/supreme-court/tennessee-code" },
-    IL: { label: "Official Illinois Compiled Statutes", url: "https://www.ilga.gov/legislation/ilcs/ilcs.asp" },
+    IL: { label: "Official Illinois Compiled Statutes",    url: "https://www.ilga.gov/legislation/ilcs/ilcs.asp" },
+    CO: { label: "Official Colorado Revised Statutes",     url: "https://leg.colorado.gov/laws/crs" },
+    NV: { label: "Official Nevada Revised Statutes",       url: "https://www.leg.state.nv.us/NRS/" },
+    VA: { label: "Official Virginia Code",                 url: "https://law.lis.virginia.gov/vacode/" },
+    PA: { label: "Official Pennsylvania Statutes",         url: "https://www.legis.state.pa.us/cfdocs/legis/LI/Public/cons_index.cfm" },
+    OR: { label: "Official Oregon Revised Statutes",       url: "https://www.oregonlegislature.gov/bills_laws/Pages/ORS.aspx" },
   };
   const storedJurisdiction: string = metadata.jurisdiction ?? "";
   const statuteLink = STATUTE_LINKS[storedJurisdiction.toUpperCase()] ?? null;
@@ -658,6 +663,116 @@ export default async function AnalysisPage({
                         }`}>
                           {item.item}
                           {!item.present && item.risk && ` — ${item.risk} Risk`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(jurisdictionAnalysis.coChecklist) && jurisdictionAnalysis.coChecklist.length > 0 && (
+                <div className="mt-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Colorado Compliance Checklist
+                  </p>
+                  <div className="space-y-2">
+                    {jurisdictionAnalysis.coChecklist.map((item: { item: string; present: boolean; risk?: string }, i: number) => (
+                      <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
+                        item.present
+                          ? "border-green-200 bg-white dark:border-green-900/50 dark:bg-green-950/10"
+                          : "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20"
+                      }`}>
+                        <span className="mt-0.5 text-base">{item.present ? "✅" : "❌"}</span>
+                        <span className={`text-sm ${item.present ? "text-slate-600 dark:text-slate-400" : "font-semibold text-red-700 dark:text-red-400"}`}>
+                          {item.item}{!item.present && item.risk && ` — ${item.risk} Risk`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(jurisdictionAnalysis.nvChecklist) && jurisdictionAnalysis.nvChecklist.length > 0 && (
+                <div className="mt-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Nevada Compliance Checklist
+                  </p>
+                  <div className="space-y-2">
+                    {jurisdictionAnalysis.nvChecklist.map((item: { item: string; present: boolean; risk?: string }, i: number) => (
+                      <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
+                        item.present
+                          ? "border-green-200 bg-white dark:border-green-900/50 dark:bg-green-950/10"
+                          : "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20"
+                      }`}>
+                        <span className="mt-0.5 text-base">{item.present ? "✅" : "❌"}</span>
+                        <span className={`text-sm ${item.present ? "text-slate-600 dark:text-slate-400" : "font-semibold text-red-700 dark:text-red-400"}`}>
+                          {item.item}{!item.present && item.risk && ` — ${item.risk} Risk`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(jurisdictionAnalysis.vaChecklist) && jurisdictionAnalysis.vaChecklist.length > 0 && (
+                <div className="mt-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Virginia Compliance Checklist
+                  </p>
+                  <div className="space-y-2">
+                    {jurisdictionAnalysis.vaChecklist.map((item: { item: string; present: boolean; risk?: string }, i: number) => (
+                      <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
+                        item.present
+                          ? "border-green-200 bg-white dark:border-green-900/50 dark:bg-green-950/10"
+                          : "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20"
+                      }`}>
+                        <span className="mt-0.5 text-base">{item.present ? "✅" : "❌"}</span>
+                        <span className={`text-sm ${item.present ? "text-slate-600 dark:text-slate-400" : "font-semibold text-red-700 dark:text-red-400"}`}>
+                          {item.item}{!item.present && item.risk && ` — ${item.risk} Risk`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(jurisdictionAnalysis.paChecklist) && jurisdictionAnalysis.paChecklist.length > 0 && (
+                <div className="mt-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Pennsylvania Compliance Checklist
+                  </p>
+                  <div className="space-y-2">
+                    {jurisdictionAnalysis.paChecklist.map((item: { item: string; present: boolean; risk?: string }, i: number) => (
+                      <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
+                        item.present
+                          ? "border-green-200 bg-white dark:border-green-900/50 dark:bg-green-950/10"
+                          : "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20"
+                      }`}>
+                        <span className="mt-0.5 text-base">{item.present ? "✅" : "❌"}</span>
+                        <span className={`text-sm ${item.present ? "text-slate-600 dark:text-slate-400" : "font-semibold text-red-700 dark:text-red-400"}`}>
+                          {item.item}{!item.present && item.risk && ` — ${item.risk} Risk`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(jurisdictionAnalysis.orChecklist) && jurisdictionAnalysis.orChecklist.length > 0 && (
+                <div className="mt-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Oregon Compliance Checklist
+                  </p>
+                  <div className="space-y-2">
+                    {jurisdictionAnalysis.orChecklist.map((item: { item: string; present: boolean; risk?: string }, i: number) => (
+                      <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
+                        item.present
+                          ? "border-green-200 bg-white dark:border-green-900/50 dark:bg-green-950/10"
+                          : "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20"
+                      }`}>
+                        <span className="mt-0.5 text-base">{item.present ? "✅" : "❌"}</span>
+                        <span className={`text-sm ${item.present ? "text-slate-600 dark:text-slate-400" : "font-semibold text-red-700 dark:text-red-400"}`}>
+                          {item.item}{!item.present && item.risk && ` — ${item.risk} Risk`}
                         </span>
                       </div>
                     ))}

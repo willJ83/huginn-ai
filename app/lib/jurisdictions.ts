@@ -403,6 +403,146 @@ You MUST perform these additional Illinois-specific checks and include any viola
 Include all Illinois-specific findings in your issues array with a clauseReference of "Illinois Law" where applicable.
 `.trim();
 
+// Colorado-specific addendum
+const COLORADO_ADDENDUM = `
+
+COLORADO JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Colorado-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (C.R.S. § 8-2-113):
+   Colorado significantly restricts non-compete agreements. As of 2022, non-competes are enforceable only for workers earning above the threshold set by the Colorado Department of Labor (~$123,750/year for 2024) and only to protect trade secrets or proprietary information. Non-solicitation of employees requires a lower but still applicable earnings threshold. Advance notice of at least 14 days before the start date is required. Flag any non-compete where the earner is below threshold, no advance notice was given, or the restriction is not tied to trade secret protection. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER PROTECTION ACT (C.R.S. § 6-1-101 et seq.):
+   Flag any clause that waives CCPA rights, limits remedies for unfair or deceptive trade practices, or disclaims statutory liability. Note any mandatory arbitration clause that bars CCPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (C.R.S. § 5-12-101 et seq.):
+   Colorado's general legal rate of interest is 8% per annum in the absence of an agreement; parties may agree to a higher rate in writing. Consumer credit transactions are separately governed by the Colorado Uniform Consumer Credit Code. Flag any rate appearing to exceed applicable limits without a written agreement or statutory exemption. Flag as HIGH if clearly usurious for the contract type.
+
+4. CONSTRUCTION ANTI-INDEMNITY (C.R.S. § 13-21-111.5):
+   Colorado limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause lacking a proportional negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Colorado UETA — C.R.S. § 24-71.5-101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (C.R.S. § 6-1-716):
+   Colorado requires notification to affected residents without unreasonable delay and no later than 30 days after discovery of a breach. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Colorado-specific findings in your issues array with a clauseReference of "Colorado Law" where applicable.
+`.trim();
+
+// Nevada-specific addendum
+const NEVADA_ADDENDUM = `
+
+NEVADA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Nevada-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (NRS § 613.195 et seq.):
+   Nevada enforces non-compete agreements only if: (a) supported by valuable consideration; (b) the employer has a legitimate protectable interest; (c) the restriction is reasonable in scope, duration, and geographic area. Courts may blue-pencil overbroad covenants. Non-competes against low-wage workers (below $16.50/hour) are void. Flag any non-compete lacking consideration, applied to a low-wage worker, or with unreasonably broad restrictions. Flag as HIGH if the worker is below the wage threshold.
+
+2. DECEPTIVE TRADE PRACTICES ACT (NRS § 598.0903 et seq.):
+   Flag any clause that waives Nevada DTPA rights, limits remedies for deceptive or unfair practices, or disclaims statutory liability. Note any mandatory arbitration clause that bars DTPA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (NRS § 99.010 et seq.):
+   Nevada's general usury cap is 12% per annum unless a higher rate is agreed in writing or falls within a statutory exemption (licensed lenders and commercial transactions may agree to higher rates). Flag any interest rate, default rate, or fee structure that exceeds 12% without a written agreement or exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (NRS § 616B.609):
+   Nevada limits indemnification in construction contracts — clauses that purport to indemnify a party for its own sole negligence are void. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Nevada UETA — NRS § 719.010 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (NRS § 603A.220):
+   Nevada requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Nevada-specific findings in your issues array with a clauseReference of "Nevada Law" where applicable.
+`.trim();
+
+// Virginia-specific addendum
+const VIRGINIA_ADDENDUM = `
+
+VIRGINIA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Virginia-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Va. Code § 40.1-28.7:7 et seq.):
+   Virginia restricts non-compete agreements against low-wage workers (those earning wages at or below the average weekly wage). For higher earners, non-competes must be narrowly tailored to protect legitimate business interests and reasonable in duration, geographic scope, and activity scope. Courts apply a strict "no broader than necessary" standard and will not blue-pencil — an overbroad covenant is void entirely. Flag any non-compete applied to a low-wage worker, or that is overbroad in scope, geography, or duration. Flag as HIGH if applied to a worker earning at or below the average weekly wage.
+
+2. CONSUMER PROTECTION ACT (Va. Code § 59.1-196 et seq.):
+   Flag any clause that waives VCPA rights, limits remedies for unfair or deceptive acts in consumer transactions, or disclaims statutory liability. Note any mandatory arbitration clause that bars VCPA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Va. Code § 6.2-301 et seq.):
+   Virginia's general usury cap is 12% per annum; written contracts may specify a different rate. Consumer credit is separately regulated under the Consumer Finance Act. Flag any interest rate, default rate, or fee structure that exceeds 12% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (Va. Code § 11-4.1):
+   Virginia voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional misconduct. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Virginia UETA — Va. Code § 59.1-479 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Va. Code § 18.2-186.6):
+   Virginia requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Virginia-specific findings in your issues array with a clauseReference of "Virginia Law" where applicable.
+`.trim();
+
+// Pennsylvania-specific addendum
+const PENNSYLVANIA_ADDENDUM = `
+
+PENNSYLVANIA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Pennsylvania-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Pennsylvania common law + 43 P.S. § 206 et seq.):
+   Pennsylvania enforces non-compete agreements under a common law reasonableness standard. The covenant must be: (a) ancillary to an employment or business sale agreement; (b) supported by adequate consideration (a new job offer is sufficient; continued employment for existing employees requires additional consideration); (c) reasonably limited in time (typically ≤2 years), geographic scope, and type of activity. Courts will not blue-pencil — an overbroad covenant is void entirely. Flag any non-compete lacking adequate consideration, exceeding 2 years, or with unreasonably broad geography or scope. Flag as HIGH if facially unenforceable.
+
+2. UNFAIR TRADE PRACTICES AND CONSUMER PROTECTION LAW (73 P.S. § 201-1 et seq.):
+   Flag any clause that waives UTPCPL rights, limits remedies for unfair or deceptive business practices, or disclaims statutory liability. Note any mandatory arbitration clause that bars UTPCPL remedies or treble damages. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (41 P.S. § 301 et seq.):
+   Pennsylvania's general legal interest rate is 6% per annum; parties may agree to a higher rate in writing under the Loan Interest and Protection Law. Consumer loans are separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 6% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious for a consumer transaction.
+
+4. CONSTRUCTION ANTI-INDEMNITY (68 P.S. § 491):
+   Pennsylvania voids indemnification clauses in construction contracts that require a contractor to indemnify another party for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Pennsylvania UETA — 73 P.S. § 2260.101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (73 P.S. § 2301 et seq.):
+   Pennsylvania requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Pennsylvania-specific findings in your issues array with a clauseReference of "Pennsylvania Law" where applicable.
+`.trim();
+
+// Oregon-specific addendum
+const OREGON_ADDENDUM = `
+
+OREGON JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Oregon-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (ORS § 653.295 et seq.):
+   Oregon strictly limits non-compete agreements. They are enforceable only if: (a) the employee is exempt from overtime (i.e., earns above $100,533/year or the salary threshold); (b) the employer provides a bona fide advancement opportunity or the agreement is entered upon a new hire with advance written notice; (c) the employer has a protectable interest in trade secrets or competitively sensitive confidential information; (d) the duration does not exceed 12 months. Flag any non-compete exceeding 12 months, applied to a non-exempt employee, or lacking a legitimate business interest. Flag as HIGH if the duration exceeds 12 months or the employee is non-exempt.
+
+2. UNLAWFUL TRADE PRACTICES ACT (ORS § 646.605 et seq.):
+   Flag any clause that waives UTPA rights, limits remedies for unfair or deceptive trade practices, or disclaims statutory liability. Note any mandatory arbitration clause that bars UTPA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (ORS § 82.010 et seq.):
+   Oregon's general usury cap is 9% per annum; parties may agree to a higher rate in writing. Consumer credit is separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 9% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (ORS § 30.140):
+   Oregon voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Oregon UETA — ORS § 84.001 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (ORS § 646A.600 et seq.):
+   Oregon requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Oregon-specific findings in your issues array with a clauseReference of "Oregon Law" where applicable.
+`.trim();
+
 // Generic state addendum for all other states
 function genericStateAddendum(stateName: string): string {
   return `
@@ -430,6 +570,11 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "AZ") return "\n\n" + ARIZONA_ADDENDUM;
   if (stateCode === "TN") return "\n\n" + TENNESSEE_ADDENDUM;
   if (stateCode === "IL") return "\n\n" + ILLINOIS_ADDENDUM;
+  if (stateCode === "CO") return "\n\n" + COLORADO_ADDENDUM;
+  if (stateCode === "NV") return "\n\n" + NEVADA_ADDENDUM;
+  if (stateCode === "VA") return "\n\n" + VIRGINIA_ADDENDUM;
+  if (stateCode === "PA") return "\n\n" + PENNSYLVANIA_ADDENDUM;
+  if (stateCode === "OR") return "\n\n" + OREGON_ADDENDUM;
   const name = getStateName(stateCode);
   return "\n\n" + genericStateAddendum(name);
 }
