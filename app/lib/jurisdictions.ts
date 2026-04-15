@@ -263,6 +263,146 @@ You MUST perform these additional Georgia-specific checks and include any violat
 Include all Georgia-specific findings in your issues array with a clauseReference of "Georgia Law" where applicable.
 `.trim();
 
+// Washington-specific addendum
+const WASHINGTON_ADDENDUM = `
+
+WASHINGTON JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Washington-specific checks and include any violations as issues:
+
+1. NON-COMPETE / NONCOMPETITION AGREEMENTS (RCW 49.62):
+   Washington's Noncompetition Agreements Act makes non-competes enforceable only if: (a) the employee earns above the statutory earnings threshold (currently ~$100,000/year for employees, ~$250,000/year for independent contractors); (b) the employer provides written notice of the covenant at least ten business days before the start date or before a promotion; (c) the covenant is reasonable in duration (courts presumptively disfavor terms exceeding 18 months) and scope. Flag any non-compete lacking proper advance notice, below the earnings threshold, or with an unreasonable duration or scope. Flag as HIGH if the earner is below the threshold or notice was not given.
+
+2. CONSUMER PROTECTION ACT (RCW 19.86):
+   Flag any clause that waives CPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CPA remedies or treble damages. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (RCW 19.52):
+   Washington's general usury cap is 12% per annum unless a higher rate is agreed in writing or falls within a statutory exemption. Flag any interest rate, default rate, or fee structure that exceeds 12% without a written agreement or applicable exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (RCW 4.24.360):
+   Washington voids indemnification clauses in construction contracts that require one party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Washington UETA — RCW 1.80):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (RCW 19.255.010):
+   Washington requires notification to affected residents without unreasonable delay following discovery of a breach. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response procedures, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Washington-specific findings in your issues array with a clauseReference of "Washington Law" where applicable.
+`.trim();
+
+// Utah-specific addendum
+const UTAH_ADDENDUM = `
+
+UTAH JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Utah-specific checks and include any violations as issues:
+
+1. NON-COMPETE / POST-EMPLOYMENT RESTRICTIONS (Utah Post-Employment Restrictions Act — Utah Code § 34-51-101 et seq.):
+   Utah restricts post-employment non-compete agreements with former employees to a maximum duration of one year. Flag any non-compete exceeding one year. Non-solicitation covenants may have different treatment. Adequate consideration is required. Flag as HIGH if duration exceeds one year or consideration is absent.
+
+2. CONSUMER SALES PRACTICES ACT (Utah Code § 13-11-1 et seq.):
+   Flag any clause that waives CSPA rights, limits remedies for deceptive acts in consumer transactions, or disclaims statutory liability. Note any mandatory arbitration clause that bars CSPA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Utah Code § 15-1-1):
+   Utah's general interest rate limit is 10% per annum in the absence of a written agreement specifying a rate; parties to a written contract may agree to any rate. Flag any consumer credit agreement where the rate is not clearly disclosed or exceeds applicable limits for that transaction type. Flag as HIGH if a consumer rate appears clearly excessive without disclosure.
+
+4. CONSTRUCTION ANTI-INDEMNITY (Utah Code § 13-8-1 et seq.):
+   Utah voids indemnification clauses in construction contracts that purport to indemnify a party for its own negligence or willful misconduct. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Utah UETA — Utah Code § 46-4-101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Utah Code § 13-44-101 et seq.):
+   Utah requires notification to affected individuals without unreasonable delay following discovery of a breach of personal data. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Utah-specific findings in your issues array with a clauseReference of "Utah Law" where applicable.
+`.trim();
+
+// Arizona-specific addendum
+const ARIZONA_ADDENDUM = `
+
+ARIZONA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Arizona-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (A.R.S. § 44-521 et seq.):
+   Arizona enforces non-compete and non-solicitation agreements if they are ancillary to a legitimate employment or business relationship and reasonable in time, geographic area, and type of restricted activity. Courts apply a reasonableness standard and may blue-pencil overbroad covenants. Flag any non-compete lacking consideration, with unreasonable duration (>2 years without strong justification), overbroad geography, or overly broad activity restrictions. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER FRAUD ACT (A.R.S. § 44-1521 et seq.):
+   Flag any clause that waives Consumer Fraud Act rights, limits remedies for deceptive or unfair practices in consumer transactions, or disclaims statutory liability. Note any mandatory arbitration clause that bars CFA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (A.R.S. § 44-1201 et seq.):
+   Arizona's general usury cap is 10% per annum unless a different rate is agreed to in writing or falls within a statutory exemption. Flag any interest rate, default rate, or fee structure that exceeds 10% without a written agreement. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (A.R.S. § 32-1159):
+   Arizona voids indemnification clauses in construction contracts that require one party to indemnify another for the indemnitee's own negligence or intentional wrongdoing. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Arizona UETA — A.R.S. § 44-7001 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (A.R.S. § 44-7501):
+   Arizona requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response procedures, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Arizona-specific findings in your issues array with a clauseReference of "Arizona Law" where applicable.
+`.trim();
+
+// Tennessee-specific addendum
+const TENNESSEE_ADDENDUM = `
+
+TENNESSEE JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Tennessee-specific checks and include any violations as issues:
+
+1. NON-COMPETE (Tennessee Non-Compete Act — Tenn. Code Ann. § 47-25-1501 et seq.):
+   Tennessee enforces non-compete agreements only when: (a) supported by adequate consideration (including continued employment for existing employees); (b) the employer has a legitimate business interest to protect (trade secrets, customer relationships, specialized training); (c) the restrictions are reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Flag any non-compete lacking a legitimate business interest, with duration exceeding 2 years, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER PROTECTION ACT (Tenn. Code Ann. § 47-18-101 et seq.):
+   Flag any clause that waives TCPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars TCPA remedies or treble damages. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Tenn. Code Ann. § 47-14-101 et seq.):
+   Tennessee's general usury limit is 10% per annum; written agreements between sophisticated parties may set a different rate within statutory limits. Flag any interest rate, default rate, or fee structure that appears to exceed applicable limits without a valid written agreement or exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (Tenn. Code Ann. § 62-6-123):
+   Tennessee voids indemnification clauses in construction contracts that require a contractor or subcontractor to indemnify another party for that party's own negligence or intentional acts. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Tennessee UETA — Tenn. Code Ann. § 47-10-101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Tenn. Code Ann. § 47-18-2107):
+   Tennessee requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response procedures, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Tennessee-specific findings in your issues array with a clauseReference of "Tennessee Law" where applicable.
+`.trim();
+
+// Illinois-specific addendum
+const ILLINOIS_ADDENDUM = `
+
+ILLINOIS JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Illinois-specific checks and include any violations as issues:
+
+1. NON-COMPETE (Illinois Freedom to Work Act — 820 ILCS 90):
+   Illinois enforces non-compete and non-solicitation agreements only if: (a) the employee earns above the statutory earnings threshold (currently $75,000/year for non-competes, $45,000/year for non-solicitation); (b) the employer provides at least 14 days of advance notice and opportunity to review before the employee is required to sign; (c) the covenant is ancillary to a legitimate business interest; (d) the restrictions are reasonable in scope and duration. Flag any non-compete where the earner is below threshold, advance notice was not given, or restrictions are unreasonably broad. Flag as HIGH if the earnings threshold is not met.
+
+2. CONSUMER FRAUD AND DECEPTIVE BUSINESS PRACTICES ACT (815 ILCS 505/1 et seq.):
+   Flag any clause that waives ICFA rights, limits remedies for unfair or deceptive acts, or disclaims statutory liability. Note any mandatory arbitration clause that bars ICFA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (815 ILCS 205):
+   Illinois's general usury cap is 9% per annum for written contracts (5% for unwritten obligations); commercial loans between businesses may set a different rate by written agreement. Flag any interest rate, default rate, or fee structure that exceeds 9% without a valid written agreement or statutory exemption. Flag as HIGH if clearly usurious for a consumer transaction.
+
+4. CONSTRUCTION ANTI-INDEMNITY (740 ILCS 35):
+   Illinois voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional wrongdoing. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Illinois UETA — 5 ILCS 175):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (815 ILCS 530):
+   Illinois requires notification to affected residents in the most expedient time possible, and no later than 45 days after discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Illinois-specific findings in your issues array with a clauseReference of "Illinois Law" where applicable.
+`.trim();
+
 // Generic state addendum for all other states
 function genericStateAddendum(stateName: string): string {
   return `
@@ -285,6 +425,11 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "NC") return "\n\n" + NORTH_CAROLINA_ADDENDUM;
   if (stateCode === "ID") return "\n\n" + IDAHO_ADDENDUM;
   if (stateCode === "GA") return "\n\n" + GEORGIA_ADDENDUM;
+  if (stateCode === "WA") return "\n\n" + WASHINGTON_ADDENDUM;
+  if (stateCode === "UT") return "\n\n" + UTAH_ADDENDUM;
+  if (stateCode === "AZ") return "\n\n" + ARIZONA_ADDENDUM;
+  if (stateCode === "TN") return "\n\n" + TENNESSEE_ADDENDUM;
+  if (stateCode === "IL") return "\n\n" + ILLINOIS_ADDENDUM;
   const name = getStateName(stateCode);
   return "\n\n" + genericStateAddendum(name);
 }

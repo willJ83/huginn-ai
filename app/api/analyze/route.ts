@@ -122,6 +122,11 @@ interface JurisdictionAnalysis {
   ncChecklist?: JurisdictionChecklistItem[];
   idChecklist?: JurisdictionChecklistItem[];
   gaChecklist?: JurisdictionChecklistItem[];
+  waChecklist?: JurisdictionChecklistItem[];
+  utChecklist?: JurisdictionChecklistItem[];
+  azChecklist?: JurisdictionChecklistItem[];
+  tnChecklist?: JurisdictionChecklistItem[];
+  ilChecklist?: JurisdictionChecklistItem[];
 }
 
 async function runJurisdictionStage(
@@ -137,25 +142,41 @@ async function runJurisdictionStage(
     const isNC = /\bnc\b|north\s*carolina/i.test(jurisdiction);
     const isID = /\bid\b|idaho/i.test(jurisdiction);
     const isGA = /\bga\b|georgia/i.test(jurisdiction);
+    const isWA = /\bwa\b|washington/i.test(jurisdiction);
+    const isUT = /\but\b|utah/i.test(jurisdiction);
+    const isAZ = /\baz\b|arizona/i.test(jurisdiction);
+    const isTN = /\btn\b|tennessee/i.test(jurisdiction);
+    const isIL = /\bil\b|illinois/i.test(jurisdiction);
     const isFinancing = /financ|loan|merchant\s*cash|advance|lending|credit\s*agree|borrow|installment/i.test(contractType);
 
+    const ALL_CHECKLISTS = "floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, gaChecklist, waChecklist, utChecklist, azChecklist, tnChecklist, ilChecklist";
     const stateInstruction = isFL && isFinancing
-      ? "\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON. Omit californiaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, and gaChecklist."
+      ? `\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("floridaChecklist, ", "")}).`
       : isFL
-      ? "\n\nThe user's jurisdiction IS Florida but this contract is NOT a financing instrument. Do NOT include a floridaChecklist — §559.9613 does not apply. Omit californiaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, and gaChecklist."
+      ? `\n\nThe user's jurisdiction IS Florida but this contract is NOT a financing instrument. Do NOT include a floridaChecklist — §559.9613 does not apply. Omit all other state checklists (${ALL_CHECKLISTS.replace("floridaChecklist, ", "")}).`
       : isCA
-      ? "\n\nThe user's jurisdiction IS California. You MUST include the californiaChecklist array in your JSON. Omit floridaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, and gaChecklist."
+      ? `\n\nThe user's jurisdiction IS California. You MUST include the californiaChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("californiaChecklist, ", "")}).`
       : isTX
-      ? "\n\nThe user's jurisdiction IS Texas. You MUST include the texasChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, scChecklist, ncChecklist, idChecklist, and gaChecklist."
+      ? `\n\nThe user's jurisdiction IS Texas. You MUST include the texasChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("texasChecklist, ", "")}).`
       : isSC
-      ? "\n\nThe user's jurisdiction IS South Carolina. You MUST include the scChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, texasChecklist, ncChecklist, idChecklist, and gaChecklist."
+      ? `\n\nThe user's jurisdiction IS South Carolina. You MUST include the scChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("scChecklist, ", "")}).`
       : isNC
-      ? "\n\nThe user's jurisdiction IS North Carolina. You MUST include the ncChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, texasChecklist, scChecklist, idChecklist, and gaChecklist."
+      ? `\n\nThe user's jurisdiction IS North Carolina. You MUST include the ncChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("ncChecklist, ", "")}).`
       : isID
-      ? "\n\nThe user's jurisdiction IS Idaho. You MUST include the idChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, and gaChecklist."
+      ? `\n\nThe user's jurisdiction IS Idaho. You MUST include the idChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("idChecklist, ", "")}).`
       : isGA
-      ? "\n\nThe user's jurisdiction IS Georgia. You MUST include the gaChecklist array in your JSON. Omit floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, and idChecklist."
-      : "\n\nThe user's jurisdiction does not require a state-specific checklist. Omit floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, and gaChecklist entirely.";
+      ? `\n\nThe user's jurisdiction IS Georgia. You MUST include the gaChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("gaChecklist, ", "")}).`
+      : isWA
+      ? `\n\nThe user's jurisdiction IS Washington. You MUST include the waChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("waChecklist, ", "")}).`
+      : isUT
+      ? `\n\nThe user's jurisdiction IS Utah. You MUST include the utChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("utChecklist, ", "")}).`
+      : isAZ
+      ? `\n\nThe user's jurisdiction IS Arizona. You MUST include the azChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("azChecklist, ", "")}).`
+      : isTN
+      ? `\n\nThe user's jurisdiction IS Tennessee. You MUST include the tnChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("tnChecklist, ", "")}).`
+      : isIL
+      ? `\n\nThe user's jurisdiction IS Illinois. You MUST include the ilChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("ilChecklist, ", "")}).`
+      : `\n\nThe user's jurisdiction does not require a state-specific checklist. Omit all state checklist arrays (${ALL_CHECKLISTS}) entirely.`;
 
     const model = getProModel(SHIELD_JURISDICTION_STAGE_PROMPT, 1024);
     const result = await model.generateContent(

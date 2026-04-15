@@ -24,7 +24,12 @@ JSON structure:
   "scChecklist": [...],
   "ncChecklist": [...],
   "idChecklist": [...],
-  "gaChecklist": [...]
+  "gaChecklist": [...],
+  "waChecklist": [...],
+  "utChecklist": [...],
+  "azChecklist": [...],
+  "tnChecklist": [...],
+  "ilChecklist": [...]
 }
 
 FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
@@ -90,6 +95,51 @@ GEORGIA (GA) — always include gaChecklist:
   - "Electronic signatures valid under Georgia UETA (O.C.G.A. § 10-12-1 et seq.)"
   - "Data breach notification obligations addressed (O.C.G.A. § 10-1-912 — without unreasonable delay)"
 
+WASHINGTON (WA) — always include waChecklist:
+  waChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete enforceable under Washington Noncompetition Agreements Act (RCW 49.62) — earnings threshold met, advance notice given"
+  - "Consumer Protection Act compliance — no unfair or deceptive acts (RCW 19.86)"
+  - "Interest rate within Washington usury limits (RCW 19.52 — 12% general cap)"
+  - "Construction indemnity clause compliant with Washington anti-indemnity statute (RCW 4.24.360)"
+  - "Electronic signatures valid under Washington UETA (RCW 1.80)"
+  - "Data breach notification obligations addressed (RCW 19.255.010 — without unreasonable delay)"
+
+UTAH (UT) — always include utChecklist:
+  utChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete enforceable under Utah Post-Employment Restrictions Act (Utah Code § 34-51-101 et seq.) — reasonable scope"
+  - "Consumer Sales Practices Act compliance — no deceptive acts (Utah Code § 13-11-1 et seq.)"
+  - "Interest rate within Utah limits (Utah Code § 15-1-1 — 10% general cap)"
+  - "Construction indemnity clause compliant with Utah anti-indemnity statute (Utah Code § 13-8-1 et seq.)"
+  - "Electronic signatures valid under Utah UETA (Utah Code § 46-4-101 et seq.)"
+  - "Data breach notification obligations addressed (Utah Code § 13-44-101 et seq. — without unreasonable delay)"
+
+ARIZONA (AZ) — always include azChecklist:
+  azChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Arizona law (A.R.S. § 44-521 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Fraud Act compliance — no deceptive or unfair practices (A.R.S. § 44-1521 et seq.)"
+  - "Interest rate within Arizona usury limits (A.R.S. § 44-1201 et seq. — 10% general cap)"
+  - "Construction indemnity clause compliant with Arizona anti-indemnity statute (A.R.S. § 32-1159)"
+  - "Electronic signatures valid under Arizona UETA (A.R.S. § 44-7001 et seq.)"
+  - "Data breach notification obligations addressed (A.R.S. § 44-7501 — without unreasonable delay)"
+
+TENNESSEE (TN) — always include tnChecklist:
+  tnChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete enforceable under Tennessee Non-Compete Act (Tenn. Code Ann. § 47-25-1501 et seq.) — reasonable scope"
+  - "Consumer Protection Act compliance — no unfair or deceptive acts (Tenn. Code Ann. § 47-18-101 et seq.)"
+  - "Interest rate within Tennessee usury limits (Tenn. Code Ann. § 47-14-101 et seq. — 10% general cap)"
+  - "Construction indemnity clause compliant with Tennessee anti-indemnity statute (Tenn. Code Ann. § 62-6-123)"
+  - "Electronic signatures valid under Tennessee UETA (Tenn. Code Ann. § 47-10-101 et seq.)"
+  - "Data breach notification obligations addressed (Tenn. Code Ann. § 47-18-2107 — without unreasonable delay)"
+
+ILLINOIS (IL) — always include ilChecklist:
+  ilChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete enforceable under Illinois Freedom to Work Act (820 ILCS 90) — earnings threshold met (>$75k), advance notice given"
+  - "Consumer Fraud and Deceptive Business Practices Act compliance (815 ILCS 505/1 et seq.)"
+  - "Interest rate within Illinois usury limits (815 ILCS 205 — 9% general cap)"
+  - "Construction indemnity clause compliant with Illinois anti-indemnity statute (740 ILCS 35)"
+  - "Electronic signatures valid under Illinois UETA (5 ILCS 175)"
+  - "Data breach notification obligations addressed (815 ILCS 530 — most expedient time, no later than 45 days)"
+
 Rules:
 - Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
 - Include californiaChecklist ONLY if the user's jurisdiction is California.
@@ -98,6 +148,11 @@ Rules:
 - Include ncChecklist ONLY if the user's jurisdiction is North Carolina.
 - Include idChecklist ONLY if the user's jurisdiction is Idaho.
 - Include gaChecklist ONLY if the user's jurisdiction is Georgia.
+- Include waChecklist ONLY if the user's jurisdiction is Washington.
+- Include utChecklist ONLY if the user's jurisdiction is Utah.
+- Include azChecklist ONLY if the user's jurisdiction is Arizona.
+- Include tnChecklist ONLY if the user's jurisdiction is Tennessee.
+- Include ilChecklist ONLY if the user's jurisdiction is Illinois.
 - Omit all checklist fields for all other jurisdictions.
 - For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
 - risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.
