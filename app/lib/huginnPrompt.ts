@@ -34,7 +34,13 @@ JSON structure:
   "nvChecklist": [...],
   "vaChecklist": [...],
   "paChecklist": [...],
-  "orChecklist": [...]
+  "orChecklist": [...],
+  "miChecklist": [...],
+  "ohChecklist": [...],
+  "nyChecklist": [...],
+  "mnChecklist": [...],
+  "moChecklist": [...],
+  "wiChecklist": [...]
 }
 
 FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
@@ -190,6 +196,60 @@ OREGON (OR) — always include orChecklist:
   - "Electronic signatures valid under Oregon UETA (ORS § 84.001 et seq.)"
   - "Data breach notification obligations addressed (ORS § 646A.600 et seq. — without unreasonable delay)"
 
+MICHIGAN (MI) — always include miChecklist:
+  miChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Michigan law (MCL 445.774a) — reasonable in duration, geography, and type of business"
+  - "Michigan Consumer Protection Act compliance — no unfair or deceptive acts (MCL 445.901 et seq.)"
+  - "Interest rate within Michigan usury limits (MCL 438.31 et seq. — 7% written, 25% criminal threshold)"
+  - "Construction indemnity clause compliant with Michigan anti-indemnity rules (common law + MCL principles)"
+  - "Electronic signatures valid under Michigan UETA (MCL 450.831 et seq.)"
+  - "Data breach notification obligations addressed (MCL 445.72 — without unreasonable delay)"
+
+OHIO (OH) — always include ohChecklist:
+  ohChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Ohio common law (R.C. 1333.69) — reasonable in time, geography, and scope"
+  - "Consumer Sales Practices Act compliance — no deceptive or unconscionable acts (R.C. 1345.01 et seq.)"
+  - "Interest rate within Ohio usury limits (R.C. 1343.01 et seq. — 8% general cap)"
+  - "Construction indemnity clause compliant with Ohio anti-indemnity statute (R.C. 2305.31)"
+  - "Electronic signatures valid under Ohio UETA (R.C. 1306.01 et seq.)"
+  - "Data breach notification obligations addressed (R.C. 1349.19 — without unreasonable delay)"
+
+NEW YORK (NY) — always include nyChecklist:
+  nyChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under New York common law (G.B.L. § 340 et seq.) — reasonable scope, recent restrictions on low-wage workers"
+  - "Consumer Protection Act compliance — no deceptive acts or practices (G.B.L. § 349 et seq.)"
+  - "Interest rate within New York usury limits (G.B.L. § 5-501 — 16% civil, 25% criminal)"
+  - "Construction indemnity clause compliant with New York anti-indemnity statute (G.B.L. § 5-322.1)"
+  - "Electronic signatures valid under New York UETA (E.C.L. § 304)"
+  - "Data breach notification obligations addressed (G.B.L. § 899-aa — without unreasonable delay)"
+
+MINNESOTA (MN) — always include mnChecklist:
+  mnChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Minnesota law (Minn. Stat. § 325.01 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Fraud Act compliance — no deceptive practices in commerce (Minn. Stat. § 325F.68 et seq.)"
+  - "Interest rate within Minnesota usury limits (Minn. Stat. § 334.01 et seq. — 6% general cap)"
+  - "Construction indemnity clause compliant with Minnesota anti-indemnity statute (Minn. Stat. § 337.01 et seq.)"
+  - "Electronic signatures valid under Minnesota UETA (Minn. Stat. § 325L.01 et seq.)"
+  - "Data breach notification obligations addressed (Minn. Stat. § 325E.61 — without unreasonable delay)"
+
+MISSOURI (MO) — always include moChecklist:
+  moChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Missouri law (Mo. Rev. Stat. § 416.010 et seq.) — reasonable and protects legitimate business interests"
+  - "Merchandising Practices Act compliance — no deceptive practices (Mo. Rev. Stat. § 407.010 et seq.)"
+  - "Interest rate within Missouri usury limits (Mo. Rev. Stat. § 408.030 et seq. — 10% general cap)"
+  - "Construction indemnity clause compliant with Missouri anti-indemnity rules (Mo. Rev. Stat. § 434.100)"
+  - "Electronic signatures valid under Missouri UETA (Mo. Rev. Stat. § 432.200 et seq.)"
+  - "Data breach notification obligations addressed (Mo. Rev. Stat. § 407.1500 — without unreasonable delay)"
+
+WISCONSIN (WI) — always include wiChecklist:
+  wiChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Wisconsin law (Wis. Stat. § 103.465) — reasonable in time, geography, and scope; courts strictly construe against employer"
+  - "Deceptive Trade Practices compliance — no deceptive representations in commerce (Wis. Stat. § 100.18 et seq.)"
+  - "Interest rate within Wisconsin usury limits (Wis. Stat. § 138.01 et seq. — 5% general cap)"
+  - "Construction indemnity clause compliant with Wisconsin anti-indemnity rules (Wis. Stat. § 779.70)"
+  - "Electronic signatures valid under Wisconsin UETA (Wis. Stat. § 711.01 et seq.)"
+  - "Data breach notification obligations addressed (Wis. Stat. § 134.98 — without unreasonable delay)"
+
 Rules:
 - Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
 - Include californiaChecklist ONLY if the user's jurisdiction is California.
@@ -208,6 +268,12 @@ Rules:
 - Include vaChecklist ONLY if the user's jurisdiction is Virginia.
 - Include paChecklist ONLY if the user's jurisdiction is Pennsylvania.
 - Include orChecklist ONLY if the user's jurisdiction is Oregon.
+- Include miChecklist ONLY if the user's jurisdiction is Michigan.
+- Include ohChecklist ONLY if the user's jurisdiction is Ohio.
+- Include nyChecklist ONLY if the user's jurisdiction is New York.
+- Include mnChecklist ONLY if the user's jurisdiction is Minnesota.
+- Include moChecklist ONLY if the user's jurisdiction is Missouri.
+- Include wiChecklist ONLY if the user's jurisdiction is Wisconsin.
 - Omit all checklist fields for all other jurisdictions.
 - For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
 - risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.

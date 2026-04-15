@@ -86,6 +86,12 @@ export default async function AnalysisPage({
     VA: { label: "Official Virginia Code",                 url: "https://law.lis.virginia.gov/vacode/" },
     PA: { label: "Official Pennsylvania Statutes",         url: "https://www.legis.state.pa.us/cfdocs/legis/LI/Public/cons_index.cfm" },
     OR: { label: "Official Oregon Revised Statutes",       url: "https://www.oregonlegislature.gov/bills_laws/Pages/ORS.aspx" },
+    MI: { label: "Official Michigan Compiled Laws",        url: "https://www.legislature.mi.gov/Laws/MCL" },
+    OH: { label: "Official Ohio Revised Code",             url: "https://codes.ohio.gov/ohio-revised-code" },
+    NY: { label: "Official New York Consolidated Laws",    url: "https://www.nysenate.gov/legislation/laws/consolidated-laws" },
+    MN: { label: "Official Minnesota Statutes",            url: "https://www.revisor.mn.gov/statutes/" },
+    MO: { label: "Official Missouri Revised Statutes",     url: "https://revisor.mo.gov/main/PageSelect.aspx?category=statutes" },
+    WI: { label: "Official Wisconsin Statutes",            url: "https://docs.legis.wisconsin.gov/statutes/statutes" },
   };
   const storedJurisdiction: string = metadata.jurisdiction ?? "";
   const statuteLink = STATUTE_LINKS[storedJurisdiction.toUpperCase()] ?? null;
@@ -779,6 +785,40 @@ export default async function AnalysisPage({
                   </div>
                 </div>
               )}
+
+              {(["miChecklist", "ohChecklist", "nyChecklist", "mnChecklist", "moChecklist", "wiChecklist"] as const).map((key) => {
+                const labels: Record<string, string> = {
+                  miChecklist: "Michigan Compliance Checklist",
+                  ohChecklist: "Ohio Compliance Checklist",
+                  nyChecklist: "New York Compliance Checklist",
+                  mnChecklist: "Minnesota Compliance Checklist",
+                  moChecklist: "Missouri Compliance Checklist",
+                  wiChecklist: "Wisconsin Compliance Checklist",
+                };
+                const items = jurisdictionAnalysis[key];
+                if (!Array.isArray(items) || items.length === 0) return null;
+                return (
+                  <div key={key} className="mt-5">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                      {labels[key]}
+                    </p>
+                    <div className="space-y-2">
+                      {items.map((item: { item: string; present: boolean; risk?: string }, i: number) => (
+                        <div key={i} className={`flex items-start gap-3 rounded-xl border px-4 py-2.5 ${
+                          item.present
+                            ? "border-green-200 bg-white dark:border-green-900/50 dark:bg-green-950/10"
+                            : "border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20"
+                        }`}>
+                          <span className="mt-0.5 text-base">{item.present ? "✅" : "❌"}</span>
+                          <span className={`text-sm ${item.present ? "text-slate-600 dark:text-slate-400" : "font-semibold text-red-700 dark:text-red-400"}`}>
+                            {item.item}{!item.present && item.risk && ` — ${item.risk} Risk`}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </section>
           )}
 

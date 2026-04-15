@@ -144,6 +144,12 @@ interface JurisdictionAnalysis {
   vaChecklist?: JurisdictionChecklistItem[];
   paChecklist?: JurisdictionChecklistItem[];
   orChecklist?: JurisdictionChecklistItem[];
+  miChecklist?: JurisdictionChecklistItem[];
+  ohChecklist?: JurisdictionChecklistItem[];
+  nyChecklist?: JurisdictionChecklistItem[];
+  mnChecklist?: JurisdictionChecklistItem[];
+  moChecklist?: JurisdictionChecklistItem[];
+  wiChecklist?: JurisdictionChecklistItem[];
 }
 
 async function runJurisdictionStage(
@@ -169,9 +175,15 @@ async function runJurisdictionStage(
     const isVA = /\bva\b|virginia/i.test(jurisdiction);
     const isPA = /\bpa\b|pennsylvania/i.test(jurisdiction);
     const isOR = /\bor\b|oregon/i.test(jurisdiction);
+    const isMI = /\bmi\b|michigan/i.test(jurisdiction);
+    const isOH = /\boh\b|ohio/i.test(jurisdiction);
+    const isNY = /\bny\b|new\s*york/i.test(jurisdiction);
+    const isMN = /\bmn\b|minnesota/i.test(jurisdiction);
+    const isMO = /\bmo\b|missouri/i.test(jurisdiction);
+    const isWI = /\bwi\b|wisconsin/i.test(jurisdiction);
     const isFinancing = /financ|loan|merchant\s*cash|advance|lending|credit\s*agree|borrow|installment/i.test(contractType);
 
-    const ALL_CHECKLISTS = "floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, gaChecklist, waChecklist, utChecklist, azChecklist, tnChecklist, ilChecklist, coChecklist, nvChecklist, vaChecklist, paChecklist, orChecklist";
+    const ALL_CHECKLISTS = "floridaChecklist, californiaChecklist, texasChecklist, scChecklist, ncChecklist, idChecklist, gaChecklist, waChecklist, utChecklist, azChecklist, tnChecklist, ilChecklist, coChecklist, nvChecklist, vaChecklist, paChecklist, orChecklist, miChecklist, ohChecklist, nyChecklist, mnChecklist, moChecklist, wiChecklist";
     const stateInstruction = isFL && isFinancing
       ? `\n\nThe user's jurisdiction IS Florida and this is a financing/lending contract. You MUST include the floridaChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("floridaChecklist, ", "")}).`
       : isFL
@@ -208,6 +220,18 @@ async function runJurisdictionStage(
       ? `\n\nThe user's jurisdiction IS Pennsylvania. You MUST include the paChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("paChecklist, ", "")}).`
       : isOR
       ? `\n\nThe user's jurisdiction IS Oregon. You MUST include the orChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("orChecklist, ", "")}).`
+      : isMI
+      ? `\n\nThe user's jurisdiction IS Michigan. You MUST include the miChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("miChecklist, ", "")}).`
+      : isOH
+      ? `\n\nThe user's jurisdiction IS Ohio. You MUST include the ohChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("ohChecklist, ", "")}).`
+      : isNY
+      ? `\n\nThe user's jurisdiction IS New York. You MUST include the nyChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("nyChecklist, ", "")}).`
+      : isMN
+      ? `\n\nThe user's jurisdiction IS Minnesota. You MUST include the mnChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("mnChecklist, ", "")}).`
+      : isMO
+      ? `\n\nThe user's jurisdiction IS Missouri. You MUST include the moChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("moChecklist, ", "")}).`
+      : isWI
+      ? `\n\nThe user's jurisdiction IS Wisconsin. You MUST include the wiChecklist array in your JSON. Omit all other state checklists (${ALL_CHECKLISTS.replace("wiChecklist, ", "")}).`
       : `\n\nThe user's jurisdiction does not require a state-specific checklist. Omit all state checklist arrays (${ALL_CHECKLISTS}) entirely.`;
 
     const model = getProModel(SHIELD_JURISDICTION_STAGE_PROMPT, 1024);

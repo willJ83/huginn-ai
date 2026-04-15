@@ -543,6 +543,174 @@ You MUST perform these additional Oregon-specific checks and include any violati
 Include all Oregon-specific findings in your issues array with a clauseReference of "Oregon Law" where applicable.
 `.trim();
 
+// Michigan-specific addendum
+const MICHIGAN_ADDENDUM = `
+
+MICHIGAN JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Michigan-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (MCL 445.774a):
+   Michigan enforces non-compete agreements only if: (a) in writing; (b) reasonable as to duration, geographic area, and type of business or activity restricted; (c) protect an employer's reasonable competitive business interest. Courts may blue-pencil overbroad covenants. Flag any non-compete that is not tied to a legitimate competitive interest, has an unreasonable duration (>2 years without strong justification), overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. MICHIGAN CONSUMER PROTECTION ACT (MCL 445.901 et seq.):
+   Flag any clause that waives MCPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars MCPA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (MCL 438.31 et seq.):
+   Michigan's general written interest rate limit is 7% per annum absent a statutory exception; the criminal usury threshold is 25%. Licensed lenders and certain commercial transactions may charge different rates. Flag any rate that appears to exceed applicable limits without a written agreement or exemption. Flag as HIGH if the rate approaches or exceeds the criminal threshold.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law + MCL principles):
+   Michigan common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Michigan UETA — MCL 450.831 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (MCL 445.72):
+   Michigan requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Michigan-specific findings in your issues array with a clauseReference of "Michigan Law" where applicable.
+`.trim();
+
+// Ohio-specific addendum
+const OHIO_ADDENDUM = `
+
+OHIO JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Ohio-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (R.C. 1333.69):
+   Ohio enforces non-compete agreements under a reasonableness standard: the restriction must be no greater than necessary to protect a legitimate business interest, must not impose undue hardship on the employee, and must not be injurious to the public. Courts will blue-pencil overbroad covenants. Flag any non-compete lacking a legitimate business interest, with unreasonable duration (>2 years), overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER SALES PRACTICES ACT (R.C. 1345.01 et seq.):
+   Flag any clause that waives CSPA rights, limits remedies for deceptive or unconscionable acts in consumer transactions, or disclaims statutory liability. Note any mandatory arbitration clause that bars CSPA remedies or class actions. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (R.C. 1343.01 et seq.):
+   Ohio's general usury cap is 8% per annum in the absence of a written agreement; parties may agree to a higher rate in writing. Flag any interest rate, default rate, or fee structure that exceeds 8% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (R.C. 2305.31):
+   Ohio voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional misconduct. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Ohio UETA — R.C. 1306.01 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (R.C. 1349.19):
+   Ohio requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Ohio-specific findings in your issues array with a clauseReference of "Ohio Law" where applicable.
+`.trim();
+
+// New York-specific addendum
+const NEW_YORK_ADDENDUM = `
+
+NEW YORK JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional New York-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (G.B.L. § 340 et seq.):
+   New York enforces non-compete agreements under a strict common law reasonableness test: the restriction must be necessary to protect a legitimate interest (trade secrets, confidential information, or unique/extraordinary employee skills), must not impose undue hardship, and must not harm the public. New York courts will not blue-pencil — an overbroad covenant is void. Note that recent legislative activity has further restricted non-competes against lower-wage workers. Flag any non-compete lacking a legitimate interest, with unreasonable duration, overbroad geography, or unlimited activity scope. Flag as HIGH if applied to a non-senior employee without a clear protectable interest.
+
+2. CONSUMER PROTECTION ACT (G.B.L. § 349 et seq.):
+   Flag any clause that waives rights under G.B.L. § 349, limits remedies for deceptive acts or practices, or disclaims statutory liability. Note any mandatory arbitration clause that bars § 349 remedies or class actions. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (G.B.L. § 5-501):
+   New York's civil usury limit is 16% per annum; the criminal usury limit is 25%. Commercial loans above $2.5 million are exempt from civil usury. Flag any interest rate, default rate, or fee structure that appears to exceed 16% without an applicable exemption. Flag as HIGH if the rate approaches or exceeds the criminal threshold of 25%.
+
+4. CONSTRUCTION ANTI-INDEMNITY (G.B.L. § 5-322.1):
+   New York voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (New York E-Sign — E.C.L. § 304):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (G.B.L. § 899-aa):
+   New York requires notification to affected residents without unreasonable delay following discovery of a breach of private information. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all New York-specific findings in your issues array with a clauseReference of "New York Law" where applicable.
+`.trim();
+
+// Minnesota-specific addendum
+const MINNESOTA_ADDENDUM = `
+
+MINNESOTA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Minnesota-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Minn. Stat. § 325.01 et seq.):
+   Minnesota significantly restricts non-compete agreements. As of 2023, non-compete agreements with employees and independent contractors are void and unenforceable (Minn. Stat. § 181.988), with narrow exceptions for agreements entered into in connection with the sale of a business. Flag any non-compete with an employee or independent contractor entered into after January 1, 2023 as void. Flag as HIGH.
+
+2. CONSUMER FRAUD ACT (Minn. Stat. § 325F.68 et seq.):
+   Flag any clause that waives Consumer Fraud Act rights, limits remedies for deceptive practices in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CFA remedies or private actions. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Minn. Stat. § 334.01 et seq.):
+   Minnesota's general interest rate limit is 6% per annum absent a written agreement; commercial parties may agree to a higher rate in writing. Flag any rate exceeding applicable limits without a written agreement. Flag as HIGH if clearly usurious for the contract type.
+
+4. CONSTRUCTION ANTI-INDEMNITY (Minn. Stat. § 337.01 et seq.):
+   Minnesota voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional wrongdoing. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Minnesota UETA — Minn. Stat. § 325L.01 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Minn. Stat. § 325E.61):
+   Minnesota requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Minnesota-specific findings in your issues array with a clauseReference of "Minnesota Law" where applicable.
+`.trim();
+
+// Missouri-specific addendum
+const MISSOURI_ADDENDUM = `
+
+MISSOURI JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Missouri-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Mo. Rev. Stat. § 416.010 et seq.):
+   Missouri enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest (trade secrets, customer relationships, specialized training), must be reasonable in time and scope, and must not impose undue hardship. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking a legitimate business interest, with unreasonable duration (>2 years), overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. MERCHANDISING PRACTICES ACT (Mo. Rev. Stat. § 407.010 et seq.):
+   Flag any clause that waives MPA rights, limits remedies for deceptive practices in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars MPA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Mo. Rev. Stat. § 408.030 et seq.):
+   Missouri's general usury cap is 10% per annum in the absence of a written agreement; parties may agree to a higher rate in writing. Flag any interest rate, default rate, or fee structure that exceeds 10% without a written agreement. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (Mo. Rev. Stat. § 434.100):
+   Missouri limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Missouri UETA — Mo. Rev. Stat. § 432.200 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Mo. Rev. Stat. § 407.1500):
+   Missouri requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Missouri-specific findings in your issues array with a clauseReference of "Missouri Law" where applicable.
+`.trim();
+
+// Wisconsin-specific addendum
+const WISCONSIN_ADDENDUM = `
+
+WISCONSIN JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Wisconsin-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Wis. Stat. § 103.465):
+   Wisconsin enforces non-compete agreements only if they are: (a) necessary to protect a legitimate interest; (b) supported by consideration; (c) reasonable in time (courts rarely enforce beyond 2 years), geographic scope, and type of restricted activity. Wisconsin courts apply strict construction against the employer — an overbroad covenant is void in its entirety, not blue-penciled. Flag any non-compete with an unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if the covenant is overbroad, as it will be entirely void.
+
+2. DECEPTIVE TRADE PRACTICES (Wis. Stat. § 100.18 et seq.):
+   Flag any clause that waives rights under § 100.18, limits remedies for deceptive representations in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars § 100.18 remedies or class actions. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Wis. Stat. § 138.01 et seq.):
+   Wisconsin's general usury cap is 5% per annum in the absence of a written agreement; parties may agree to a higher rate in writing up to applicable maximums. Commercial loans have different treatment. Flag any interest rate, default rate, or fee structure that exceeds applicable limits without a written agreement. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (Wis. Stat. § 779.70):
+   Wisconsin voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional acts. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Wisconsin UETA — Wis. Stat. § 711.01 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Wis. Stat. § 134.98):
+   Wisconsin requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves personal data: flag any absence of breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Wisconsin-specific findings in your issues array with a clauseReference of "Wisconsin Law" where applicable.
+`.trim();
+
 // Generic state addendum for all other states
 function genericStateAddendum(stateName: string): string {
   return `
@@ -575,6 +743,12 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "VA") return "\n\n" + VIRGINIA_ADDENDUM;
   if (stateCode === "PA") return "\n\n" + PENNSYLVANIA_ADDENDUM;
   if (stateCode === "OR") return "\n\n" + OREGON_ADDENDUM;
+  if (stateCode === "MI") return "\n\n" + MICHIGAN_ADDENDUM;
+  if (stateCode === "OH") return "\n\n" + OHIO_ADDENDUM;
+  if (stateCode === "NY") return "\n\n" + NEW_YORK_ADDENDUM;
+  if (stateCode === "MN") return "\n\n" + MINNESOTA_ADDENDUM;
+  if (stateCode === "MO") return "\n\n" + MISSOURI_ADDENDUM;
+  if (stateCode === "WI") return "\n\n" + WISCONSIN_ADDENDUM;
   const name = getStateName(stateCode);
   return "\n\n" + genericStateAddendum(name);
 }
