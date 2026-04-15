@@ -52,7 +52,13 @@ JSON structure:
   "okChecklist": [...],
   "arChecklist": [...],
   "msChecklist": [...],
-  "iaChecklist": [...]
+  "iaChecklist": [...],
+  "nmChecklist": [...],
+  "ksChecklist": [...],
+  "neChecklist": [...],
+  "wvChecklist": [...],
+  "deChecklist": [...],
+  "riChecklist": [...]
 }
 
 FLORIDA (FL) — include floridaChecklist ONLY for consumer finance/lending contracts (§559.9613):
@@ -370,6 +376,60 @@ IOWA (IA) — always include iaChecklist:
   - "Electronic signatures valid under Iowa UETA (Iowa Code § 554D.101 et seq.)"
   - "Data breach notification obligations addressed (Iowa Code § 715C.1 et seq. — without unreasonable delay)"
 
+NEW MEXICO (NM) — always include nmChecklist:
+  nmChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under New Mexico law (N.M. Stat. Ann. § 47-9A-1 et seq.) — reasonable in time, geography, and scope"
+  - "Unfair Practices Act compliance — no unfair or deceptive trade practices (N.M. Stat. Ann. § 57-12-1 et seq.)"
+  - "Interest rate within New Mexico usury limits (N.M. Stat. Ann. § 56-8-1 et seq. — 15% general cap)"
+  - "Construction indemnity clause compliant with New Mexico anti-indemnity rules (N.M. Stat. Ann. § 56-7-1)"
+  - "Electronic signatures valid under New Mexico UETA (N.M. Stat. Ann. § 55-1-101 et seq.)"
+  - "Data breach notification obligations addressed (N.M. Stat. Ann. § 57-12C-1 et seq. — without unreasonable delay)"
+
+KANSAS (KS) — always include ksChecklist:
+  ksChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Kansas law (K.S.A. § 44-117 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Protection Act compliance — no deceptive or unconscionable acts (K.S.A. § 50-623 et seq.)"
+  - "Interest rate within Kansas usury limits (K.S.A. § 16-201 et seq. — 15% general cap)"
+  - "Construction indemnity clause compliant with Kansas anti-indemnity rules (K.S.A. § 16-121)"
+  - "Electronic signatures valid under Kansas UETA (K.S.A. § 16-1601 et seq.)"
+  - "Data breach notification obligations addressed (K.S.A. § 50-7a01 et seq. — without unreasonable delay)"
+
+NEBRASKA (NE) — always include neChecklist:
+  neChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Nebraska law (Neb. Rev. Stat. § 59-1601 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Protection Act compliance — no unfair or deceptive acts (Neb. Rev. Stat. § 59-1601 et seq.)"
+  - "Interest rate within Nebraska usury limits (Neb. Rev. Stat. § 45-101 et seq. — 16% general cap)"
+  - "Construction indemnity clause compliant with Nebraska anti-indemnity rules (common law)"
+  - "Electronic signatures valid under Nebraska UETA (Neb. Rev. Stat. § 86-701 et seq.)"
+  - "Data breach notification obligations addressed (Neb. Rev. Stat. § 87-801 et seq. — without unreasonable delay)"
+
+WEST VIRGINIA (WV) — always include wvChecklist:
+  wvChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under West Virginia law (W. Va. Code § 47-18-1 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Credit and Protection Act compliance — no unfair or deceptive acts (W. Va. Code § 46A-1-101 et seq.)"
+  - "Interest rate within West Virginia usury limits (W. Va. Code § 47-6-1 et seq. — 8% general cap)"
+  - "Construction indemnity clause compliant with West Virginia anti-indemnity rules (common law)"
+  - "Electronic signatures valid under West Virginia UETA (W. Va. Code § 39A-1-1 et seq.)"
+  - "Data breach notification obligations addressed (W. Va. Code § 46A-2A-101 et seq. — without unreasonable delay)"
+
+DELAWARE (DE) — always include deChecklist:
+  deChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Delaware law (6 Del. C. § 2701 et seq.) — reasonable in time, geography, and scope"
+  - "Consumer Fraud Act compliance — no deceptive acts in commerce (6 Del. C. § 2511 et seq.)"
+  - "Interest rate within Delaware usury limits (6 Del. C. § 2301 et seq. — approx. 10-12% currently)"
+  - "Construction indemnity clause compliant with Delaware anti-indemnity statute (6 Del. C. § 2704)"
+  - "Electronic signatures valid under Delaware UETA (6 Del. C. § 12A-101 et seq.)"
+  - "Data breach notification obligations addressed (6 Del. C. § 12B-101 et seq. — without unreasonable delay)"
+
+RHODE ISLAND (RI) — always include riChecklist:
+  riChecklist items (each { "item": string, "present": boolean, "risk": "<Low|Medium|High>" }):
+  - "Non-compete / restrictive covenant enforceable under Rhode Island law (R.I. Gen. Laws § 15-4-1 et seq.) — reasonable in time, geography, and scope"
+  - "Deceptive Trade Practices Act compliance — no unfair or deceptive acts (R.I. Gen. Laws § 6-13.1-1 et seq.)"
+  - "Interest rate within Rhode Island usury limits (R.I. Gen. Laws § 6-26-1 et seq. — 21% general cap)"
+  - "Construction indemnity clause compliant with Rhode Island anti-indemnity rules (common law)"
+  - "Electronic signatures valid under Rhode Island UETA (R.I. Gen. Laws § 11-18-1 et seq.)"
+  - "Data breach notification obligations addressed (R.I. Gen. Laws § 11-49.3-1 et seq. — without unreasonable delay)"
+
 Rules:
 - Include floridaChecklist ONLY if the user's jurisdiction is Florida AND the contract is a financing/lending instrument. Omit for leases, service agreements, or other non-financing contracts.
 - Include californiaChecklist ONLY if the user's jurisdiction is California.
@@ -406,6 +466,12 @@ Rules:
 - Include arChecklist ONLY if the user's jurisdiction is Arkansas.
 - Include msChecklist ONLY if the user's jurisdiction is Mississippi.
 - Include iaChecklist ONLY if the user's jurisdiction is Iowa.
+- Include nmChecklist ONLY if the user's jurisdiction is New Mexico.
+- Include ksChecklist ONLY if the user's jurisdiction is Kansas.
+- Include neChecklist ONLY if the user's jurisdiction is Nebraska.
+- Include wvChecklist ONLY if the user's jurisdiction is West Virginia.
+- Include deChecklist ONLY if the user's jurisdiction is Delaware.
+- Include riChecklist ONLY if the user's jurisdiction is Rhode Island.
 - Omit all checklist fields for all other jurisdictions.
 - For checklist items where "present": false means a PROBLEM (e.g. non-compete IS present = problem), set the item text and present/risk values accordingly based on what you find.
 - risk = "High" if contract designates a significantly different jurisdiction, or if multiple high-severity checklist items are failed.

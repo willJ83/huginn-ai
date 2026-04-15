@@ -879,6 +879,174 @@ You MUST perform these additional Connecticut-specific checks and include any vi
 Include all Connecticut-specific findings in your issues array with a clauseReference of "Connecticut Law" where applicable.
 `.trim();
 
+// New Mexico-specific addendum
+const NEW_MEXICO_ADDENDUM = `
+
+NEW MEXICO JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional New Mexico-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (N.M. Stat. Ann. § 47-9A-1 et seq.):
+   New Mexico enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. UNFAIR PRACTICES ACT (N.M. Stat. Ann. § 57-12-1 et seq.):
+   Flag any clause that waives UPA rights, limits remedies for unfair or deceptive trade practices, or disclaims statutory liability. Note any mandatory arbitration clause that bars UPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (N.M. Stat. Ann. § 56-8-1 et seq.):
+   New Mexico's general usury cap is 15% per annum for written consumer agreements absent a statutory exemption. Commercial lending rates are largely governed by agreement. Flag any interest rate, default rate, or fee structure that exceeds 15% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (N.M. Stat. Ann. § 56-7-1):
+   New Mexico voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (New Mexico UETA — N.M. Stat. Ann. § 55-1-101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (N.M. Stat. Ann. § 57-12C-1 et seq.):
+   New Mexico requires notification to affected residents without unreasonable delay following discovery of a breach of personal identifying information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all New Mexico-specific findings in your issues array with a clauseReference of "New Mexico Law" where applicable.
+`.trim();
+
+// Kansas-specific addendum
+const KANSAS_ADDENDUM = `
+
+KANSAS JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Kansas-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (K.S.A. § 44-117 et seq.):
+   Kansas enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER PROTECTION ACT (K.S.A. § 50-623 et seq.):
+   Flag any clause that waives Kansas CPA rights, limits remedies for deceptive or unconscionable acts in consumer transactions, or disclaims statutory liability. Note any mandatory arbitration clause that bars CPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (K.S.A. § 16-201 et seq.):
+   Kansas's general usury cap is 15% per annum; written contracts may specify a higher rate within statutory limits. Consumer credit transactions are separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 15% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (K.S.A. § 16-121):
+   Kansas voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional wrongdoing. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Kansas UETA — K.S.A. § 16-1601 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (K.S.A. § 50-7a01 et seq.):
+   Kansas requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Kansas-specific findings in your issues array with a clauseReference of "Kansas Law" where applicable.
+`.trim();
+
+// Nebraska-specific addendum
+const NEBRASKA_ADDENDUM = `
+
+NEBRASKA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Nebraska-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (Neb. Rev. Stat. § 59-1601 et seq.):
+   Nebraska enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER PROTECTION ACT (Neb. Rev. Stat. § 59-1601 et seq.):
+   Flag any clause that waives Nebraska CPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CPA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (Neb. Rev. Stat. § 45-101 et seq.):
+   Nebraska's general usury cap is 16% per annum; parties may agree to a higher rate in writing within statutory limits. Commercial transactions may have different treatment. Flag any interest rate, default rate, or fee structure that exceeds 16% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   Nebraska common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Nebraska UETA — Neb. Rev. Stat. § 86-701 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (Neb. Rev. Stat. § 87-801 et seq.):
+   Nebraska requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Nebraska-specific findings in your issues array with a clauseReference of "Nebraska Law" where applicable.
+`.trim();
+
+// West Virginia-specific addendum
+const WEST_VIRGINIA_ADDENDUM = `
+
+WEST VIRGINIA JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional West Virginia-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (W. Va. Code § 47-18-1 et seq.):
+   West Virginia enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER CREDIT AND PROTECTION ACT (W. Va. Code § 46A-1-101 et seq.):
+   Flag any clause that waives CCPA rights, limits remedies for unfair or deceptive acts in consumer transactions, or disclaims statutory liability. Note any mandatory arbitration clause that bars CCPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (W. Va. Code § 47-6-1 et seq.):
+   West Virginia's general legal interest rate is 8% per annum in the absence of a written agreement; parties may agree to a higher rate in writing within statutory limits. Flag any interest rate, default rate, or fee structure that exceeds 8% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   West Virginia common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (West Virginia UETA — W. Va. Code § 39A-1-1 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (W. Va. Code § 46A-2A-101 et seq.):
+   West Virginia requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all West Virginia-specific findings in your issues array with a clauseReference of "West Virginia Law" where applicable.
+`.trim();
+
+// Delaware-specific addendum
+const DELAWARE_ADDENDUM = `
+
+DELAWARE JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Delaware-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (6 Del. C. § 2701 et seq.):
+   Delaware enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Delaware is a popular choice of law for commercial contracts; note that a Delaware choice of law clause may affect enforceability of covenants against employees in other states. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. CONSUMER FRAUD ACT (6 Del. C. § 2511 et seq.):
+   Flag any clause that waives Delaware CFA rights, limits remedies for deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars CFA remedies. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (6 Del. C. § 2301 et seq.):
+   Delaware does not impose a general usury cap on loans made by licensed lenders or pursuant to written agreement; however, unlicensed consumer lending is capped at approximately 5% per month or the prevailing federal rate. Flag any interest rate, default rate, or fee structure that appears to exceed applicable limits for the contract and lender type. Flag as HIGH if clearly usurious for a consumer transaction.
+
+4. CONSTRUCTION ANTI-INDEMNITY (6 Del. C. § 2704):
+   Delaware voids indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence or intentional wrongdoing. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Delaware UETA — 6 Del. C. § 12A-101 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (6 Del. C. § 12B-101 et seq.):
+   Delaware requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Delaware-specific findings in your issues array with a clauseReference of "Delaware Law" where applicable.
+`.trim();
+
+// Rhode Island-specific addendum
+const RHODE_ISLAND_ADDENDUM = `
+
+RHODE ISLAND JURISDICTION ANALYSIS — Key Statutes
+
+You MUST perform these additional Rhode Island-specific checks and include any violations as issues:
+
+1. NON-COMPETE / RESTRICTIVE COVENANTS (R.I. Gen. Laws § 15-4-1 et seq.):
+   Rhode Island enforces non-compete agreements under a common law reasonableness standard: the restriction must protect a legitimate business interest and be reasonable in time (typically ≤2 years), geographic scope, and type of restricted activity. Courts may blue-pencil overbroad covenants. Flag any non-compete lacking adequate consideration, with unreasonable duration, overbroad geography, or undefined activity scope. Flag as HIGH if facially unenforceable.
+
+2. DECEPTIVE TRADE PRACTICES ACT (R.I. Gen. Laws § 6-13.1-1 et seq.):
+   Flag any clause that waives Rhode Island DTPA rights, limits remedies for unfair or deceptive acts in commerce, or disclaims statutory liability. Note any mandatory arbitration clause that bars DTPA remedies or attorney fees. Flag as HIGH if consumer protection rights are expressly waived.
+
+3. USURY (R.I. Gen. Laws § 6-26-1 et seq.):
+   Rhode Island's general usury cap is 21% per annum; parties may agree to a higher rate in writing within statutory limits. Consumer credit is separately regulated. Flag any interest rate, default rate, or fee structure that exceeds 21% without a written agreement or statutory exemption. Flag as HIGH if clearly usurious.
+
+4. CONSTRUCTION ANTI-INDEMNITY (common law):
+   Rhode Island common law limits the enforceability of indemnification clauses in construction contracts that require a party to indemnify another for the indemnitee's own negligence. Flag any broad indemnification clause in a construction or contractor agreement lacking a negligence carve-out. Flag as HIGH.
+
+5. ELECTRONIC SIGNATURES (Rhode Island UETA — R.I. Gen. Laws § 11-18-1 et seq.):
+   Flag any clause that denies the legal effect of electronic records or signatures without legal basis, or mandates wet-ink signatures unnecessarily. Note if no e-signature provision is present where one would be expected.
+
+6. DATA BREACH NOTIFICATION (R.I. Gen. Laws § 11-49.3-1 et seq.):
+   Rhode Island requires notification to affected residents without unreasonable delay following discovery of a breach of personal information. If this contract involves collection or processing of personal data: flag any absence of data breach notification obligations, response timelines, or incident management clauses. Flag as HIGH if personal data is involved with no data security or breach notification clause.
+
+Include all Rhode Island-specific findings in your issues array with a clauseReference of "Rhode Island Law" where applicable.
+`.trim();
+
 // New Jersey-specific addendum
 const NEW_JERSEY_ADDENDUM = `
 
@@ -1091,6 +1259,12 @@ export function buildJurisdictionAddendum(stateCode?: string): string {
   if (stateCode === "MD") return "\n\n" + MARYLAND_ADDENDUM;
   if (stateCode === "MA") return "\n\n" + MASSACHUSETTS_ADDENDUM;
   if (stateCode === "CT") return "\n\n" + CONNECTICUT_ADDENDUM;
+  if (stateCode === "NM") return "\n\n" + NEW_MEXICO_ADDENDUM;
+  if (stateCode === "KS") return "\n\n" + KANSAS_ADDENDUM;
+  if (stateCode === "NE") return "\n\n" + NEBRASKA_ADDENDUM;
+  if (stateCode === "WV") return "\n\n" + WEST_VIRGINIA_ADDENDUM;
+  if (stateCode === "DE") return "\n\n" + DELAWARE_ADDENDUM;
+  if (stateCode === "RI") return "\n\n" + RHODE_ISLAND_ADDENDUM;
   if (stateCode === "NJ") return "\n\n" + NEW_JERSEY_ADDENDUM;
   if (stateCode === "AL") return "\n\n" + ALABAMA_ADDENDUM;
   if (stateCode === "OK") return "\n\n" + OKLAHOMA_ADDENDUM;
