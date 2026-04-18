@@ -3,39 +3,47 @@ export { buildJurisdictionAddendum } from "./jurisdictions";
 // Demo Jurisdiction Prompt — consequence-focused, enforcement-reality output
 // Returns flat string arrays for the welcome page demo display
 export const DEMO_JURISDICTION_PROMPT = `
-You are a contract risk analyst. A business owner is deciding whether to sign this contract. Your job is to tell them what will actually happen to them under this state's law — not describe what the law says in the abstract.
+You are a contract risk analyst. A business owner is deciding whether to sign this contract right now. Your job is to tell them what will actually happen to them under this state's law — not describe the law in the abstract.
 
-Every finding must answer: "What does this mean for the person signing?"
+Every finding must answer: "What happens to the person signing if they do not fix this?"
 
 Return ONLY a single valid JSON object — no markdown, no prose, no code fences.
 
 JSON structure:
 {
   "jurisdictionAnalysis": [
-    "<Lead with the consequence: e.g. 'The non-compete clause is unenforceable under California law — signing it gives the other party a false threat they cannot actually use in court'>",
-    "<Venue / dispute impact stated as cost or practical burden: e.g. 'Disputes must be resolved in Wilmington, Delaware — any legal action forces out-of-state travel and significantly higher legal fees'>",
-    "<State enforcement reality for the most risky clause type: e.g. 'Texas courts will reform — not void — an overbroad non-compete, meaning a reduced version will still bind you'>",
-    "<Concrete consequence of a jurisdiction mismatch or unfavorable governing law>",
-    "<What the signing party loses or cannot do because of this state's rules — if anything material>"
+    "<Lead with the consequence, not the clause: e.g. 'The non-compete clause is likely unenforceable under California law, but the other party can still use it to threaten legal action and pressure you into compliance — creating real cost even without a valid claim'>",
+    "<Dispute venue stated as concrete burden: e.g. 'Requiring disputes to be resolved in Delaware forces out-of-state travel and at minimum doubles your legal fees before a case even begins'>",
+    "<State enforcement reality for the most dangerous clause, stated as outcome: e.g. 'Texas courts will enforce a reduced version of this non-compete — you could still be restricted from working in your field for up to a year even after a court trims the clause'>",
+    "<Concrete consequence of this jurisdiction's rules on one more key clause>",
+    "<What the signing party permanently loses or cannot recover because of this state's law — only include if material>"
   ],
   "jurisdictionDeepScan": [
-    "<Statute + enforcement impact: e.g. 'Cal. Bus. & Prof. Code §16600 voids non-competes except in narrow sale-of-business contexts — this clause falls outside those exceptions and cannot be enforced'>",
-    "<Enforcement test for a key clause: e.g. 'Under Tex. Bus. & Com. Code §15.50, a non-compete must be ancillary to an otherwise enforceable agreement and reasonable in time, geography, and scope — courts will blue-pencil it rather than void it'>",
-    "<State-specific obligation or protection that materially changes the risk: include what happens if violated>",
-    "<How this state treats the key clause type differently from at least one other named state: name both>",
-    "<The single most important enforcement difference that should change how the party negotiates this contract>"
+    "<Statute + what it does to the signing party: e.g. 'Cal. Bus. & Prof. Code §16600 voids this non-compete — but the other party can still send cease-and-desist letters or file suit, forcing you to spend money defending a claim they ultimately cannot win'>",
+    "<Enforcement test + outcome for signing party: e.g. 'Tex. Bus. & Com. Code §15.50 requires the non-compete to be ancillary to an enforceable agreement and reasonable in scope — courts will reform it rather than void it, leaving you bound by a reduced but real restriction'>",
+    "<State-specific rule that materially increases or changes the signing party's exposure — state the dollar or operational impact>",
+    "<How this state treats a key clause differently from one named contrasting state — make the contrast specific and consequential>",
+    "<The single enforcement fact that should change how this party negotiates before signing>"
   ],
-  "jurisdictionComparisonNote": "<One sentence naming this state and one contrasting state: e.g. 'The same non-compete clause that is void in California would be partially enforced in Texas after a court reforms it to a reasonable scope.'>"
+  "jurisdictionComparisonNote": "<One sentence: name this state and one contrasting state, and state the specific consequence that differs — e.g. 'The same non-compete clause is void in California but would be enforced in a limited form in Texas, where courts reform rather than eliminate overbroad restrictions.'>"
 }
 
-Rules:
-- Never write "This means the contract will be governed by" or "legal principles will apply" — these add zero value.
-- Never restate the clause content — state what happens if it is enforced or challenged.
-- Findings must be concrete: enforcement outcome, cost, exposure, or right forfeited.
+BANNED — do not use anywhere in output:
+- "This means the contract will be governed by"
+- "legal principles will apply"
+- "you should be concerned"
+- "key issues include"
+- "the contract specifies"
+- "presents moderate risk"
+
+RULES:
+- Lead every finding with outcome, not clause description.
+- For unenforceable clauses (e.g. void non-competes): always note that the clause still creates leverage — the other party can threaten or pressure even if enforcement would fail. This is a real risk regardless of legal outcome.
+- For conditionally enforceable clauses (e.g. Texas non-competes): always note that a court will reform, not void — leaving the signing party still bound by a narrowed version. Never imply it simply goes away.
 - Cite real statutes with section numbers. Do not invent citations.
-- jurisdictionDeepScan entries are more technical but still outcome-focused — the statute matters only because of what it does.
-- Each bullet: 1-2 tight sentences. No padding.
-- jurisdictionComparisonNote must name this state AND a different state. Make the contrast specific.
+- jurisdictionDeepScan entries are more technical but still outcome-focused — the statute matters only because of what it does to the signing party.
+- Each bullet: 1-2 tight sentences. No padding, no hedging filler.
+- jurisdictionComparisonNote must name this state AND a different state. The contrast must be specific and consequential, not general.
 - Total combined bullets: 8–10 max.
 `.trim();
 
@@ -45,22 +53,36 @@ export function buildDemoJurisdictionContext(jurisdiction: string): string {
   const upper = jurisdiction.toUpperCase();
   if (upper.includes("CALIFORNIA") || upper === "CA") {
     return `JURISDICTION ENFORCEMENT CONTEXT — CALIFORNIA:
-- Non-compete clauses are VOID under Cal. Bus. & Prof. Code §16600, except in narrow sale-of-business contexts. Flag any non-compete as CRITICAL — it is unenforceable and represents a false legal threat used to deter the contractor.
-- IP assignment clauses that purport to assign inventions unrelated to the company's work may be unenforceable under Cal. Lab. Code §2870. Flag overreaching IP assignments as HIGH risk.
-- Arbitration outside California for a California-based party imposes travel burden and may face scrutiny under California public policy, particularly for employment-adjacent disputes.
-- Late payment and payment terms unfavorable to the contractor carry additional exposure under California prompt-pay norms.
-- Score this contract's risk in the HIGH range (below 40) — the combination of a void non-compete, overreaching IP, and one-sided termination creates serious legal and financial risk for the signing party.`;
+Governing law is California. Apply California enforcement standards to every clause. Every issue must answer "what happens to the signing party" — not describe the clause.
+
+CRITICAL: Non-compete clauses are VOID under Cal. Bus. & Prof. Code §16600 except in narrow sale-of-business contexts. Flag the non-compete as CRITICAL severity. The explanation MUST include both facts: (1) the clause cannot be enforced in court, AND (2) the other party can still use it to threaten legal action and pressure the contractor into compliance, creating real cost and disruption even if they would ultimately lose. A void clause is not a harmless clause.
+
+HIGH: IP assignment that purports to cover pre-existing tools, libraries, or methodologies overreaches Cal. Lab. Code §2870, which limits what employers can require employees or contractors to assign. The contractor may lose rights to tools they brought into the engagement. Flag as HIGH.
+
+HIGH: Out-of-state arbitration (Delaware) forces a California-based contractor to travel and hire local counsel just to defend a claim — before a single argument is heard. Flag as HIGH with the cost consequence.
+
+HIGH: Net-60 payment terms with no late interest and a client-controlled acceptance standard means the contractor can work for two months and receive nothing if the client unilaterally disputes delivery. Flag payment terms as HIGH.
+
+Tone for ALL explanations: Lead with what the contractor loses or owes — not what the clause says. Never write "this means," "the contract specifies," or "you should be concerned." Every explanation ends with a financial or operational consequence.`;
   }
   if (upper.includes("TEXAS") || upper === "TX") {
     return `JURISDICTION ENFORCEMENT CONTEXT — TEXAS:
-- Non-compete clauses are CONDITIONALLY enforceable under Tex. Bus. & Com. Code §15.50. The clause must be (1) ancillary to an otherwise enforceable agreement, (2) supported by consideration, and (3) reasonable in time, geography, and scope. Courts will blue-pencil (reform) an overbroad covenant rather than void it — meaning a restricted version will still bind the signing party.
-- Broad indemnification with no cap creates unlimited personal exposure. Texas courts enforce indemnification clauses strictly unless they violate public policy.
-- Auto-renewal clauses with short notice windows are enforceable in Texas — a missed deadline locks the party into another full term with no refund.
-- Personal guarantees are fully enforceable against individuals — the guarantor faces direct personal liability if the entity defaults.
-- Score this contract's risk in the MODERATE-HIGH range (45–62) — the non-compete creates real but bounded exposure, and the indemnification + personal guarantee stack compounds the financial risk.`;
+Governing law is Texas. Apply Texas enforcement standards to every clause. Every issue must answer "what happens to the signing party" — not describe the clause.
+
+HIGH: Non-compete clauses are CONDITIONALLY enforceable under Tex. Bus. & Com. Code §15.50. The clause must be ancillary to an otherwise enforceable agreement, supported by consideration, and reasonable in time, geography, and scope. CRITICAL output requirement: flag the non-compete as HIGH and explain BOTH facts: (1) a court will REFORM — not void — an overbroad clause, leaving the provider still bound by a reduced restriction, AND (2) while litigation is pending, the provider faces potential injunctions that can halt their ability to work immediately. This clause does not simply disappear if challenged.
+
+CRITICAL: Broad indemnification with no cap means the provider is personally exposed to covering the client's legal costs, settlements, and losses — without limit. Texas courts enforce indemnification strictly. Flag as CRITICAL and quantify: this could exceed the total contract value by multiples.
+
+HIGH: Auto-renewal with a 60-day certified-mail-only notice requirement is fully enforceable in Texas. A missed deadline binds the provider to another full year at the same rate with no exit. Flag as HIGH and state that electronic notice is explicitly excluded — increasing the likelihood of accidental renewal.
+
+HIGH: The personal guarantee exposes the individual signer directly — the client can bypass the business entity entirely and pursue personal assets. In Texas, this is fully enforceable. Flag as HIGH with the personal asset exposure consequence.
+
+MEDIUM: The asymmetric liability cap (client capped at one month, provider uncapped) means the provider bears unlimited downside while the client's exposure is minimal. Flag as MEDIUM and show the imbalance explicitly.
+
+Tone for ALL explanations: Lead with financial exposure, personal liability, or operational disruption — not clause description. Never write "this means," "the contract specifies," or "presents moderate risk." Every explanation ends with a consequence the provider can act on.`;
   }
   return `JURISDICTION ENFORCEMENT CONTEXT — ${jurisdiction}:
-Apply the actual enforcement standards of ${jurisdiction} law to each clause. Flag any clause where state law changes enforceability, scope, or the signing party's exposure.`;
+Governing law is ${jurisdiction}. Apply the actual enforcement standards of ${jurisdiction} law to every clause. Every issue explanation must answer "what happens to the signing party" — not describe what the clause says. Lead with consequence: financial exposure, operational disruption, or rights forfeited. Never write "this means" or "the contract specifies."`;
 }
 
 // Stage 4 — Jurisdiction Analysis (Shield Deep only)
@@ -734,15 +756,15 @@ The JSON must exactly match this structure:
 
 {
   "riskScore": <integer 0-100>,
-  "summary": "<2-3 sentence plain English summary: contract type, biggest risk, whether they should be concerned. No jargon.>",
+  "summary": "<2-3 sentences that answer: what does this party risk if they sign without changes? Structure: (1) lead with the most serious financial or operational consequence — not the clause name; (2) explain which clauses create it and why they compound each other; (3) close with the real-world impact if left unchanged. NEVER write 'you should be concerned', 'key issues include', 'presents moderate risk', or 'this means'. State consequences directly.>",
   "issues": [
     {
       "id": "<unique-kebab-case-string>",
-      "label": "<Plain English issue title>",
+      "label": "<Plain English consequence title — what happens, not what the clause is called>",
       "severity": "<critical|high|medium|low>",
       "clauseReference": "<Clause number or section name, e.g. Section 4.2 or Termination>",
-      "message": "<One sentence: what is wrong with this clause>",
-      "explanation": "<2-3 sentences: real-world consequence for this business owner, no jargon>",
+      "message": "<One sentence: what happens to the signing party because of this clause — not a description of the clause>",
+      "explanation": "<2-3 sentences answering: what happens, why it matters, what the user loses or owes. Never describe the clause — describe the consequence. If the clause is unenforceable, still explain that the other party can use it for leverage or intimidation even if a court would not enforce it. NEVER write 'this means', 'the contract specifies', 'presents moderate risk', or 'legal principles will apply'.>",
       "recommendation": "<One action sentence starting with a verb>",
       "matches": ["<exact text excerpt from the contract that triggered this flag>"]
     }
@@ -751,7 +773,7 @@ The JSON must exactly match this structure:
     {
       "label": "<What is missing>",
       "severity": "<high|medium>",
-      "explanation": "<Why this absence creates risk>",
+      "explanation": "<What the signing party is exposed to because this protection is absent — state the exposure, not the absence>",
       "recommendation": "<What to ask for>"
     }
   ],
@@ -759,7 +781,7 @@ The JSON must exactly match this structure:
     {
       "label": "<What the deadline or time-sensitive obligation is>",
       "value": "<Specific date or timeframe, e.g. 30 days, January 1 2026>",
-      "description": "<Why this matters and what happens if missed>"
+      "description": "<What happens to the signing party if this deadline is missed>"
     }
   ]
 }
@@ -768,6 +790,10 @@ RULES:
 - Never invent facts, clauses, or risks not grounded in the provided inputs.
 - Never use legal jargon without plain-English translation.
 - Do not be alarmist beyond what findings warrant. Do not be dismissive when real risk exists.
+- BANNED phrases — do not use anywhere in output: "you should be concerned", "presents moderate risk", "key issues include", "this means", "the contract specifies", "legal principles will apply", "the agreement states".
+- Every issue explanation must answer "what happens to the user" — not describe the clause.
+- Unenforceable clauses still warrant a HIGH or CRITICAL flag: even if a court would not enforce a clause, the other party can use it to pressure or threaten legal action, creating real cost and risk regardless of enforceability.
+- The summary MUST end with a consequence: financial exposure, operational disruption, or legal cost — not with a general recommendation.
 - If the contract is genuinely low risk, say so and return few or no issues.
 - issues array may be empty if no problematic clauses found.
 - missingProtections array may be empty if all key protections are present.
