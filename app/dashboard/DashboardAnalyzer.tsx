@@ -37,6 +37,8 @@ type AnalysisResponse = {
   issues?: AnalysisIssue[];
   deadlines?: AnalysisDeadline[];
   jurisdictionAnalysis?: JurisdictionAnalysis;
+  detectedJurisdiction?: string | null;
+  jurisdictionConfidence?: "high" | "medium" | "low";
 };
 
 type UsageInfo = {
@@ -228,8 +230,6 @@ This Agreement constitutes the entire agreement between the parties and supersed
   },
 ] as const;
 
-type SampleId = (typeof SAMPLE_CONTRACTS)[number]["id"];
-
 async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -240,10 +240,6 @@ async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   }
 }
 
-function createSampleFile(id: SampleId) {
-  const sample = SAMPLE_CONTRACTS.find((s) => s.id === id)!;
-  return new File([sample.text], sample.fileName, { type: "text/plain" });
-}
 
 function toUserFacingError(err: unknown) {
   const message = err instanceof Error ? err.message : "";
@@ -307,7 +303,6 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const [selectedSample, setSelectedSample] = useState<SampleId>("marketing");
   const [isDragActive, setIsDragActive] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState("");
@@ -495,6 +490,8 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
         issues: Array.isArray(data.issues) ? data.issues : [],
         deadlines: Array.isArray(data.deadlines) ? data.deadlines : [],
         jurisdictionAnalysis: data.jurisdictionAnalysis ?? undefined,
+        detectedJurisdiction: data.detectedJurisdiction ?? null,
+        jurisdictionConfidence: data.jurisdictionConfidence ?? undefined,
       });
       setResultTimestamp(new Date().toLocaleString());
       setRemainingAnalyses((prev) => Math.max(0, prev - 1));
@@ -513,12 +510,6 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
   async function handleFile(file: File | null) {
     if (!file) return;
     await runAnalysis(file);
-  }
-
-  async function loadDemoContract(id: SampleId) {
-    setError("");
-    setWarning("");
-    await runAnalysis(createSampleFile(id));
   }
 
   const issues = result?.issues ?? [];
@@ -733,36 +724,6 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
           )}
         </div>
 
-        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Try a Sample Contract
-          </p>
-          <div className="mb-3 flex flex-wrap gap-2">
-            {SAMPLE_CONTRACTS.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setSelectedSample(s.id)}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
-                  selectedSample === s.id
-                    ? "border-blue-500 bg-blue-50 text-blue-700"
-                    : "border-slate-300 bg-white text-slate-600 hover:border-slate-400 hover:bg-slate-100"
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => loadDemoContract(selectedSample)}
-            disabled={isAnalyzing || !canAnalyze}
-            className="inline-flex items-center rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-50"
-          >
-            {isAnalyzing ? "Analyzing..." : "Run Sample Analysis"}
-          </button>
-        </div>
-
         {/* Usage counter */}
         {!usageInfo.paymentFailed && !usageInfo.needsPlan && (
           <p className="mt-3 text-sm text-slate-600">
@@ -961,6 +922,32 @@ export default function DashboardAnalyzer({ usageInfo, shieldDeepTrialsUsed }: D
                     {deadlines.length} {deadlines.length === 1 ? "Deadline" : "Deadlines"}
                   </span>
                 </div>
+              </div>
+            )}
+
+            {/* Detected Jurisdiction — shown whenever jurisdiction was auto-extracted */}
+            {result.detectedJurisdiction && !result.jurisdictionAnalysis && (
+              <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span aria-hidden="true">📍</span>
+                  <p className="text-sm font-semibold text-slate-800">
+                    Governing law detected: <span className="text-blue-700">{result.detectedJurisdiction}</span>
+                  </p>
+                  {result.jurisdictionConfidence && (
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                      result.jurisdictionConfidence === "high"
+                        ? "bg-green-100 text-green-700"
+                        : result.jurisdictionConfidence === "medium"
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-slate-100 text-slate-600"
+                    }`}>
+                      {result.jurisdictionConfidence} confidence
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-blue-700">
+                  Enable Shield Deep Scan and select {result.detectedJurisdiction} for full jurisdiction analysis.
+                </p>
               </div>
             )}
 

@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import AppHeader from "@/app/components/AppHeader";
+import WelcomeDemoSection from "@/app/components/WelcomeDemoSection";
 
 type DemoIssue = { label: string; detail: string };
 type DemoCardData = {
@@ -208,6 +209,9 @@ export default function Page() {
           </div>
         </section>
 
+        {/* ── Demo Section (above the fold on wide screens, first content below hero) ── */}
+        <WelcomeDemoSection />
+
         {/* ── Trust bar ───────────────────────────────────────────────────── */}
         <section className="border-y border-slate-200 bg-white py-4 px-6">
           <ul className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-slate-500">
@@ -218,7 +222,7 @@ export default function Page() {
           </ul>
         </section>
 
-        {/* ── Live Demo Cards ─────────────────────────────────────────────── */}
+        {/* ── What Shield catches ─────────────────────────────────────────── */}
         <section className="bg-slate-50 py-16 px-6">
           <div className="mx-auto max-w-6xl">
             <div className="text-center mb-10">
@@ -229,7 +233,7 @@ export default function Page() {
                 What Huginn Shield Catches
               </h2>
               <p className="mt-3 text-slate-600 max-w-xl mx-auto text-base">
-                These are the kinds of contracts Florida small businesses sign every day — and the
+                These are the kinds of contracts small businesses sign every day — and the
                 problems Shield finds before it&rsquo;s too late.
               </p>
             </div>

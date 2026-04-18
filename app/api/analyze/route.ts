@@ -6,6 +6,7 @@ import type { ProductTemplate } from "../../lib/productConfigs";
 import { auth } from "@/lib/auth";
 import { canUseFeature, consumeAddonAnalysis, recordUsage, getUsageCountSince } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
+import { extractJurisdictionFromText } from "@/lib/jurisdictionExtractor";
 
 interface ClauseEntry {
   status: "found" | "missing";
@@ -432,6 +433,9 @@ export async function POST(req: Request) {
       );
     }
 
+    // Auto-extract jurisdiction from contract text (lightweight regex, no LLM call)
+    const extractedJurisdiction = extractJurisdictionFromText(text);
+
     const pipelineResult = await runGeminiPipeline(text, activeTemplate, deterministicResult);
     const geminiResult = pipelineResult?.result ?? null;
     const geminiContractType = pipelineResult?.contractType ?? "Unknown";
@@ -509,6 +513,8 @@ export async function POST(req: Request) {
       riskLevel: finalRiskLevel,
       label: deterministicResult.label,
       fileName: fileName ?? null,
+      detectedJurisdiction: extractedJurisdiction.jurisdiction,
+      jurisdictionConfidence: extractedJurisdiction.confidence,
       ...(jurisdictionAnalysis ? { jurisdictionAnalysis } : {}),
     });
   } catch (error) {
