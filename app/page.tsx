@@ -9,88 +9,92 @@ import WelcomeDemoSection from "@/app/components/WelcomeDemoSection";
 type DemoIssue = { label: string; detail: string };
 type DemoCardData = {
   title: string;
+  punchline: string;
   score: number;
   issues: DemoIssue[];
-  shieldNote: string;
+  impact: string;
 };
 
 const DEMO_CARDS: DemoCardData[] = [
   {
     title: "Commercial Lease Agreement",
+    punchline: "Locks you into long-term liability with no safe exit",
     score: 24,
     issues: [
       {
-        label: "OUT-OF-STATE COURT",
-        detail: "Governing law: Texas — FL business forced into TX courts for any dispute",
+        label: "Forced Out-of-State Litigation",
+        detail: "Any dispute forces you into Texas courts — increasing legal costs and making it significantly harder to defend yourself as a Florida business",
       },
       {
-        label: "AUTO-RENEWAL TRAP",
-        detail: "60-day written notice required or lease auto-renews for 2 more years",
+        label: "Hidden Auto-Renewal Clause",
+        detail: "Miss the 60-day written notice window and the lease renews automatically, locking you in for another two full years with no exit",
       },
       {
-        label: "UNLIMITED LIABILITY",
-        detail: "Personal guarantee with no damage cap — full personal exposure",
+        label: "No Cap on Personal Financial Exposure",
+        detail: "The personal guarantee carries no damage ceiling — your personal assets are fully exposed if anything goes wrong for the duration of the lease",
       },
     ],
-    shieldNote: "Shield checked F.S. §559.9613 disclosures · 3 critical issues found before signing",
+    impact: "You could be locked into this lease for years with full personal financial exposure and no clear path to exit.",
   },
   {
     title: "Vendor Supply Agreement",
+    punchline: "Exposes you to unlimited claims with no protection",
     score: 31,
     issues: [
       {
-        label: "NO LIABILITY CAP",
-        detail: "Vendor can claim unlimited damages for any alleged breach, no ceiling specified",
+        label: "Unlimited Damage Claims Allowed",
+        detail: "The vendor can pursue uncapped damages for any alleged breach — there is no ceiling on what you could owe, even for minor disputes",
       },
       {
-        label: "FORCED ARBITRATION",
-        detail: "Disputes require arbitration in Delaware — travel costs and filing fees fall on you",
+        label: "Mandatory Arbitration in Distant State",
+        detail: "Every dispute must be resolved in Delaware — travel costs and filing fees fall on you before a single argument is heard",
       },
       {
-        label: "AUTO-RENEWAL",
-        detail: "90-day cancellation window only, or contract renews indefinitely",
+        label: "Hidden Auto-Renewal Clause",
+        detail: "Miss the 90-day cancellation window and you are bound for another full year at the same terms with no opportunity to renegotiate",
       },
     ],
-    shieldNote: "Shield flagged jurisdiction mismatch: Delaware law imposed on FL-based business",
+    impact: "You may be responsible for large financial losses even in situations outside your control, with no contractual ceiling on your exposure.",
   },
   {
     title: "Independent Contractor Agreement",
+    punchline: "Gives away your work and restricts your ability to earn",
     score: 28,
     issues: [
       {
-        label: "FULL IP ASSIGNMENT",
-        detail:
-          "All work product — including your existing tools and templates — permanently transferred to client",
+        label: "Permanent Transfer of Your Work",
+        detail: "Everything you create — including tools and templates you built before this engagement — transfers to the client permanently, with no compensation",
       },
       {
-        label: "2-YEAR NON-COMPETE",
-        detail: "Statewide non-compete bars similar work anywhere in FL for 2 years after termination",
+        label: "Statewide Non-Compete Restriction",
+        detail: "This clause bars you from taking similar work anywhere in Florida for two years after the contract ends, directly cutting off your ability to earn",
       },
       {
-        label: "ZERO-NOTICE TERMINATION",
-        detail: "Client can terminate immediately with 0 days notice; contractor cannot",
+        label: "Immediate Termination, Zero Notice",
+        detail: "The client can end the engagement at any moment without warning — you have no financial protection and no minimum notice period",
       },
     ],
-    shieldNote: "Shield caught 3 unbalanced clauses — contractor negotiated all 3 before signing",
+    impact: "You could lose ownership of your existing work and be blocked from earning in your field for two years after a single engagement.",
   },
   {
     title: "Marketing & Consulting Agreement",
+    punchline: "Creates ongoing liability with no clear boundaries",
     score: 22,
     issues: [
       {
-        label: "UNCAPPED LIABILITY",
-        detail: "No ceiling on damages — full personal exposure for any claim or loss",
+        label: "No Cap on Financial Exposure",
+        detail: "No damage ceiling means you are personally exposed for any loss or claim tied to this agreement — including claims filed long after the work is done",
       },
       {
-        label: "INDEFINITE NDA",
-        detail: "NDA covers all 'business discussions' with no expiration date or scope definition",
+        label: "No Expiration on Confidentiality",
+        detail: "This NDA covers all business discussions with no end date or defined scope — you could remain bound by obligations you cannot clearly identify",
       },
       {
-        label: "SILENT AUTO-RENEWAL",
-        detail: "Renews every 6 months automatically — no cancellation notice window defined",
+        label: "Automatic Renewal Without Notice",
+        detail: "The contract renews every six months automatically with no defined cancellation window — there is no clear, safe way to exit on schedule",
       },
     ],
-    shieldNote: "Shield flagged NYC venue clause that would force FL disputes into New York courts",
+    impact: "You could face ongoing financial liability and undefined confidentiality obligations long after the engagement ends.",
   },
 ];
 
@@ -104,6 +108,7 @@ function DemoCard({ card }: { card: DemoCardData }) {
             Sample · Huginn Shield
           </p>
           <p className="font-semibold text-slate-900 text-sm leading-tight">{card.title}</p>
+          <p className="text-xs text-slate-500 mt-0.5 leading-snug">{card.punchline}</p>
         </div>
         <span className="shrink-0 rounded-full bg-red-50 border border-red-200 px-2.5 py-1 text-xs font-bold text-red-600">
           HIGH RISK
@@ -141,10 +146,13 @@ function DemoCard({ card }: { card: DemoCardData }) {
         ))}
       </div>
 
-      {/* Shield note */}
+      {/* Impact */}
       <div className="px-5 py-3 bg-blue-50 border-t border-blue-100 flex items-start gap-2">
         <span className="text-sm shrink-0 mt-0.5" aria-hidden="true">🛡️</span>
-        <p className="text-xs text-blue-700 leading-relaxed">{card.shieldNote}</p>
+        <div>
+          <p className="text-xs font-semibold text-blue-800">Impact</p>
+          <p className="text-xs text-blue-700 leading-relaxed mt-0.5">{card.impact}</p>
+        </div>
       </div>
     </div>
   );
