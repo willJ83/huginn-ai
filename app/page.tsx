@@ -78,27 +78,38 @@ const DEMO_CARDS: DemoCardData[] = [
   },
   {
     title: "Marketing & Consulting Agreement",
-    punchline: "Creates ongoing liability with no clear boundaries",
-    score: 22,
+    punchline: "Mostly sound, but contains terms that could create ongoing liability",
+    score: 62,
     issues: [
       {
-        label: "No Cap on Financial Exposure",
-        detail: "No damage ceiling means you are personally exposed for any loss or claim tied to this agreement — including claims filed long after the work is done",
+        label: "Liability Cap Is Unclear",
+        detail: "The agreement limits damages to fees paid, but the language is ambiguous — in certain situations you may still be exposed to liability beyond that ceiling",
       },
       {
-        label: "No Expiration on Confidentiality",
-        detail: "This NDA covers all business discussions with no end date or defined scope — you could remain bound by obligations you cannot clearly identify",
+        label: "Confidentiality Scope Undefined",
+        detail: "The NDA section covers 'all business discussions' without a defined end date or clear scope — it is worth narrowing before signing to avoid lingering obligations",
       },
       {
-        label: "Automatic Renewal Without Notice",
-        detail: "The contract renews every six months automatically with no defined cancellation window — there is no clear, safe way to exit on schedule",
+        label: "Renewal Terms Lack Notice Window",
+        detail: "The contract auto-renews every six months with no defined cancellation deadline — adding a written notice window would give you a cleaner exit path",
       },
     ],
-    impact: "You could face ongoing financial liability and undefined confidentiality obligations long after the engagement ends.",
+    impact: "This agreement is not high-risk, but a few ambiguous terms are worth clarifying before you sign to avoid uncertainty later.",
   },
 ];
 
 function DemoCard({ card }: { card: DemoCardData }) {
+  const isHigh = card.score < 50;
+  const riskLabel = isHigh ? "HIGH RISK" : "MODERATE RISK";
+  const badgeClass = isHigh
+    ? "bg-red-50 border-red-200 text-red-600"
+    : "bg-amber-50 border-amber-200 text-amber-600";
+  const scoreClass = isHigh ? "text-red-500" : "text-amber-500";
+  const barClass = isHigh ? "bg-red-500" : "bg-amber-400";
+  const issueBadgeClass = isHigh
+    ? "bg-red-50 border-red-200 text-red-700"
+    : "bg-amber-50 border-amber-200 text-amber-700";
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm flex flex-col">
       {/* Header */}
@@ -110,25 +121,25 @@ function DemoCard({ card }: { card: DemoCardData }) {
           <p className="font-semibold text-slate-900 text-sm leading-tight">{card.title}</p>
           <p className="text-xs text-slate-500 mt-0.5 leading-snug">{card.punchline}</p>
         </div>
-        <span className="shrink-0 rounded-full bg-red-50 border border-red-200 px-2.5 py-1 text-xs font-bold text-red-600">
-          HIGH RISK
+        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-bold ${badgeClass}`}>
+          {riskLabel}
         </span>
       </div>
 
       {/* Risk bar */}
       <div className="px-5 py-3 bg-slate-50 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <span className="text-xl font-bold text-red-500 tabular-nums w-8 shrink-0">{card.score}</span>
+          <span className={`text-xl font-bold tabular-nums w-8 shrink-0 ${scoreClass}`}>{card.score}</span>
           <div className="flex-1 min-w-0">
             {/* Dynamic width requires inline style — Tailwind cannot generate arbitrary runtime percentage values */}
             <div className="h-1.5 w-full rounded-full bg-slate-200">
               <div
-                className="h-1.5 rounded-full bg-red-500"
+                className={`h-1.5 rounded-full ${barClass}`}
                 style={{ width: `${card.score}%` }}
               />
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
-              / 100 — {card.issues.length} critical issues
+              / 100 — {card.issues.length} {isHigh ? "critical" : "moderate"} issues
             </p>
           </div>
         </div>
@@ -138,7 +149,7 @@ function DemoCard({ card }: { card: DemoCardData }) {
       <div className="px-5 py-4 flex flex-col gap-3 flex-1">
         {card.issues.map((issue, i) => (
           <div key={i} className="flex items-start gap-2">
-            <span className="shrink-0 mt-0.5 rounded bg-red-50 border border-red-200 px-1.5 py-0.5 text-[9px] font-bold text-red-700 whitespace-nowrap leading-4">
+            <span className={`shrink-0 mt-0.5 rounded border px-1.5 py-0.5 text-[9px] font-bold whitespace-nowrap leading-4 ${issueBadgeClass}`}>
               {issue.label}
             </span>
             <p className="text-xs text-slate-600 leading-relaxed">{issue.detail}</p>
