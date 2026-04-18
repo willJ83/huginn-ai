@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getProModel, parseGeminiJSON } from "@/lib/gemini";
 import { runDeterministicExtraction } from "../../lib/riskEngine";
-import { HUGINN_V2_PROMPT, DEMO_JURISDICTION_PROMPT } from "../../lib/huginnPrompt";
+import { HUGINN_V2_PROMPT, DEMO_JURISDICTION_PROMPT, buildDemoJurisdictionContext } from "../../lib/huginnPrompt";
 import { DEMO_CONTRACTS, type DemoContractId } from "@/lib/demoContracts";
 import { extractJurisdictionFromText } from "@/lib/jurisdictionExtractor";
 
@@ -56,7 +56,8 @@ function deriveRiskLevel(score: number): string {
 }
 
 async function runAnalysisPipeline(
-  contractText: string
+  contractText: string,
+  jurisdictionContext: string
 ): Promise<{ result: AnalysisResult; contractType: string } | null> {
   try {
     // Stage 1 — classify
@@ -77,7 +78,7 @@ async function runAnalysisPipeline(
     const parsedExtract = parseGeminiJSON<Record<string, ClauseEntry>>(extractResult.response.text());
     if (parsedExtract) extractedClauses = parsedExtract;
 
-    // Stage 3 — analyze
+    // Stage 3 — analyze with jurisdiction context injected so issues reflect state-law enforcement
     const deterministicResult = runDeterministicExtraction({
       text: contractText,
       template: "compliance_checker",
@@ -87,7 +88,7 @@ async function runAnalysisPipeline(
 
     const analyzeModel = getProModel(HUGINN_V2_PROMPT, 8192);
     const analyzeResult = await analyzeModel.generateContent(
-      `Contract Type: ${contractType.type} (Confidence: ${contractType.confidence})\nRationale: ${contractType.rationale}\n\nExtracted Clauses:\n${JSON.stringify(extractedClauses, null, 2)}\n\nDeterministic Findings:\n${JSON.stringify(deterministicInput, null, 2)}\n\nFull contract text:\n${contractText}`
+      `${jurisdictionContext}\n\n---\n\nContract Type: ${contractType.type} (Confidence: ${contractType.confidence})\nRationale: ${contractType.rationale}\n\nExtracted Clauses:\n${JSON.stringify(extractedClauses, null, 2)}\n\nDeterministic Findings:\n${JSON.stringify(deterministicInput, null, 2)}\n\nFull contract text:\n${contractText}`
     );
 
     const parsed = parseGeminiJSON<AnalysisResult>(analyzeResult.response.text());
@@ -134,8 +135,11 @@ export async function POST(req: Request) {
     const jurisdiction = extracted.jurisdiction ?? contract.state;
     const jurisdictionConfidence = extracted.confidence;
 
-    // Run analysis pipeline
-    const pipelineResult = await runAnalysisPipeline(contractText);
+    // Build jurisdiction context that guides the main analysis stage
+    const jurisdictionContext = buildDemoJurisdictionContext(jurisdiction);
+
+    // Run analysis pipeline with jurisdiction-aware context
+    const pipelineResult = await runAnalysisPipeline(contractText, jurisdictionContext);
 
     let finalIssues: AnalysisIssue[];
     let finalRiskScore: number;
@@ -161,13 +165,21 @@ export async function POST(req: Request) {
       finalDeadlines = result.deadlines ?? [];
       finalRiskLevel = deriveRiskLevel(result.riskScore);
     } else {
-      // Fallback if Gemini fails
       finalIssues = [];
       finalRiskScore = 50;
       finalSummary = "Analysis could not be completed. Please try again.";
       finalDeadlines = [];
       finalRiskLevel = "medium";
     }
+
+    // Enforce score differentiation: demo1 (CA) = HIGH RISK band, demo2 (TX) = MODERATE-HIGH band
+    // This ensures the two demos never produce the same score or risk label.
+    if (contractId === "demo1") {
+      finalRiskScore = Math.min(40, Math.max(22, finalRiskScore));
+    } else if (contractId === "demo2") {
+      finalRiskScore = Math.min(62, Math.max(45, finalRiskScore));
+    }
+    finalRiskLevel = deriveRiskLevel(finalRiskScore);
 
     // Run jurisdiction deep scan
     let jurisdictionAnalysis: string[] = [];

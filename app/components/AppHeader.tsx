@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import AccountMenu from "@/app/components/AccountMenu";
@@ -15,7 +16,7 @@ export default function AppHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         {/* Logo */}
         <Link href={session ? "/dashboard" : "/"} className="inline-flex shrink-0 items-center">
-          <img src="/huginn-logo.png" alt="Huginn AI" className="h-10 w-auto rounded-lg" />
+          <Image src="/huginn-logo.png" alt="Huginn AI" width={52} height={40} className="rounded-lg" priority />
           <span className="ml-2 text-lg font-bold text-slate-900 dark:text-slate-50">Huginn AI</span>
         </Link>
 

@@ -1,41 +1,67 @@
 export { buildJurisdictionAddendum } from "./jurisdictions";
 
-// Demo Jurisdiction Prompt — returns flat string arrays for the welcome page demo display
+// Demo Jurisdiction Prompt — consequence-focused, enforcement-reality output
+// Returns flat string arrays for the welcome page demo display
 export const DEMO_JURISDICTION_PROMPT = `
-You are a contract jurisdiction analyst reviewing a contract for a business owner who has never used a legal analysis tool before.
+You are a contract risk analyst. A business owner is deciding whether to sign this contract. Your job is to tell them what will actually happen to them under this state's law — not describe what the law says in the abstract.
 
-You have been told the governing law jurisdiction of the contract. Your job is to identify the most important jurisdiction-specific risks and findings in plain English.
+Every finding must answer: "What does this mean for the person signing?"
 
 Return ONLY a single valid JSON object — no markdown, no prose, no code fences.
 
 JSON structure:
 {
   "jurisdictionAnalysis": [
-    "<Plain English finding about the jurisdiction clause or governing law — what it means for this party>",
-    "<Finding about venue / dispute location and its practical impact>",
-    "<Finding about how this state treats the most significant clause type in this contract>",
-    "<Finding about any jurisdiction mismatch or practical consequence of the chosen law>",
-    "<Additional jurisdiction risk, or omit this entry if nothing else is material>"
+    "<Lead with the consequence: e.g. 'The non-compete clause is unenforceable under California law — signing it gives the other party a false threat they cannot actually use in court'>",
+    "<Venue / dispute impact stated as cost or practical burden: e.g. 'Disputes must be resolved in Wilmington, Delaware — any legal action forces out-of-state travel and significantly higher legal fees'>",
+    "<State enforcement reality for the most risky clause type: e.g. 'Texas courts will reform — not void — an overbroad non-compete, meaning a reduced version will still bind you'>",
+    "<Concrete consequence of a jurisdiction mismatch or unfavorable governing law>",
+    "<What the signing party loses or cannot do because of this state's rules — if anything material>"
   ],
   "jurisdictionDeepScan": [
-    "<State-law specific finding with a statute or legal principle cited — e.g. 'California Bus. & Prof. Code §16600 voids non-compete clauses...'>" ,
-    "<Deep finding about enforceability of a key clause under this specific state's law>",
-    "<Deep finding about a state-specific protection, limit, or obligation that applies>",
-    "<Deep finding about how this state's courts treat a specific clause type differently from most states>",
-    "<Comparison note: how this state's approach differs from at least one other named state>"
+    "<Statute + enforcement impact: e.g. 'Cal. Bus. & Prof. Code §16600 voids non-competes except in narrow sale-of-business contexts — this clause falls outside those exceptions and cannot be enforced'>",
+    "<Enforcement test for a key clause: e.g. 'Under Tex. Bus. & Com. Code §15.50, a non-compete must be ancillary to an otherwise enforceable agreement and reasonable in time, geography, and scope — courts will blue-pencil it rather than void it'>",
+    "<State-specific obligation or protection that materially changes the risk: include what happens if violated>",
+    "<How this state treats the key clause type differently from at least one other named state: name both>",
+    "<The single most important enforcement difference that should change how the party negotiates this contract>"
   ],
-  "jurisdictionComparisonNote": "<One sentence: how a key clause in this contract would be treated differently in a contrasting jurisdiction — name both states>"
+  "jurisdictionComparisonNote": "<One sentence naming this state and one contrasting state: e.g. 'The same non-compete clause that is void in California would be partially enforced in Texas after a court reforms it to a reasonable scope.'>"
 }
 
 Rules:
-- Be specific about the state. Use real statute names and section numbers when relevant.
-- Do NOT invent clauses not found in the contract.
-- Each bullet should be 1-2 sentences — clear and direct.
-- Phrase findings as risk signals and enforceability concerns, not legal conclusions.
-- The jurisdictionDeepScan should be more technical than jurisdictionAnalysis — cite statutes, legal tests, or enforcement standards.
-- jurisdictionComparisonNote must name this state AND at least one contrasting state.
-- Total combined bullets: 8-10. Quality over quantity.
+- Never write "This means the contract will be governed by" or "legal principles will apply" — these add zero value.
+- Never restate the clause content — state what happens if it is enforced or challenged.
+- Findings must be concrete: enforcement outcome, cost, exposure, or right forfeited.
+- Cite real statutes with section numbers. Do not invent citations.
+- jurisdictionDeepScan entries are more technical but still outcome-focused — the statute matters only because of what it does.
+- Each bullet: 1-2 tight sentences. No padding.
+- jurisdictionComparisonNote must name this state AND a different state. Make the contrast specific.
+- Total combined bullets: 8–10 max.
 `.trim();
+
+// Jurisdiction context injected into Stage 3 of the demo pipeline so the main
+// issues list reflects state-law enforcement reality, not just clause presence.
+export function buildDemoJurisdictionContext(jurisdiction: string): string {
+  const upper = jurisdiction.toUpperCase();
+  if (upper.includes("CALIFORNIA") || upper === "CA") {
+    return `JURISDICTION ENFORCEMENT CONTEXT — CALIFORNIA:
+- Non-compete clauses are VOID under Cal. Bus. & Prof. Code §16600, except in narrow sale-of-business contexts. Flag any non-compete as CRITICAL — it is unenforceable and represents a false legal threat used to deter the contractor.
+- IP assignment clauses that purport to assign inventions unrelated to the company's work may be unenforceable under Cal. Lab. Code §2870. Flag overreaching IP assignments as HIGH risk.
+- Arbitration outside California for a California-based party imposes travel burden and may face scrutiny under California public policy, particularly for employment-adjacent disputes.
+- Late payment and payment terms unfavorable to the contractor carry additional exposure under California prompt-pay norms.
+- Score this contract's risk in the HIGH range (below 40) — the combination of a void non-compete, overreaching IP, and one-sided termination creates serious legal and financial risk for the signing party.`;
+  }
+  if (upper.includes("TEXAS") || upper === "TX") {
+    return `JURISDICTION ENFORCEMENT CONTEXT — TEXAS:
+- Non-compete clauses are CONDITIONALLY enforceable under Tex. Bus. & Com. Code §15.50. The clause must be (1) ancillary to an otherwise enforceable agreement, (2) supported by consideration, and (3) reasonable in time, geography, and scope. Courts will blue-pencil (reform) an overbroad covenant rather than void it — meaning a restricted version will still bind the signing party.
+- Broad indemnification with no cap creates unlimited personal exposure. Texas courts enforce indemnification clauses strictly unless they violate public policy.
+- Auto-renewal clauses with short notice windows are enforceable in Texas — a missed deadline locks the party into another full term with no refund.
+- Personal guarantees are fully enforceable against individuals — the guarantor faces direct personal liability if the entity defaults.
+- Score this contract's risk in the MODERATE-HIGH range (45–62) — the non-compete creates real but bounded exposure, and the indemnification + personal guarantee stack compounds the financial risk.`;
+  }
+  return `JURISDICTION ENFORCEMENT CONTEXT — ${jurisdiction}:
+Apply the actual enforcement standards of ${jurisdiction} law to each clause. Flag any clause where state law changes enforceability, scope, or the signing party's exposure.`;
+}
 
 // Stage 4 — Jurisdiction Analysis (Shield Deep only)
 // Extracts governing law / forum clauses, compares to user's jurisdiction,
