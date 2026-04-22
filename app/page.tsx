@@ -206,7 +206,7 @@ export default function Page() {
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 px-8 py-4 text-lg font-semibold text-white transition"
               >
                 <span aria-hidden="true">🛡️</span>
-                Create Free Account &amp; Scan Your Contracts
+                Run Your First Contract Scan Free
               </Link>
               <Link
                 href="/pricing"
@@ -219,11 +219,11 @@ export default function Page() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-400">
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400" aria-hidden="true" />
-                30-day free trial — cancel anytime
+                2 free deep contract scans
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400" aria-hidden="true" />
-                50 states + DC jurisdiction analysis
+                Covers all 50 states + Washington DC
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-400" aria-hidden="true" />
@@ -305,12 +305,9 @@ export default function Page() {
                 href="/signup"
                 className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 hover:bg-blue-700 px-8 py-4 text-base font-semibold text-white transition"
               >
-                Create Free Account &amp; Scan Your Own Contracts
+                Run Your First Contract Scan Free
                 <span aria-hidden="true">→</span>
               </Link>
-              <p className="mt-3 text-sm text-slate-500">
-                30-day free trial — cancel anytime
-              </p>
             </div>
           </div>
         </section>
@@ -393,11 +390,8 @@ export default function Page() {
         <section id="pricing" className="bg-white py-20 px-6 text-center">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold text-slate-900 mb-3">Simple Pricing</h2>
-            <p className="text-slate-500 mb-2">
-              30-day free trial — cancel anytime
-            </p>
             <p className="text-sm text-slate-400 mb-10">
-              Subscribe when you&rsquo;re ready. Cancel anytime.
+              Subscribe when you&rsquo;re ready.
             </p>
 
             <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch text-left">
@@ -429,7 +423,7 @@ export default function Page() {
                   href="/signup"
                   className="block w-full text-center rounded-xl border border-blue-600 text-blue-600 px-6 py-3 font-semibold hover:bg-blue-50 transition"
                 >
-                  Start Free Trial
+                  Get Started
                 </Link>
               </div>
 
@@ -449,7 +443,7 @@ export default function Page() {
                   </p>
                   <p className="text-blue-600 text-xs leading-relaxed">
                     50-state jurisdiction analysis + F.S. §559.9613 FL checks.
-                    Free &amp; Starter users get 2 trial Deep Scans.
+                    Starter users get 2 free Deep Scans.
                   </p>
                 </div>
 
@@ -479,7 +473,7 @@ export default function Page() {
                   href="/signup"
                   className="block w-full text-center rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-semibold transition"
                 >
-                  Start Free Trial
+                  Get Started
                 </Link>
               </div>
             </div>

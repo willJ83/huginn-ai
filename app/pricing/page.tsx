@@ -44,7 +44,7 @@ function PricingContent() {
           Start with 3 free analyses — no credit card required.
         </p>
         <p className="mt-1 text-center text-sm text-slate-500">
-          Subscribe when you&apos;re ready. Cancel anytime.
+          Subscribe when you&apos;re ready.
         </p>
 
         {canceled && (

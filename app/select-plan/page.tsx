@@ -44,9 +44,6 @@ export default function SelectPlanPage() {
           <p className="mt-3 text-slate-600">
             You&apos;ve used your free analyses. Subscribe to keep going.
           </p>
-          <p className="mt-1 text-sm text-slate-500">
-            Cancel anytime.
-          </p>
         </div>
 
         {error && (
@@ -136,7 +133,7 @@ export default function SelectPlanPage() {
         </div>
 
         <p className="mt-8 text-center text-xs text-slate-400">
-          Secure checkout powered by Stripe. Cancel anytime.
+          Secure checkout powered by Stripe.
         </p>
       </div>
     </main>
