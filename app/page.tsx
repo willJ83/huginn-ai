@@ -219,7 +219,7 @@ export default function Page() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-400">
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400" aria-hidden="true" />
-                30-day free trial — no credit card required
+                30-day free trial — cancel anytime
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400" aria-hidden="true" />
@@ -309,7 +309,7 @@ export default function Page() {
                 <span aria-hidden="true">→</span>
               </Link>
               <p className="mt-3 text-sm text-slate-500">
-                30-day free trial. No credit card required.
+                30-day free trial — cancel anytime
               </p>
             </div>
           </div>
@@ -394,7 +394,7 @@ export default function Page() {
           <div className="mx-auto max-w-3xl">
             <h2 className="text-2xl font-bold text-slate-900 mb-3">Simple Pricing</h2>
             <p className="text-slate-500 mb-2">
-              Start with a 30-day free trial — no credit card required.
+              30-day free trial — cancel anytime
             </p>
             <p className="text-sm text-slate-400 mb-10">
               Subscribe when you&rsquo;re ready. Cancel anytime.
