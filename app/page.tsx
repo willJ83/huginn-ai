@@ -187,21 +187,26 @@ export default function Page() {
             </div>
 
             <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight">
-              Know What You&rsquo;re Signing<br className="hidden sm:block" /> Before You Sign It
+              Huginn Shield — Protect Your Business<br className="hidden sm:block" /> Before You Sign
             </h1>
 
+            <p className="mt-4 text-2xl font-semibold text-blue-300">
+              Stop Guessing. Start Knowing.
+            </p>
+
             <p className="mt-5 text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Point your phone camera at any contract — get a full risk report in seconds.
-              Jurisdiction analysis across all 50 states, built for Florida small businesses.
+              Secure Gemini 2.5 Flash AI with full nationwide jurisdiction analysis (all 50 states + Washington DC).
+              Instantly analyzes any contract for hidden risks, unfavorable clauses, and state-specific legal pitfalls —
+              so you know exactly what you&rsquo;re signing.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
-                href={shieldHref}
+                href="/signup"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 px-8 py-4 text-lg font-semibold text-white transition"
               >
                 <span aria-hidden="true">🛡️</span>
-                Try Shield Free
+                Create Free Account &amp; Scan Your Contracts
               </Link>
               <Link
                 href="/pricing"
@@ -214,11 +219,11 @@ export default function Page() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-400">
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400" aria-hidden="true" />
-                2 free Deep Scans on every new account
+                30-day free trial — no credit card required
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400" aria-hidden="true" />
-                50-state jurisdiction analysis
+                50 states + DC jurisdiction analysis
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-400" aria-hidden="true" />
@@ -231,14 +236,46 @@ export default function Page() {
         {/* ── Demo Section (above the fold on wide screens, first content below hero) ── */}
         <WelcomeDemoSection />
 
-        {/* ── Trust bar ───────────────────────────────────────────────────── */}
-        <section className="border-y border-slate-200 bg-white py-4 px-6">
-          <ul className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-slate-500">
-            <li>🔒 Contract text is never stored — only your results are saved</li>
-            <li>⚡ Results in under 30 seconds</li>
-            <li>📱 Installable mobile app (PWA)</li>
-            <li>🏢 Built in Melbourne, FL · Odens Eye Creative LLC</li>
-          </ul>
+        {/* ── Trust / Features bar ────────────────────────────────────────── */}
+        <section className="border-y border-slate-200 bg-white py-10 px-6">
+          <div className="mx-auto max-w-5xl">
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+              <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-800">
+                <span aria-hidden="true">🎖️</span>
+                Veteran-Owned &amp; Operated
+              </span>
+            </div>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-sm text-slate-700">
+              <li className="flex items-start gap-3">
+                <span className="text-xl shrink-0" aria-hidden="true">📄</span>
+                <div>
+                  <p className="font-semibold text-slate-900">Any Document Format</p>
+                  <p className="text-slate-500 mt-0.5">Instantly scans PDF, Word, or plain text</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-xl shrink-0" aria-hidden="true">🗺️</span>
+                <div>
+                  <p className="font-semibold text-slate-900">Full Nationwide Coverage</p>
+                  <p className="text-slate-500 mt-0.5">50 states + DC jurisdiction analysis</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-xl shrink-0" aria-hidden="true">🔒</span>
+                <div>
+                  <p className="font-semibold text-slate-900">Privacy-First</p>
+                  <p className="text-slate-500 mt-0.5">Never stores your docs, never trains AI on your data</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-xl shrink-0" aria-hidden="true">⚡</span>
+                <div>
+                  <p className="font-semibold text-slate-900">Lightning-Fast Insights</p>
+                  <p className="text-slate-500 mt-0.5">Plain-English analysis in under 30 seconds</p>
+                </div>
+              </li>
+            </ul>
+          </div>
         </section>
 
         {/* ── What Shield catches ─────────────────────────────────────────── */}
@@ -265,14 +302,14 @@ export default function Page() {
 
             <div className="mt-10 text-center">
               <Link
-                href={shieldHref}
+                href="/signup"
                 className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 hover:bg-blue-700 px-8 py-4 text-base font-semibold text-white transition"
               >
-                Scan Your Own Contract Free
+                Create Free Account &amp; Scan Your Own Contracts
                 <span aria-hidden="true">→</span>
               </Link>
               <p className="mt-3 text-sm text-slate-500">
-                No credit card required. 2 free Deep Scans included.
+                30-day free trial. No credit card required.
               </p>
             </div>
           </div>

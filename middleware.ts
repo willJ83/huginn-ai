@@ -55,13 +55,14 @@ export default withAuth(
 export const config = {
   matcher: [
     /*
-     * Match all request paths EXCEPT:
-     *  - _next/static  (static assets)
-     *  - _next/image   (image optimisation)
-     *  - favicon.ico
-     *  - public files (manifest, icons, sw.js)
-     * This ensures security headers reach pages AND API routes.
+     * Only protect authenticated app routes. Public routes (/, /demo, /pricing,
+     * /login, /signup, /terms, /privacy, /contact, /api/demo-analyze, etc.)
+     * are intentionally excluded so unauthenticated visitors see the landing page.
      */
-    "/((?!_next/static|_next/image|favicon\\.ico|manifest\\.json|icon|sw\\.js).*)",
+    "/dashboard/:path*",
+    "/shield/:path*",
+    "/settings/:path*",
+    "/analysis/:path*",
+    "/select-plan/:path*",
   ],
 };

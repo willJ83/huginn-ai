@@ -155,14 +155,13 @@ export default function WelcomeDemoSection() {
       <section className="bg-white border-b border-slate-200 py-14 px-6">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-2">
-            Live Demo — No Login Required
+            No Account Needed
           </p>
           <h2 className="text-3xl font-bold text-slate-900 mb-3">
-            See Contract Risk in Seconds
+            See Huginn Shield in Action — No Account Needed
           </h2>
           <p className="text-slate-500 text-base max-w-xl mx-auto mb-8">
-            Upload a contract or run a sample — Huginn flags risk, missing protections, deadlines,
-            and jurisdiction-specific issues.
+            Click a demo below and get a live AI risk analysis in seconds — the same output you get when you upload your own contract.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -183,7 +182,7 @@ export default function WelcomeDemoSection() {
                   Analyzing...
                 </>
               ) : (
-                <>Run Demo 1 — California</>
+                <>Demo 1 — Vendor / Service Agreement</>
               )}
             </button>
 
@@ -204,7 +203,7 @@ export default function WelcomeDemoSection() {
                   Analyzing...
                 </>
               ) : (
-                <>Run Demo 2 — Texas</>
+                <>Demo 2 — NDA / Lease Agreement</>
               )}
             </button>
 
@@ -219,7 +218,10 @@ export default function WelcomeDemoSection() {
           </div>
 
           <p className="mt-5 text-xs text-slate-400">
-            Demo 1 uses a California contract · Demo 2 uses a Texas contract · Compare them to see how jurisdiction changes the analysis
+            Demo 1: California vendor contract · Demo 2: Texas NDA/lease · No account required — results display instantly
+          </p>
+          <p className="mt-2 text-xs text-slate-400 italic">
+            Huginn AI is not a substitute for legal advice.
           </p>
         </div>
       </section>
@@ -453,8 +455,8 @@ export default function WelcomeDemoSection() {
                 <div>
                   <h3 className="text-lg font-bold text-white mb-1">
                     {result.demoId === "demo1"
-                      ? "Compare with Demo 2 — Texas"
-                      : "Compare with Demo 1 — California"}
+                      ? "Compare with Demo 2 — NDA / Lease Agreement"
+                      : "Compare with Demo 1 — Vendor / Service Agreement"}
                   </h3>
                   <p className="text-sm text-slate-400">
                     Run the other demo to see how jurisdiction changes the analysis of the same types of clauses.
@@ -467,7 +469,7 @@ export default function WelcomeDemoSection() {
                     disabled={isLoading}
                     className="inline-flex items-center gap-2 rounded-xl bg-white hover:bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-900 transition disabled:opacity-50"
                   >
-                    {result.demoId === "demo1" ? "Run Demo 2 — Texas" : "Run Demo 1 — California"}
+                    {result.demoId === "demo1" ? "Demo 2 — NDA / Lease Agreement" : "Demo 1 — Vendor / Service Agreement"}
                   </button>
                   <Link
                     href={uploadHref}
